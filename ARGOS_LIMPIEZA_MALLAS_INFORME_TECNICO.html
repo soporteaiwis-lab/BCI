@@ -1,0 +1,925 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ArgOS · Limpieza de Mallas — Informe técnico</title>
+<style>
+:root{
+  --bg:#f6f5f1; --panel:#ffffff; --panel2:#f0eee8; --ink:#1d1f24; --muted:#5d636e; --line:#dcd8cf;
+  --acc:#b5651d; --acc-soft:#f6e7d6; --ok:#1f7a55; --ok-soft:#dcf1e6; --warn:#9a6a00; --warn-soft:#fbefcc;
+  --bad:#a8322d; --bad-soft:#f8dedb; --info:#2b5c9e; --info-soft:#dde8f7;
+  --mono:"Cascadia Mono","Consolas","SFMono-Regular",monospace;
+  --sans:"Segoe UI","Inter",system-ui,-apple-system,sans-serif;
+  --serif:"Georgia","Cambria",serif;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --bg:#14161a; --panel:#1c1f25; --panel2:#23272e; --ink:#e8e6e1; --muted:#9aa1ad; --line:#333842;
+  --acc:#e0a86a; --acc-soft:#3a2c1d; --ok:#5cc79a; --ok-soft:#1b3328; --warn:#e2b84f; --warn-soft:#3a3016;
+  --bad:#ef8a83; --bad-soft:#3d2120; --info:#86aee8; --info-soft:#1d2a3d; }}
+:root[data-theme="dark"]{
+  --bg:#14161a; --panel:#1c1f25; --panel2:#23272e; --ink:#e8e6e1; --muted:#9aa1ad; --line:#333842;
+  --acc:#e0a86a; --acc-soft:#3a2c1d; --ok:#5cc79a; --ok-soft:#1b3328; --warn:#e2b84f; --warn-soft:#3a3016;
+  --bad:#ef8a83; --bad-soft:#3d2120; --info:#86aee8; --info-soft:#1d2a3d; }
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 var(--sans)}
+a{color:var(--acc)}
+code,.mono{font-family:var(--mono);font-size:.86em}
+code{background:var(--panel2);padding:1px 5px;border-radius:4px}
+.layout{display:grid;grid-template-columns:250px 1fr;max-width:1320px;margin:0 auto}
+nav.toc{position:sticky;top:0;height:100vh;overflow:auto;padding:28px 18px;border-right:1px solid var(--line)}
+nav.toc .brand{font-family:var(--serif);font-size:1.15rem;font-weight:700;margin-bottom:4px}
+nav.toc .brand small{display:block;font:12px var(--sans);color:var(--muted);font-weight:400}
+nav.toc ol{list-style:none;padding:0;margin:18px 0 0;counter-reset:s}
+nav.toc li{counter-increment:s;margin:2px 0}
+nav.toc a{display:block;padding:5px 8px;border-radius:6px;color:var(--ink);text-decoration:none;font-size:13.5px}
+nav.toc a::before{content:counter(s) ". ";color:var(--muted)}
+nav.toc a:hover,nav.toc a.on{background:var(--acc-soft);color:var(--acc)}
+nav.toc .theme{margin-top:18px;font-size:12px}
+nav.toc button{font:12px var(--sans);background:var(--panel);border:1px solid var(--line);color:var(--ink);border-radius:6px;padding:4px 10px;cursor:pointer}
+main{padding:36px 44px 120px;min-width:0}
+header.hero h1{font-family:var(--serif);font-size:2.2rem;line-height:1.15;margin:0 0 10px;letter-spacing:-.01em}
+header.hero p.lead{font-size:1.07rem;color:var(--muted);max-width:820px;margin:0 0 18px}
+.meta{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+section{margin-top:56px;scroll-margin-top:20px}
+h2{font-family:var(--serif);font-size:1.55rem;margin:0 0 6px;letter-spacing:-.005em}
+h2 + .sub{color:var(--muted);margin:0 0 20px;max-width:860px}
+h3{font-size:1.02rem;margin:26px 0 8px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:24px 0 6px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.kpi b{display:block;font:700 1.6rem/1.1 var(--mono)}
+.kpi span{font-size:12px;color:var(--muted)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:14px 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:1000px){.layout{grid-template-columns:1fr}nav.toc{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}.grid2,.grid3{grid-template-columns:1fr}main{padding:24px 16px 80px}}
+.callout{border:1px solid var(--line);background:var(--panel2);border-radius:10px;padding:14px 18px;margin:14px 0}
+.callout.acc{background:var(--acc-soft);border-color:transparent}
+.callout.ok{background:var(--ok-soft);border-color:transparent}
+.callout.warn{background:var(--warn-soft);border-color:transparent}
+figure{margin:18px 0;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;overflow-x:auto}
+figcaption{font-size:12.5px;color:var(--muted);margin-top:8px}
+svg text{font-family:var(--sans)}
+svg g[font-size="11"] text{paint-order:stroke;stroke:var(--panel);stroke-width:4px;stroke-linejoin:round}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font:600 11px var(--sans);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line);background:var(--panel2)}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+.tbl{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:12px 0}
+.st{display:inline-block;font:700 11px var(--sans);padding:2px 9px;border-radius:10px;white-space:nowrap}
+.st.ok{background:var(--ok-soft);color:var(--ok)} .st.par{background:var(--warn-soft);color:var(--warn)} .st.pen{background:var(--bad-soft);color:var(--bad)}
+.steps{counter-reset:p;margin:10px 0 0;padding:0;list-style:none}
+.steps > li{counter-increment:p;position:relative;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 20px 16px 66px;margin:12px 0}
+.steps > li::before{content:counter(p);position:absolute;left:18px;top:16px;width:32px;height:32px;border-radius:50%;background:var(--acc);color:var(--panel);font:700 15px/32px var(--mono);text-align:center}
+.steps h4{margin:0 0 4px;font-size:1rem}
+.steps .where{display:grid;grid-template-columns:110px 1fr;gap:3px 12px;font-size:13px;margin-top:8px}
+.steps .where dt{color:var(--muted)} .steps .where dd{margin:0}
+details.inv{background:var(--panel);border:1px solid var(--line);border-radius:10px;margin:10px 0}
+details.inv summary{cursor:pointer;padding:12px 16px;font-weight:600;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+details.inv summary span{font-weight:400;color:var(--muted);font-size:13px}
+details.inv table{border-top:1px solid var(--line)}
+details.inv td:first-child{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+.search{width:100%;padding:10px 14px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:14px var(--sans);margin:8px 0}
+.pill{font:600 10.5px var(--mono);padding:1px 7px;border-radius:8px;background:var(--panel2);color:var(--muted)}
+.dict{font-family:var(--mono);font-size:12.5px;background:var(--panel2);border-radius:8px;padding:12px 14px;white-space:pre-wrap;line-height:1.55}
+.glosa{font-size:13px;color:var(--muted);margin:8px 0 0}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc" aria-label="Contenido">
+  <div class="brand">ArgOS · Limpieza de Mallas<small>Informe técnico, arquitectura y diseño · v2 · 24-09-2026</small></div>
+  <ol>
+    <li><a href="#resumen">Qué se hizo</a></li>
+    <li><a href="#glosario">Glosario en simple</a></li>
+    <li><a href="#rag">¿Qué es un dictamen RAG?</a></li>
+    <li><a href="#operaciones">Lo que pidió Operaciones BCI</a></li>
+    <li><a href="#contexto">Diagrama de contexto</a></li>
+    <li><a href="#arquitectura">Arquitectura</a></li>
+    <li><a href="#pipeline">Pipeline paso a paso</a></li>
+    <li><a href="#cobertura">¿Está cubierto lo que pedí?</a></li>
+    <li><a href="#diseno">Documento de diseño</a></li>
+    <li><a href="#inventario">Inventario técnico</a></li>
+    <li><a href="#api">API REST</a></li>
+    <li><a href="#config">Dónde va cada clave</a></li>
+    <li><a href="#siguiente">Siguiente nivel (banca)</a></li>
+    <li><a href="#verificacion">Verificación y límites</a></li>
+  </ol>
+  <div class="theme"><button onclick="toggleTheme()">◐ Cambiar tema</button></div>
+</nav>
+
+<main>
+<header class="hero">
+  <h1>Limpieza de Mallas Control-M:<br>de la maqueta al código real</h1>
+  <p class="lead">ArgOS ahora detecta la basura de Control-M con reglas y evidencia, se la presenta al dueño de cada aplicación para que decida, y recién con su aprobación la pone en cuarentena, la respalda y la elimina con orden de cambio. El mismo código corre contra la demo y contra el Control-M del banco: lo único que cambia es de dónde vienen los datos.</p>
+  <div class="meta"><span>Repositorio: <code>C:\AIWIS\ARGOS</code></span><span>Código: <code>src/backend/limpieza/</code></span><span>Vista: <code>src/frontend/limpieza.html</code></span><span>Estado: funcionando, sin commitear</span></div>
+</header>
+
+<!-- 1 -->
+<section id="resumen">
+  <h2>1. Qué se hizo</h2>
+  <p class="sub">Dos entregas: una base de conocimiento sobre cómo se detecta y limpia la basura en Control-M, y un módulo que ejecuta ese conocimiento de punta a punta.</p>
+  <div class="kpis">
+    <div class="kpi"><b>54</b><span>reglas de basura documentadas</span></div>
+    <div class="kpi"><b>28</b><span>reglas ejecutables en el motor</span></div>
+    <div class="kpi"><b>261/261</b><span>aciertos contra la verdad de terreno (datos sintéticos)</span></div>
+    <div class="kpi"><b>0</b><span>falsos positivos</span></div>
+    <div class="kpi"><b>35</b><span>endpoints REST</span></div>
+    <div class="kpi"><b>13/13</b><span>tests pasando</span></div>
+    <div class="kpi"><b>509</b><span>fragmentos indexados para el RAG</span></div>
+    <div class="kpi"><b>0</b><span>dependencias nuevas (solo librería estándar)</span></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><h3 style="margin-top:0">Antes</h3>
+      <p><code>db_motor.py</code> generaba filas al azar y "limpiaba" marcando una fila en un JSON. Un job era "basura" si llevaba más de 3 días sin correr, así que cualquier job mensual caía. No había dueños, ni respaldo, ni conexión real.</p></div>
+    <div class="card"><h3 style="margin-top:0">Ahora</h3>
+      <p>Un motor que lee Control-M (simulado o real) y carpetas, arma un catálogo universal, aplica reglas con evidencia, predice riesgo, explica cada caso y exige la validación del dueño antes de tocar nada. El simulador ya no tiene lógica propia: solo entrega datos con el formato exacto de la API real.</p></div>
+  </div>
+  <h3>Archivos entregados</h3>
+  <div class="tbl"><table>
+    <tr><th>Archivo</th><th>Para qué</th></tr>
+    <tr><td><code>docs/CONTROLM_LIMPIEZA_BASURA_REGLAS_RAG.md</code></td><td>Base de conocimiento: 54 reglas, consenso, comandos API/CLI, queries SQL, reprogramación, RAG, hoja de ruta.</td></tr>
+    <tr><td><code>docs/decisiones/004-modulo-limpieza-real.md</code></td><td>Decisión de arquitectura y dónde van claves, usuarios, permisos y datos.</td></tr>
+    <tr><td><code>docs/referencia_controlm_api/controlm_swagger_9.22.125.json</code></td><td>Swagger oficial de BMC (300 endpoints). Es la fuente de verdad de la API.</td></tr>
+    <tr><td><code>src/backend/limpieza/</code> (16 archivos)</td><td>El módulo: fuentes, normalizador, catálogo, reglas, <b>impacto</b>, <b>patrones y KPIs</b>, ML, RAG, flujo, notificaciones, motor, programador.</td></tr>
+    <tr><td><code>src/backend/limpieza_api.py</code></td><td>API REST <code>/api/limpieza</code>.</td></tr>
+    <tr><td><code>src/frontend/limpieza.html</code></td><td>Vista operativa: casos, evidencia, dictamen, decisiones, acciones, alertas, RAG, configuración.</td></tr>
+    <tr><td><code>data/reglas_limpieza/reglas.json</code></td><td>Reglas, pesos y umbrales versionados (los lee el motor y los indexa el RAG).</td></tr>
+    <tr><td><code>data/simulado/controlm_carga/</code></td><td>Carga sintética precargada en formato de la API real, con su verdad de terreno.</td></tr>
+    <tr><td><code>scripts/generar_carga_controlm_sintetica.py</code></td><td>Regenera la carga sintética.</td></tr>
+    <tr><td><code>scripts/controlm_api_laboratorio.py</code></td><td>Servidor HTTP que imita la Automation API para probar el adaptador real sin el banco.</td></tr>
+    <tr><td><code>tests/test_limpieza.py</code></td><td>13 tests: detección, protecciones, consenso, candados, adaptador real por HTTP, impacto, patrones, KPIs y comparación del piloto.</td></tr>
+  </table></div>
+</section>
+
+
+<!-- glosario -->
+<section id="glosario">
+  <h2>2. Glosario en simple</h2>
+  <p class="sub">Los términos que aparecen en este informe y en la pantalla: qué son y para qué sirven.</p>
+  <div class="tbl"><table>
+    <tr><th style="width:20%">Término</th><th style="width:42%">Qué es</th><th>Para qué sirve aquí</th></tr>
+    <tr><td><b>Malla</b></td><td>El conjunto de jobs encadenados que forman un proceso batch (p. ej. el cierre diario de tarjetas). En Control-M se agrupa en <i>folders</i>.</td><td>Es la unidad que se limpia, se analiza y se reprograma.</td></tr>
+    <tr><td><b>Job</b></td><td>Una tarea programada: un JCL en mainframe, un script en un servidor, un proceso de base de datos.</td><td>Es el objeto que se evalúa uno por uno.</td></tr>
+    <tr><td><b>Folder / SMART folder</b></td><td>La carpeta de Control-M que agrupa los jobs de una malla.</td><td>Si queda vacía o todos sus jobs son basura, se puede retirar completa.</td></tr>
+    <tr><td><b>Dummy</b></td><td>Un job que no ejecuta nada, pero entrega condiciones para que la malla siga, o dispara una acción (p. ej. un correo).</td><td>No es basura por sí solo: puede ser un enganche entre mallas, un aviso, contingencia o reserva de negocio.</td></tr>
+    <tr><td><b>Condición (in / out)</b></td><td>La 'señal' que un job deja al terminar (out) y que otro espera para arrancar (in).</td><td>Es lo que une la malla. Si se borra quien la produce, quien la espera queda bloqueado para siempre.</td></tr>
+    <tr><td><b>AJF (Active Jobs File)</b></td><td>La lista de jobs cargados para el día y su estado (ejecutando, esperando, OK, cancelado, Hold).</td><td>De ahí salen los patrones: cancelaciones, Hold, confirmaciones.</td></tr>
+    <tr><td><b>Hold / Forzar OK / Confirmar</b></td><td>Acciones manuales del operador: detener un job, marcarlo OK sin que lo sea, o darle el visto bueno para que arranque.</td><td>Si se repiten, indican un proceso con problemas o que ya no sirve.</td></tr>
+    <tr><td><b>Forecast</b></td><td>La proyección de qué días va a correr un job según su calendario.</td><td>Si en 24 meses no tiene ningún día, nunca volverá a correr solo.</td></tr>
+    <tr><td><b>Automation API</b></td><td>La interfaz oficial de Control-M para consultar y modificar por programa (en la reunión se habló de 'comandos cURL').</td><td>Es la forma real, sin pantallas, de leer la malla y de actuar con autorización.</td></tr>
+    <tr><td><b>Índice de Basura (0-100)</b></td><td>Puntaje que suma el peso de las reglas que se cumplen, ajustado por cuánta historia hay.</td><td>Ordena qué revisar primero. Con 60 o más, el objeto pasa a ser candidato a limpieza.</td></tr>
+    <tr><td><b>Regla R-XXX-NN</b></td><td>Un criterio concreto y verificable, p. ej. R-DEF-04 'vigencia vencida'.</td><td>Cada hallazgo cita su regla, así cualquiera puede auditar por qué se propuso.</td></tr>
+    <tr><td><b>Protección</b></td><td>Marca que impide proponer un objeto: contingencia, regulatorio, anual, destino de FORCEJOB, job nuevo o decisión del dueño.</td><td>Evita el error más caro: borrar algo que parece muerto pero no lo está.</td></tr>
+    <tr><td><b>Análisis de impacto</b></td><td>Simulación de qué jobs quedarían esperando para siempre si se retira algo (directos y en cascada, y si cruza de malla o de plataforma).</td><td>Es lo que pidió Operaciones: la foto de la malla antes y después de tocarla.</td></tr>
+    <tr><td><b>Patrón operacional</b></td><td>Comportamiento repetido en la operación: cancela seguido, se fuerza, se confirma a mano, recibe Hold, genera alertas inútiles.</td><td>Apunta a mejorar la operación, no solo a borrar.</td></tr>
+    <tr><td><b>Línea base / KPI</b></td><td>La foto de los indicadores el día uno (tasa de cancelación, obsoletos), contra la que se mide el avance.</td><td>Permite demostrar el −10 % y el −20 % comprometidos con gerencia.</td></tr>
+    <tr><td><b>Cuarentena</b></td><td>Sacar un job del calendario sin borrarlo, por un plazo (30 días por defecto).</td><td>Si alguien lo echa de menos, se devuelve sin daño.</td></tr>
+    <tr><td><b>OC (orden de cambio)</b></td><td>La autorización formal de Control de Cambios del banco.</td><td>Ninguna modificación en Control-M se hace sin OC.</td></tr>
+    <tr><td><b>Dictamen RAG</b></td><td>La explicación escrita de un caso, apoyada en evidencia y en textos recuperados de la base de conocimiento.</td><td>Para que el dueño confirme en vez de investigar.</td></tr>
+    <tr><td><b>Modelo predictivo (ML)</b></td><td>Un modelo estadístico que aprende de las decisiones de los dueños para estimar la probabilidad de que un job sea basura.</td><td>Ordena la cola y avisa de jobs que van empeorando. No decide nada.</td></tr>
+    <tr><td><b>Modo simulado / real</b></td><td>El mismo código trabajando sobre datos sintéticos (demo) o sobre el Control-M del banco. Se cambia con una sola variable.</td><td>La demo nunca se pierde y lo real no requiere reescribir nada.</td></tr>
+  </table></div>
+</section>
+
+<!-- 2 -->
+<section id="rag">
+  <h2>3. ¿Qué es un "dictamen RAG"?</h2>
+  <p class="sub">Es la explicación escrita que ArgOS entrega por cada sospechoso, fundamentada en evidencia y en la base de conocimiento. Sirve para que el dueño <b>confirme en vez de investigar</b>: recibe la evidencia ya reunida y resumida, en lugar de tener que buscarla en Control-M. El tiempo real que ahorra se medirá en el piloto: ArgOS registra cuándo se notifica cada caso y cuándo responde el dueño.</p>
+  <div class="grid2">
+    <div class="card">
+      <h3 style="margin-top:0">Las dos palabras</h3>
+      <p><b>Dictamen</b>: una opinión técnica escrita, como la de un perito. Dice qué es el objeto, por qué parece basura, qué se rompería si se borra, cuál es el riesgo y qué se recomienda.</p>
+      <p><b>RAG</b> (<i>Retrieval-Augmented Generation</i>, "generación aumentada con recuperación"): antes de redactar, el sistema <b>busca</b> en su propia biblioteca los textos relevantes y los usa como contexto. Así la IA no responde "de memoria" o inventando, sino apoyada en documentos verificables.</p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Qué hay en la biblioteca (509 fragmentos)</h3>
+      <ul style="margin:0;padding-left:18px">
+        <li><b>118</b> del documento de conocimiento: cada sección y cada regla <code>R-XXX-NN</code>.</li>
+        <li><b>28</b> de <code>reglas.json</code>: la versión ejecutable de cada regla.</li>
+        <li><b>363</b> operaciones del Swagger oficial de Control-M, para no inventar endpoints.</li>
+        <li><b>Decisiones de dueños</b> (crece con el uso): "TDCOA01 es anual, no tocar". Es la memoria de excepciones propias del banco.</li>
+      </ul>
+    </div>
+  </div>
+  <figure>
+    <svg viewBox="0 0 1100 250" width="100%" role="img" aria-label="Flujo del dictamen RAG">
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="currentColor"/></marker></defs>
+      <g style="color:var(--muted)" stroke="currentColor" fill="none" stroke-width="1.5">
+        <path d="M200 90 H258" marker-end="url(#ar)"/><path d="M460 90 H518" marker-end="url(#ar)"/>
+        <path d="M720 90 H778" marker-end="url(#ar)"/>
+      </g>
+      <g font-size="13">
+        <rect x="10" y="40" width="190" height="100" rx="10" fill="var(--panel2)" stroke="var(--line)"/>
+        <text x="105" y="70" text-anchor="middle" font-weight="700" fill="var(--ink)">1 · Hallazgos</text>
+        <text x="105" y="92" text-anchor="middle" fill="var(--muted)" font-size="12">reglas deterministas</text>
+        <text x="105" y="110" text-anchor="middle" fill="var(--muted)" font-size="12">R-DEF-04 to_date=2019</text>
+        <text x="105" y="126" text-anchor="middle" fill="var(--muted)" font-size="12">R-DEF-02 sin corridas</text>
+        <rect x="260" y="40" width="200" height="100" rx="10" fill="var(--info-soft)" stroke="var(--line)"/>
+        <text x="360" y="70" text-anchor="middle" font-weight="700" fill="var(--ink)">2 · Recuperar (R)</text>
+        <text x="360" y="92" text-anchor="middle" fill="var(--muted)" font-size="12">búsqueda BM25 en</text>
+        <text x="360" y="110" text-anchor="middle" fill="var(--muted)" font-size="12">documento · reglas ·</text>
+        <text x="360" y="126" text-anchor="middle" fill="var(--muted)" font-size="12">Swagger · decisiones</text>
+        <rect x="520" y="40" width="200" height="100" rx="10" fill="var(--acc-soft)" stroke="var(--line)"/>
+        <text x="620" y="70" text-anchor="middle" font-weight="700" fill="var(--ink)">3 · Aumentar (A)</text>
+        <text x="620" y="92" text-anchor="middle" fill="var(--muted)" font-size="12">prompt = caso + evidencia</text>
+        <text x="620" y="110" text-anchor="middle" fill="var(--muted)" font-size="12">+ textos recuperados</text>
+        <text x="620" y="126" text-anchor="middle" fill="var(--muted)" font-size="12">+ reglas de redacción</text>
+        <rect x="780" y="40" width="310" height="100" rx="10" fill="var(--ok-soft)" stroke="var(--line)"/>
+        <text x="935" y="70" text-anchor="middle" font-weight="700" fill="var(--ink)">4 · Generar (G) → dictamen</text>
+        <text x="935" y="92" text-anchor="middle" fill="var(--muted)" font-size="12">LLM (Claude/Gemini) si hay clave en .env</text>
+        <text x="935" y="110" text-anchor="middle" fill="var(--muted)" font-size="12">si no: plantilla determinista</text>
+        <text x="935" y="126" text-anchor="middle" fill="var(--muted)" font-size="12">se guarda en el caso</text>
+        <text x="750" y="210" text-anchor="middle" fill="var(--bad)" font-size="12.5" font-weight="700">Candado: el dictamen explica, pero NO cambia el puntaje ni el estado y NO aprueba nada</text>
+      </g>
+    </svg>
+    <figcaption>Código: <code>rag.buscar()</code> recupera, <code>rag.dictamen()</code> arma el prompt y llama al LLM o a <code>_dictamen_plantilla()</code>; <code>flujo.generar_dictamen()</code> lo guarda y lo deja en la bitácora.</figcaption>
+  </figure>
+  <h3>Por qué ahorra trabajo al dueño</h3>
+  <div class="grid2">
+    <div class="card"><b>Sin dictamen, el dueño tiene que averiguar:</b>
+      <ol style="margin:6px 0 0;padding-left:18px">
+        <li>Qué es el job (buscar su definición en Control-M).</li>
+        <li>Cuándo corrió por última vez (historial).</li>
+        <li>Si volverá a correr (calendario, vigencia).</li>
+        <li>Quién depende de él (condiciones).</li>
+        <li>Si es especial (anual, contingencia, regulatorio).</li>
+        <li>Qué riesgo hay si se borra.</li>
+      </ol>
+      <p class="glosa">Por eso hoy la validación "es un tema lento" (reunión 14-09).</p></div>
+    <div class="card"><b>Con dictamen, esas 6 respuestas ya vienen reunidas.</b>
+      <p>El dueño solo contrasta lo que lee con lo que sabe de su negocio ("sí, ese proceso lo dimos de baja") y decide. Pasa de <b>investigar</b> a <b>confirmar</b>.</p>
+      <p class="glosa">Qué no está demostrado: cuánto tiempo ahorra en la práctica. Depende del dueño y de cada caso; los casos con evidencia mixta siguen necesitando análisis. Se medirá en el piloto.</p></div>
+  </div>
+  <h3>Un dictamen real generado por el sistema (modo sin LLM)</h3>
+  <div class="dict">CTMPROD/PYME_DIARIO/PYMD0121 (job, aplicación PYME) tiene Índice de Basura 80/100 con 3 hallazgo(s):
+• R-DEF-04 (peso 35, fuente definiciones): to_date=2025-10-25
+• R-DEF-03 (peso 30, fuente forecast): schedule_never=False, vencido=True, calendarios_faltantes=[], horizonte=±24 meses
+• R-DEF-01 (peso 15, fuente historia): dias_sin_ejecutar=335, ultima=2025-10-24, umbral=90, frecuencia=diario_semanal
+Riesgo de eliminar: bajo. Acción sugerida: eliminar. Requiere validación del dueño antes de cualquier cambio.</div>
+  <div class="callout warn"><b>Aclaración honesta sobre el RAG.</b> La recuperación es <b>léxica (BM25)</b>, no vectorial con embeddings: con este corpus (códigos de regla, nombres de endpoints, términos técnicos exactos) la coincidencia por palabras es precisa y no requiere dependencias ni enviar datos afuera. Si el corpus crece con manuales en lenguaje libre, se reemplaza <code>rag.buscar()</code> por embeddings sin tocar el resto. La redacción con LLM es <b>opcional</b>: sin <code>LLM_API_KEY</code> el dictamen sale igual, con plantilla.</div>
+</section>
+
+
+<!-- operaciones -->
+<section id="operaciones">
+  <h2>4. Lo que pidió Operaciones BCI</h2>
+  <p class="sub">Revisión punto por punto contra el análisis de la reunión "[ControlM] Robustecer Proceso Batch" del 14-09-2026 (<code>docs/ANALISIS MEET BCI-AIWIS PROYECTO ARGOS/</code>). La voz principal fue Juan Carlos Maluenda, jefatura de Operaciones.</p>
+  <div class="callout acc"><b>La objeción de fondo:</b> "nosotros lo podemos sacar hoy día en una hora… no veo cuál es el apoyo real". Tiene razón en que listar jobs sin ejecución es fácil. <b>El músculo que no tiene su equipo</b>, y que ArgOS ahora entrega, está en:
+    <ol style="margin:8px 0 0;padding-left:20px">
+      <li><b>el impacto antes de tocar</b> (qué se rompe, en cascada y entre plataformas);</li>
+      <li><b>los patrones</b> que hoy nadie ve porque el log dura 3 días;</li>
+      <li><b>la gobernanza automatizada</b> con dueños, recordatorios y OC;</li>
+      <li><b>las métricas</b> con línea base para las metas de gerencia;</li>
+      <li><b>la comparación</b> contra su propio trabajo manual.</li>
+    </ol></div>
+  <div class="tbl"><table>
+    <tr><th style="width:27%">Lo que pidió o dijo</th><th style="width:8%">Estado</th><th style="width:23%">Dónde está</th><th>Cómo lo resuelve</th></tr>
+    <tr><td>Identificar candidatos: jobs sin ejecución, sin predecesor ni sucesor, sin calendario, dummies huérfanos</td><td><span class="st ok">Incluido</span></td><td>reglas R-DEF-01/02/03/10, R-CND-01/02</td><td>Automático en cada ciclo, con evidencia y puntaje. Juan Carlos dijo que esto su equipo lo hace 'en una hora': por eso no es el valor principal, sino la base.</td></tr>
+    <tr><td><b>Análisis de impacto</b>: la foto de la malla actual y cómo queda al retirar un job o un dummy; qué condiciones y dependencias cruzadas se rompen (otras mallas, otras plataformas)</td><td><span class="st ok">Incluido</span></td><td><code>impacto.simular_retiro()</code> · detalle de cada caso · <code>GET /casos/{id}/impacto</code> · <code>POST /impacto</code></td><td>Calcula los jobs bloqueados directos y en cascada, si cruzan de malla, de servidor o de mainframe a distribuido, los FORCEJOB rotos y la foto antes/después. <b>Candado:</b> si hay impacto, no se puede poner en cuarentena ni eliminar sin aceptarlo por escrito. Probado: un 'duplicado' que alimentaba al mainframe salió con riesgo alto (1 job directo y 7 en cascada).</td></tr>
+    <tr><td><b>Patrones</b>: procesos que se cancelan de forma recurrente, que se fuerzan o confirman a mano, que reciben Hold repetido</td><td><span class="st ok">Incluido</span></td><td><code>patrones.detectar_patrones()</code> · panel 'Patrones operacionales' · <code>GET /patrones</code></td><td>Ventana de 30 días con umbral de 3 repeticiones. Cada patrón trae una sugerencia de qué hacer. En la demo detecta 7 cancelaciones recurrentes y 8 forzados.</td></tr>
+    <tr><td>Mitigar <b>alertas sin sentido</b> que consumen a un operador</td><td><span class="st par">Parcial</span></td><td>patrón <code>ruido_alerta</code></td><td>Detecta jobs que fallan y se fuerzan a OK una y otra vez: la alerta no lleva a ninguna acción. Falta conectarse a la herramienta de alertas del banco para silenciarlas o reagruparlas.</td></tr>
+    <tr><td>Limitación: <b>el log de Control-M guarda solo 3 días</b> y no hay estadística histórica de causas</td><td><span class="st ok">Incluido</span></td><td><code>store.guardar_observaciones()</code> · tabla <code>observaciones_ajf</code> · carpetas con exports</td><td>ArgOS guarda la foto del estado de ejecución en cada ciclo y <b>construye la historia que el banco no tiene</b>. Además acepta los exports cada ~3 días que acordaron, y descarta las corridas repetidas. El factor de confianza avisa cuando la historia no alcanza para jobs mensuales o anuales.</td></tr>
+    <tr><td><b>Gobernanza</b>: 'para sacar los dummies yo no puedo tomar la decisión'; validar caso a caso con el dueño + Control de Cambios</td><td><span class="st ok">Incluido</span></td><td><code>flujo.registrar_decision()</code> (solo rol dueño aprueba) · OC obligatoria</td><td>Control Técnico no decide: prepara la evidencia. El dueño aprueba y la OC autoriza. Todo queda en la bitácora.</td></tr>
+    <tr><td>Mecanismo para informar a los dueños (aporte de Edison)</td><td><span class="st ok">Incluido</span></td><td><code>flujo.notificar_duenos()</code> · <code>flujo.recordatorios()</code></td><td>Un correo por dueño con sus casos y un link a su vista filtrada. <b>Nuevo:</b> 2 recordatorios automáticos y luego escalamiento a Operación. Ataca el cuello de botella que describieron: 'es un tema lento… y así como se van eliminando, también llegan nuevos'.</td></tr>
+    <tr><td>Matiz de los dummies: enganche entre Control-M, inyección de correo, contingencia, reserva de negocio</td><td><span class="st ok">Incluido</span></td><td><code>normalizador._tipos_accion()</code> · protección · 'proteger hasta'</td><td>Un dummy con condiciones que alguien consume, o con una acción (correo, FORCEJOB), no se marca como basura. La contingencia está protegida por patrón y la reserva de negocio se registra como 'proteger hasta &lt;fecha&gt;'.</td></tr>
+    <tr><td>Jobs 'fantasma' tipo IEFBR14 (entran y no hacen nada)</td><td><span class="st par">Parcial</span></td><td>R-DEF-13 (siempre OK en menos de 2 s)</td><td>Se detectan por su comportamiento. Falta leer el JCL para reconocer IEFBR14 explícitamente cuando lleguen los fuentes.</td></tr>
+    <tr><td><b>Métricas comprometidas</b>: −10 % de cancelaciones y −20 % de obsoletos en 2 a 3 meses, sin línea base</td><td><span class="st ok">Incluido</span></td><td><code>patrones.kpis()</code> · panel 'KPIs comprometidos' · <code>GET /kpis</code></td><td>Congela la línea base en el primer ciclo y mide el avance en cada ciclo contra las metas (configurables en <code>reglas.json</code>). Resuelve el riesgo 'métricas sin plan' que dejó la reunión.</td></tr>
+    <tr><td><b>Flujo del piloto</b>: el banco limpia a mano, la herramienta debe llegar al mismo resultado y se comparan</td><td><span class="st ok">Incluido</span></td><td><code>patrones.comparar_con_manual()</code> · panel 'Validación del piloto' · <code>POST /piloto/comparar</code></td><td>Se pega la lista del equipo y ArgOS entrega coincidencias, precisión y cobertura. Muestra <b>lo que el equipo eligió y ArgOS no</b> (con el motivo, para ajustar reglas) y <b>lo que ArgOS agrega</b> (candidatos que el equipo no vio). Así la herramienta no solo replica: también descubre.</td></tr>
+    <tr><td>Datos del piloto: XML y logs de 2 o 3 folders en ambiente de desarrollo, sin API ni base de datos todavía</td><td><span class="st par">Parcial</span></td><td><code>fuentes/carpeta.py</code></td><td>Los XML se leen hoy. <b>Falta</b> el lector de los logs exportados: se construye apenas llegue una muestra real, porque su formato depende de cómo los exporte el banco.</td></tr>
+    <tr><td>Volumen: la 'sábana' de ~45 millones de registros no se puede entregar entera; se trabaja por folder</td><td><span class="st ok">Incluido</span></td><td><code>CTM_FOLDERS</code> · carpetas por folder</td><td>El análisis funciona por folder y crece de a poco. En real se filtra con <code>CTM_FOLDERS</code>.</td></tr>
+    <tr><td>Caso 24/7 y licenciamiento por job cargado</td><td><span class="st par">Parcial</span></td><td>documento §4 (<code>GET /usage/jobs</code>)</td><td>El endpoint para contar jobs licenciados está documentado. Falta mostrar 'jobs retirados = licencias liberadas' en el panel de KPIs.</td></tr>
+    <tr><td>Discrepancia 5 vs 2 mallas pedidas</td><td><span class="st ok">Incluido</span></td><td>—</td><td>No es técnica: ArgOS analiza todas las mallas que reciba. Se puede partir con 2 y mostrar 5 sin cambiar nada.</td></tr>
+    <tr><td>Autogestión: formulario Excel → XML → prueba en desarrollo → producción (iniciativa 2027)</td><td><span class="st par">Parcial</span></td><td>módulo Malla Builder (fuera de este informe)</td><td>Existe en ArgOS como módulo separado. Falta conectarlo a estas reglas para que un usuario de negocio no pueda crear basura nueva.</td></tr>
+  </table></div>
+  <div class="callout warn"><b>Riesgos de la reunión que siguen abiertos</b> (no son de código):
+    <ul style="margin:6px 0 0;padding-left:20px">
+      <li>El banco todavía no entrega sus criterios manuales, que son el insumo para comparar.</li>
+      <li>La cuenta de desarrollo depende de Rodrigo.</li>
+      <li>Ninguna decisión técnica resuelve que gerencia pidió 5 mallas y la reunión cerró en 2.</li>
+      <li>Con un mes de historia acumulada siguen fuera los jobs mensuales y anuales. ArgOS lo declara con el factor de confianza en vez de ocultarlo.</li>
+    </ul></div>
+</section>
+
+<!-- 3 -->
+<section id="contexto">
+  <h2>5. Diagrama de contexto</h2>
+  <p class="sub">Quién usa el módulo y con qué sistemas conversa. Las líneas sólidas ya están implementadas; las punteadas son opcionales o se activan con configuración.</p>
+  <figure>
+    <svg viewBox="0 0 1120 640" width="100%" role="img" aria-label="Diagrama de contexto">
+      <defs><marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="var(--muted)"/></marker></defs>
+      <!-- centro -->
+      <rect x="400" y="240" width="320" height="160" rx="16" fill="var(--acc-soft)" stroke="var(--acc)" stroke-width="2"/>
+      <text x="560" y="282" text-anchor="middle" font-size="18" font-weight="700" fill="var(--ink)">ArgOS · Limpieza de Mallas</text>
+      <text x="560" y="306" text-anchor="middle" font-size="12.5" fill="var(--muted)">detecta · puntúa · predice · explica</text>
+      <text x="560" y="324" text-anchor="middle" font-size="12.5" fill="var(--muted)">valida con dueños · cuarentena · elimina</text>
+      <text x="560" y="342" text-anchor="middle" font-size="12.5" fill="var(--muted)">catálogo universal · bitácora · memoria</text>
+      <text x="560" y="372" text-anchor="middle" font-size="11.5" fill="var(--acc)" font-family="var(--mono)">FastAPI :8321 · limpieza.html :8123</text>
+      <!-- personas -->
+      <g font-size="13">
+        <rect x="20" y="60" width="230" height="78" rx="12" fill="var(--panel2)" stroke="var(--line)"/>
+        <text x="135" y="90" text-anchor="middle" font-weight="700" fill="var(--ink)">👤 Dueño de aplicación</text>
+        <text x="135" y="112" text-anchor="middle" fill="var(--muted)" font-size="12">único que aprueba o protege</text>
+        <rect x="20" y="280" width="230" height="78" rx="12" fill="var(--panel2)" stroke="var(--line)"/>
+        <text x="135" y="310" text-anchor="middle" font-weight="700" fill="var(--ink)">👤 Control Batch / Operación</text>
+        <text x="135" y="332" text-anchor="middle" fill="var(--muted)" font-size="12">cuarentena, eliminación, alertas</text>
+        <rect x="20" y="500" width="230" height="78" rx="12" fill="var(--panel2)" stroke="var(--line)"/>
+        <text x="135" y="530" text-anchor="middle" font-weight="700" fill="var(--ink)">👤 Analista AIWIS</text>
+        <text x="135" y="552" text-anchor="middle" fill="var(--muted)" font-size="12">ciclos, fuentes, dictámenes</text>
+      </g>
+      <g stroke="var(--muted)" stroke-width="1.6" fill="none" marker-end="url(#a2)">
+        <path d="M250 110 C330 110 340 250 398 262"/>
+        <path d="M250 318 H398"/>
+        <path d="M250 540 C330 540 340 390 398 378"/>
+      </g>
+      <g font-size="11" fill="var(--muted)"><text x="282" y="160">email + decisión</text><text x="276" y="310">OC, acciones</text><text x="280" y="500">UI / API</text></g>
+      <!-- sistemas derecha -->
+      <g font-size="13">
+        <rect x="870" y="30" width="230" height="84" rx="12" fill="var(--info-soft)" stroke="var(--line)"/>
+        <text x="985" y="60" text-anchor="middle" font-weight="700" fill="var(--ink)">Control-M EM</text>
+        <text x="985" y="80" text-anchor="middle" fill="var(--muted)" font-size="12">Automation API REST</text>
+        <text x="985" y="98" text-anchor="middle" fill="var(--muted)" font-size="11.5" font-family="var(--mono)">/deploy /run /archive /config</text>
+        <rect x="870" y="150" width="230" height="74" rx="12" fill="var(--info-soft)" stroke="var(--line)"/>
+        <text x="985" y="180" text-anchor="middle" font-weight="700" fill="var(--ink)">Carpetas / nube sincronizada</text>
+        <text x="985" y="200" text-anchor="middle" fill="var(--muted)" font-size="12">XML, JSON, JCL, listados z/OS</text>
+        <rect x="870" y="258" width="230" height="74" rx="12" fill="var(--info-soft)" stroke="var(--line)"/>
+        <text x="985" y="288" text-anchor="middle" font-weight="700" fill="var(--ink)">Mainframe z/OS (JCLLIB)</text>
+        <text x="985" y="308" text-anchor="middle" fill="var(--muted)" font-size="12">vía carpeta hoy · py3270 después</text>
+        <rect x="870" y="366" width="230" height="74" rx="12" fill="var(--panel2)" stroke="var(--line)"/>
+        <text x="985" y="396" text-anchor="middle" font-weight="700" fill="var(--ink)">SMTP · Teams/Slack</text>
+        <text x="985" y="416" text-anchor="middle" fill="var(--muted)" font-size="12">correos y alertas</text>
+        <rect x="870" y="474" width="230" height="74" rx="12" fill="var(--panel2)" stroke="var(--line)"/>
+        <text x="985" y="504" text-anchor="middle" font-weight="700" fill="var(--ink)">LLM (Claude / Gemini)</text>
+        <text x="985" y="524" text-anchor="middle" fill="var(--muted)" font-size="12">redacta dictámenes · opcional</text>
+        <rect x="870" y="566" width="230" height="64" rx="12" fill="var(--panel2)" stroke="var(--line)"/>
+        <text x="985" y="592" text-anchor="middle" font-weight="700" fill="var(--ink)">Monitoreo / PANOPTES / AIX</text>
+        <text x="985" y="611" text-anchor="middle" fill="var(--muted)" font-size="12">envían eventos</text>
+      </g>
+      <g stroke="var(--muted)" stroke-width="1.6" fill="none">
+        <path d="M868 72 C780 72 760 250 722 262" marker-end="url(#a2)"/>
+        <path d="M722 280 C780 270 800 90 868 86" marker-end="url(#a2)"/>
+        <path d="M868 187 C800 187 780 290 722 296" marker-end="url(#a2)"/>
+        <path d="M868 295 C800 295 780 318 722 318" marker-end="url(#a2)"/>
+        <path d="M722 350 C790 360 800 403 868 403" marker-end="url(#a2)"/>
+        <path d="M722 380 C790 420 800 511 868 511" marker-end="url(#a2)" stroke-dasharray="5 4"/>
+        <path d="M868 598 C780 598 760 400 700 400" marker-end="url(#a2)" stroke-dasharray="5 4"/>
+      </g>
+      <g font-size="11" fill="var(--muted)">
+        <text x="858" y="128" text-anchor="end">lee (solo lectura)</text><text x="858" y="143" text-anchor="end">cuarentena / delete (con OC)</text>
+        <text x="858" y="244" text-anchor="end">ingesta</text><text x="858" y="460" text-anchor="end">notifica</text><text x="858" y="560" text-anchor="end">prompt</text><text x="745" y="625">POST /evento</text>
+      </g>
+      <!-- almacenamiento -->
+      <rect x="430" y="470" width="260" height="96" rx="12" fill="var(--panel2)" stroke="var(--line)"/>
+      <text x="560" y="498" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">data/&lt;entorno&gt;/limpieza/</text>
+      <text x="560" y="518" text-anchor="middle" font-size="12" fill="var(--muted)">argos_universal.db (SQLite)</text>
+      <text x="560" y="536" text-anchor="middle" font-size="12" fill="var(--muted)">respaldos · outbox · modelo_ml</text>
+      <text x="560" y="554" text-anchor="middle" font-size="12" fill="var(--muted)">duenos_aplicaciones.json</text>
+      <path d="M560 402 V468" stroke="var(--muted)" stroke-width="1.6" marker-end="url(#a2)"/>
+      <rect x="430" y="80" width="260" height="96" rx="12" fill="var(--panel2)" stroke="var(--line)"/>
+      <text x="560" y="108" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">Conocimiento versionado</text>
+      <text x="560" y="128" text-anchor="middle" font-size="12" fill="var(--muted)">reglas.json · documento .md</text>
+      <text x="560" y="146" text-anchor="middle" font-size="12" fill="var(--muted)">Swagger oficial 9.22.125</text>
+      <text x="560" y="164" text-anchor="middle" font-size="12" fill="var(--muted)">(lo lee el motor y el RAG)</text>
+      <path d="M560 178 V238" stroke="var(--muted)" stroke-width="1.6" marker-end="url(#a2)"/>
+    </svg>
+    <figcaption>Switch único: <code>ARGOS_ENTORNO=simulado|real</code>. En simulado, el cuadro "Control-M EM" es la carga sintética en <code>data/simulado/controlm_carga/</code> y ninguna notificación sale de la máquina.</figcaption>
+  </figure>
+</section>
+
+<!-- 4 -->
+<section id="arquitectura">
+  <h2>6. Arquitectura</h2>
+  <p class="sub">Capas de izquierda a derecha, igual que el recorrido de un dato. El motor orquesta; la API y la vista solo exponen.</p>
+  <figure>
+    <svg viewBox="0 0 1120 470" width="100%" role="img" aria-label="Arquitectura por capas">
+      <defs><marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="var(--muted)"/></marker></defs>
+      <rect x="20" y="16" width="1080" height="56" rx="10" fill="var(--panel2)" stroke="var(--line)"/>
+      <text x="40" y="40" font-size="13" font-weight="700" fill="var(--ink)">Presentación</text>
+      <text x="40" y="60" font-size="12" fill="var(--muted)">limpieza.html (vista) · limpieza_api.py (35 endpoints /api/limpieza) · home.html (acceso)</text>
+      <rect x="20" y="90" width="1080" height="56" rx="10" fill="var(--acc-soft)" stroke="var(--line)"/>
+      <text x="40" y="114" font-size="13" font-weight="700" fill="var(--ink)">Orquestación</text>
+      <text x="40" y="134" font-size="12" fill="var(--muted)">motor.py (ciclo proactivo · reactivo · manual) · programador.py (hilo cada N minutos)</text>
+      <g font-size="12.5">
+        <rect x="20" y="180" width="150" height="120" rx="10" fill="var(--info-soft)" stroke="var(--line)"/>
+        <text x="95" y="206" text-anchor="middle" font-weight="700" fill="var(--ink)">fuentes/</text>
+        <text x="95" y="228" text-anchor="middle" fill="var(--muted)" font-size="11.5">controlm_simulado</text>
+        <text x="95" y="246" text-anchor="middle" fill="var(--muted)" font-size="11.5">controlm_real</text>
+        <text x="95" y="264" text-anchor="middle" fill="var(--muted)" font-size="11.5">carpeta</text>
+        <text x="95" y="284" text-anchor="middle" fill="var(--muted)" font-size="11">misma interfaz</text>
+        <rect x="200" y="180" width="140" height="120" rx="10" fill="var(--panel)" stroke="var(--line)"/>
+        <text x="270" y="206" text-anchor="middle" font-weight="700" fill="var(--ink)">normalizador</text>
+        <text x="270" y="230" text-anchor="middle" fill="var(--muted)" font-size="11.5">JSON API · XML</text>
+        <text x="270" y="248" text-anchor="middle" fill="var(--muted)" font-size="11.5">→ inventario</text>
+        <text x="270" y="266" text-anchor="middle" fill="var(--muted)" font-size="11.5">único</text>
+        <rect x="370" y="180" width="140" height="120" rx="10" fill="var(--panel)" stroke="var(--line)"/>
+        <text x="440" y="206" text-anchor="middle" font-weight="700" fill="var(--ink)">store</text>
+        <text x="440" y="230" text-anchor="middle" fill="var(--muted)" font-size="11.5">catálogo universal</text>
+        <text x="440" y="248" text-anchor="middle" fill="var(--muted)" font-size="11.5">SQLite · 11 tablas</text>
+        <text x="440" y="266" text-anchor="middle" fill="var(--muted)" font-size="11.5">bitácora · memoria</text>
+        <rect x="540" y="180" width="140" height="120" rx="10" fill="var(--panel)" stroke="var(--line)"/>
+        <text x="610" y="206" text-anchor="middle" font-weight="700" fill="var(--ink)">reglas</text>
+        <text x="610" y="230" text-anchor="middle" fill="var(--muted)" font-size="11.5">28 reglas R-*</text>
+        <text x="610" y="248" text-anchor="middle" fill="var(--muted)" font-size="11.5">Índice 0–100</text>
+        <text x="610" y="266" text-anchor="middle" fill="var(--muted)" font-size="11.5">protecciones</text>
+        <rect x="710" y="180" width="120" height="120" rx="10" fill="var(--panel)" stroke="var(--line)"/>
+        <text x="770" y="206" text-anchor="middle" font-weight="700" fill="var(--ink)">ml</text>
+        <text x="770" y="230" text-anchor="middle" fill="var(--muted)" font-size="11.5">regresión</text>
+        <text x="770" y="248" text-anchor="middle" fill="var(--muted)" font-size="11.5">logística</text>
+        <text x="770" y="266" text-anchor="middle" fill="var(--muted)" font-size="11.5">+ tendencia</text>
+        <rect x="860" y="180" width="110" height="120" rx="10" fill="var(--panel)" stroke="var(--line)"/>
+        <text x="915" y="206" text-anchor="middle" font-weight="700" fill="var(--ink)">flujo</text>
+        <text x="915" y="230" text-anchor="middle" fill="var(--muted)" font-size="11.5">casos</text>
+        <text x="915" y="248" text-anchor="middle" fill="var(--muted)" font-size="11.5">consenso</text>
+        <text x="915" y="266" text-anchor="middle" fill="var(--muted)" font-size="11.5">candados</text>
+        <rect x="995" y="180" width="105" height="120" rx="10" fill="var(--panel)" stroke="var(--line)"/>
+        <text x="1047" y="206" text-anchor="middle" font-weight="700" fill="var(--ink)">notifica-</text>
+        <text x="1047" y="222" text-anchor="middle" font-weight="700" fill="var(--ink)">ciones</text>
+        <text x="1047" y="246" text-anchor="middle" fill="var(--muted)" font-size="11.5">panel · outbox</text>
+        <text x="1047" y="264" text-anchor="middle" fill="var(--muted)" font-size="11.5">email · webhook</text>
+      </g>
+      <g stroke="var(--muted)" stroke-width="1.6" marker-end="url(#a3)">
+        <path d="M172 240 H198"/><path d="M342 240 H368"/><path d="M512 240 H538"/><path d="M682 240 H708"/><path d="M832 240 H858"/><path d="M972 240 H993"/>
+      </g>
+      <rect x="540" y="330" width="290" height="60" rx="10" fill="var(--ok-soft)" stroke="var(--line)"/>
+      <text x="685" y="356" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">rag · dictamen explicado</text>
+      <text x="685" y="376" text-anchor="middle" font-size="11.5" fill="var(--muted)">BM25 sobre documento, reglas, Swagger, decisiones</text>
+      <path d="M830 360 C880 360 900 330 910 302" stroke="var(--muted)" stroke-width="1.6" fill="none" marker-end="url(#a3)"/>
+      <rect x="200" y="330" width="310" height="60" rx="10" fill="var(--warn-soft)" stroke="var(--line)"/>
+      <text x="355" y="356" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">impacto · patrones · KPIs</text>
+      <text x="355" y="376" text-anchor="middle" font-size="11.5" fill="var(--muted)">qué se rompe · recurrencias · línea base · piloto</text>
+      <path d="M512 360 C530 360 530 330 560 302" stroke="var(--muted)" stroke-width="1.6" fill="none" marker-end="url(#a3)"/>
+      <rect x="20" y="410" width="1080" height="46" rx="10" fill="var(--panel2)" stroke="var(--line)"/>
+      <text x="40" y="438" font-size="12.5" fill="var(--ink)"><tspan font-weight="700">Transversal · ajustes.py</tspan><tspan fill="var(--muted)"> — único lector de variables de entorno del módulo · rutas por entorno · diagnóstico enmascarado</tspan></text>
+    </svg>
+    <figcaption>Cada flecha es una llamada de función en el mismo proceso. No hay colas, contenedores ni servicios nuevos: el módulo vive dentro del backend existente de ArgOS (puerto 8321).</figcaption>
+  </figure>
+</section>
+
+<!-- 5 -->
+<section id="pipeline">
+  <h2>7. Pipeline paso a paso</h2>
+  <p class="sub">Lo que pasa desde que se aprieta "Ejecutar ciclo" hasta que un job se elimina y se verifica. Cada paso dice dónde ocurre en el código, en la API y en la pantalla.</p>
+  <ol class="steps">
+    <li><h4>Extraer de todas las fuentes (solo lectura)</h4>
+      Lee Control-M (simulado o real) y cada carpeta registrada. Si una fuente falla, las demás siguen y el error queda en la tabla <code>fuentes</code>.
+      <dl class="where"><dt>Código</dt><dd><code>motor.extraer_todo()</code> → <code>fuentes.todas()</code> → <code>.extraer()</code> de cada adaptador</dd>
+      <dt>API / UI</dt><dd><code>POST /api/limpieza/ciclo</code> · botón "Ejecutar ciclo" · pestaña "Fuentes de datos"</dd>
+      <dt>Real</dt><dd><code>GET /deploy/jobs</code>, <code>/config/server/{s}/agents</code>, <code>/runasusers</code>, <code>/run/jobs/status</code>, <code>/run/resources</code>, <code>/deploy/calendars</code>, <code>/archive/search</code></dd></dl></li>
+    <li><h4>Normalizar y fusionar</h4>
+      Cualquier formato (JSON de la API, XML de emdef, JCL sueltos, listados de librerías) se convierte en un solo inventario: jobs, folders, condiciones, calendarios, recursos, agentes, historia, miembros JCL, dueños.
+      <dl class="where"><dt>Código</dt><dd><code>normalizador.desde_deploy_jobs()</code>, <code>desde_xml()</code>, <code>historia_desde_archive()</code>, <code>fusionar()</code></dd></dl></li>
+    <li><h4>Actualizar el catálogo universal</h4>
+      Todo objeto visto queda con una clave universal (<code>CTMPROD/FOLDER/JOB</code>, <code>calendario:X</code>, <code>jcl:LIB(MIEMBRO)</code>), sus fuentes y atributos. Lo que desaparece se marca inactivo; nunca se borra del catálogo.
+      <dl class="where"><dt>Código</dt><dd><code>motor._objetos_catalogo()</code> → <code>store.upsert_objetos()</code></dd>
+      <dt>API</dt><dd><code>GET /catalogo</code>, <code>GET /catalogo/resumen</code></dd></dl></li>
+    <li><h4>Detectar con reglas y calcular el Índice de Basura</h4>
+      28 reglas deterministas producen hallazgos con evidencia. El puntaje se ajusta por confianza (meses de historia), exige dos fuentes distintas para superar 59 y queda en 0 si el objeto está protegido: contingencia, regulatorio, anual, destino de FORCEJOB, job nuevo o protegido por su dueño.
+      <dl class="where"><dt>Código</dt><dd><code>reglas.evaluar()</code> · <code>perfil_programacion()</code> · <code>metricas_historia()</code> · <code>_ciclos()</code> (deadlocks)</dd>
+      <dt>Config</dt><dd><code>data/reglas_limpieza/reglas.json</code></dd></dl></li>
+    <li><h4>Predecir con ML y alerta temprana</h4>
+      El modelo se re-entrena en cada ciclo con las decisiones de los dueños y prioriza la cola. La alerta temprana marca jobs hoy sanos que corren cada vez menos o se fuerzan cada vez más.
+      <dl class="where"><dt>Código</dt><dd><code>ml.entrenar()</code>, <code>ml.predecir()</code>, <code>ml.en_riesgo()</code></dd>
+      <dt>API / UI</dt><dd><code>GET /ml</code> · panel "Alerta temprana"</dd></dl></li>
+    <li><h4>Crear o actualizar casos y avisar lo crítico</h4>
+      Puntaje 30–59 → <i>en_observacion</i>; 60 o más → <i>candidata</i>. Los hallazgos críticos nuevos (espera eterna, deadlock, agente caído con jobs) disparan una alerta a Operación una sola vez.
+      <dl class="where"><dt>Código</dt><dd><code>flujo.actualizar_casos()</code> · <code>motor.ejecutar_ciclo()</code> · <code>notificaciones.alerta_operacion()</code></dd></dl></li>
+    <li><h4>Medir el impacto de retirarlo</h4>
+      Por cada caso se simula el retiro: qué jobs quedarían esperando para siempre (directos y en cascada), si cruza a otra malla, servidor o plataforma, y la foto antes/después.
+      <dl class="where"><dt>Código</dt><dd><code>impacto.simular_retiro()</code> (se guarda en el caso en <code>flujo.actualizar_casos()</code>)</dd>
+      <dt>API / UI</dt><dd><code>GET /casos/{id}/impacto</code>, <code>POST /impacto</code> · bloque "Análisis de impacto"</dd>
+      <dt>Candado</dt><dd>Con impacto, la cuarentena y la eliminación exigen <code>aceptar_impacto</code> (queda en bitácora).</dd></dl></li>
+    <li><h4>Detectar patrones operacionales y medir KPIs</h4>
+      Guarda la foto del estado de ejecución (historia propia más allá de los 3 días del log), detecta cancelaciones, Hold, confirmaciones y forzados recurrentes, y mide cancelaciones y obsoletos contra la línea base.
+      <dl class="where"><dt>Código</dt><dd><code>store.guardar_observaciones()</code>, <code>patrones.detectar_patrones()</code>, <code>patrones.kpis()</code></dd>
+      <dt>API / UI</dt><dd><code>GET /patrones</code>, <code>GET /kpis</code> · paneles "Patrones operacionales" y "KPIs comprometidos"</dd></dl></li>
+    <li><h4>Explicar: dictamen RAG</h4>
+      Por caso, a pedido: evidencia más conocimiento recuperado, redactado por LLM o por plantilla.
+      <dl class="where"><dt>Código</dt><dd><code>flujo.generar_dictamen()</code> → <code>rag.dictamen()</code></dd>
+      <dt>API / UI</dt><dd><code>POST /casos/{id}/dictamen</code> · botón "Generar dictamen"</dd></dl></li>
+    <li><h4>Validar con el dueño del negocio</h4>
+      Un solo correo por dueño con todos sus candidatos y un link a su vista filtrada (<code>limpieza.html?dueno=email</code>). El dueño decide: aprobar, rechazar, proteger, reparar o pedir información. Los objetos de infraestructura van a Control Batch. Lo que no tiene dueño genera una alerta.
+      Si el dueño no responde: 2 recordatorios (cada <code>LIMPIEZA_RECORDATORIO_DIAS</code>) y luego escala a Operación.
+      <dl class="where"><dt>Código</dt><dd><code>flujo.notificar_duenos()</code>, <code>flujo.recordatorios()</code>, <code>flujo.registrar_decision()</code></dd>
+      <dt>API / UI</dt><dd><code>POST /notificar-duenos</code>, <code>POST /casos/{id}/decision</code> · bloque "Validación"</dd>
+      <dt>Candado</dt><dd>Solo el rol <code>dueno</code> puede aprobar.</dd></dl></li>
+    <li><h4>Cuarentena reversible</h4>
+      Se respalda el folder (JSON + XML) y se saca el job del scheduling sin borrarlo (<code>When.Schedule=Never</code>) por N días. Se puede liberar.
+      <dl class="where"><dt>Código</dt><dd><code>flujo.cuarentena()</code>, <code>flujo.liberar()</code> → <code>fuente.cuarentena_job()</code></dd>
+      <dt>Real</dt><dd><code>POST /deploy</code> con el folder modificado · exige <code>LIMPIEZA_ESCRITURA_HABILITADA=1</code> y orden de cambio</dd></dl></li>
+    <li><h4>Eliminar con respaldo</h4>
+      Cumplida la cuarentena, se respalda de nuevo y se elimina. La excepción (eliminar antes) exige rol <code>control_batch</code> y una justificación escrita.
+      <dl class="where"><dt>Código</dt><dd><code>flujo.eliminar()</code> → <code>fuente.eliminar_job()</code> / <code>eliminar_folder()</code></dd>
+      <dt>Real</dt><dd><code>DELETE /deploy/job/{jobPath}</code>, <code>DELETE /deploy/folder/{server}/{folder}</code></dd></dl></li>
+    <li><h4>Validar contra el trabajo manual (piloto)</h4>
+      El equipo del banco entrega su lista y ArgOS compara: coincidencias, precisión, cobertura, lo que no vio (con el motivo) y lo que agrega.
+      <dl class="where"><dt>Código</dt><dd><code>patrones.comparar_con_manual()</code></dd>
+      <dt>API / UI</dt><dd><code>POST /piloto/comparar</code> · panel "Validación del piloto"</dd></dl></li>
+    <li><h4>Verificar, aprender y dejar rastro</h4>
+      El ciclo siguiente confirma que el objeto desapareció y que ningún job quedó esperando sus condiciones (si quedó alguno, alerta crítica). La decisión del dueño entrena el modelo, la memoria registra tendencias por regla y aplicación, y todo queda en la bitácora.
+      <dl class="where"><dt>Código</dt><dd><code>flujo.actualizar_casos()</code> (verificación) · <code>motor._memoria()</code> · <code>store.bitacora()</code></dd>
+      <dt>API / UI</dt><dd><code>GET /bitacora</code>, <code>GET /memoria</code> · pestaña "Bitácora"</dd></dl></li>
+  </ol>
+  <div class="callout acc"><b>Modo reactivo:</b> cualquier sistema (Control-M, monitoreo, PANOPTES, AIX) puede llamar a <code>POST /api/limpieza/evento</code>. Eso dispara un ciclo y, si el objeto tiene un caso abierto o el evento es grave, una alerta a Operación (<code>motor.procesar_evento()</code>). <b>Modo proactivo:</b> <code>LIMPIEZA_CICLO_MINUTOS=N</code> repite el ciclo solo (<code>programador.py</code>).</div>
+</section>
+
+<!-- 6 -->
+<section id="cobertura">
+  <h2>8. ¿Está cubierto lo que pedí?</h2>
+  <p class="sub">Cada punto de tus pedidos, con su estado real, dónde está y cómo funciona. <span class="st ok">Incluido</span> = funciona y está probado. <span class="st par">Parcial</span> = funciona con un alcance menor al ideal. <span class="st pen">Pendiente</span> = diseñado, falta construir o conectar.</p>
+  <div class="tbl"><table>
+    <tr><th style="width:24%">Lo que pediste</th><th style="width:9%">Estado</th><th style="width:27%">Dónde</th><th>Cómo</th></tr>
+    <tr><td>Detectar mallas y jobs basura, y patrones</td><td><span class="st ok">Incluido</span></td><td><code>reglas.py</code>, <code>reglas.json</code></td><td>28 reglas con evidencia: sin corridas, vigencia vencida, forecast vacío, JCL inexistente, agente caído, duplicados, dummies, condiciones imposibles, deadlocks, folders vacíos o muertos, calendarios y recursos sin uso, JCL huérfanos, estado colgado en ejecución.</td></tr>
+    <tr><td>Siempre validar con los dueños del negocio</td><td><span class="st ok">Incluido</span></td><td><code>flujo.notificar_duenos()</code>, <code>registrar_decision()</code></td><td>Correo agrupado por dueño, vista filtrada por dueño; solo el rol dueño aprueba (probado en tests). Sin aprobación no hay cuarentena ni eliminación.</td></tr>
+    <tr><td>Automatización final: limpiar</td><td><span class="st ok">Incluido</span></td><td><code>flujo.cuarentena()</code>, <code>eliminar()</code>, adaptadores</td><td>Cuarentena, respaldo, eliminación y verificación automáticas una vez aprobadas. En real, además, el interruptor de escritura y la orden de cambio.</td></tr>
+    <tr><td>Avisar: mensajería y alertas</td><td><span class="st ok">Incluido</span></td><td><code>notificaciones.py</code></td><td>Panel, outbox, correo SMTP y webhook (Teams/Slack/Google Chat). Alertas críticas a Operación sin repetir. En simulado nada sale de la máquina.</td></tr>
+    <tr><td>Machine learning predictivo</td><td><span class="st par">Parcial</span></td><td><code>ml.py</code></td><td>Regresión logística que aprende de las decisiones de los dueños más una alerta temprana por tendencia. Hoy, sin decisiones reales, el modelo mayormente imita a las reglas; la señal de tendencia sí funciona desde el día uno (detecta los 5 casos sembrados). Mejora con cada decisión.</td></tr>
+    <tr><td>Memoria</td><td><span class="st ok">Incluido</span></td><td><code>store.recordar()</code>, <code>motor._memoria()</code></td><td>Serie por regla de los últimos 60 ciclos, aplicaciones con más basura, tendencia entre ciclos, alertas ya enviadas, jobs en riesgo, dueños de la fuente.</td></tr>
+    <tr><td>Bitácora</td><td><span class="st ok">Incluido</span></td><td><code>store.bitacora()</code></td><td>Tabla de solo inserción: ciclos, decisiones, notificaciones, cuarentenas, eliminaciones, errores, con actor y detalle.</td></tr>
+    <tr><td>Base de datos</td><td><span class="st ok">Incluido</span></td><td><code>store.py</code> → <code>argos_universal.db</code></td><td>SQLite con 11 tablas: fuentes, objetos, ciclos, hallazgos, casos, decisiones, protección, notificaciones, bitácora, observaciones de ejecución y memoria. Reemplazable por Oracle o PostgreSQL con la misma interfaz.</td></tr>
+    <tr><td>Manejo de RAG</td><td><span class="st par">Parcial</span></td><td><code>rag.py</code></td><td>Funciona: 509 fragmentos, búsqueda y dictámenes con citas. La recuperación es léxica (BM25), no vectorial (ver sección 3).</td></tr>
+    <tr><td>Habilidades</td><td><span class="st ok">Incluido</span></td><td><code>rag.HABILIDADES</code>, <code>GET /habilidades</code></td><td>Catálogo de 10 capacidades con su endpoint, consumible por la UI, un chat o por otros módulos (AIX, PANOPTES).</td></tr>
+    <tr><td>Notificaciones</td><td><span class="st ok">Incluido</span></td><td><code>GET /notificaciones</code></td><td>Bandeja con estado por canal (entregada, enviada, retenida o error) y marcado de leídas.</td></tr>
+    <tr><td>Proactivo y reactivo</td><td><span class="st ok">Incluido</span></td><td><code>programador.py</code>, <code>POST /evento</code></td><td>Ciclo cada N minutos y un webhook de eventos externos que re-evalúa y alerta.</td></tr>
+    <tr><td>"Músculo real" a todo lo conectado</td><td><span class="st par">Parcial</span></td><td><code>/evento</code>, <code>/habilidades</code>, <code>/catalogo</code></td><td>Cualquier módulo puede enviar eventos y consultar el catálogo por HTTP. <b>Falta</b> integrarlo dentro de ArgOS: que el Catálogo de Mallas (<code>malla_catalog</code>), las Solicitudes de Malla y el grafo de dependencias lean este catálogo, y que AIX/PANOPTES envíen sus eventos automáticamente.</td></tr>
+    <tr><td>Base de datos universal / "catálogo supremo"</td><td><span class="st ok">Incluido</span></td><td>tabla <code>objetos</code></td><td>Una clave universal por objeto de cualquier fuente, con historial (primera y última vez visto, activo o inactivo) y fuentes de origen. Hoy tiene 312 objetos: 240 jobs, 27 folders, 25 JCL, 12 agentes, 5 calendarios y 3 recursos.</td></tr>
+    <tr><td>Fuentes sin acceso directo o desestructuradas (folder, workspace, nube local)</td><td><span class="st ok">Incluido</span></td><td><code>fuentes/carpeta.py</code></td><td>Reconoce por contenido: XML de emdef, JSON de la API, JCL sueltos, listados z/OS. Sirve para OneDrive, Drive y SharePoint sincronizados o un share de red. Se registra desde la UI o con <code>LIMPIEZA_CARPETAS</code>.</td></tr>
+    <tr><td>Nube sin sincronización local (S3, GCS, Blob)</td><td><span class="st pen">Pendiente</span></td><td><code>fuentes/__init__.py::todas()</code></td><td>El punto de extensión está definido: una clase con <code>probar_conexion()</code> y <code>extraer()</code>. No hay conector escrito.</td></tr>
+    <tr><td>Código real, eliminando de a poco el simulador</td><td><span class="st ok">Incluido</span></td><td><code>fuentes/controlm_real.py</code></td><td>Adaptador REST real probado por HTTP. Toda la lógica es compartida; el simulador solo entrega datos.</td></tr>
+    <tr><td>Guardar demos con carga sintética realista precargada</td><td><span class="st ok">Incluido</span></td><td><code>data/simulado/controlm_carga/</code></td><td>Formato exacto de la API, fechas que se corren a "hoy" solas, reset de demo, verdad de terreno para medir.</td></tr>
+    <tr><td>Dejar claro dónde van APIs, claves, usuarios y datos</td><td><span class="st ok">Incluido</span></td><td>ADR 004, <code>.env.example</code>, pestaña "Configuración"</td><td>Ver sección 12.</td></tr>
+    <tr><td>Análisis de impacto (pedido de Operaciones)</td><td><span class="st ok">Incluido</span></td><td><code>impacto.py</code></td><td>Directos, cascada, cruces de malla, servidor y plataforma, FORCEJOB y foto antes/después, con candado. Ver "Lo que pidió Operaciones BCI".</td></tr>
+    <tr><td>Patrones operacionales y KPIs con línea base</td><td><span class="st ok">Incluido</span></td><td><code>patrones.py</code></td><td>Cancelaciones, Hold, confirmaciones, forzados y ruido de alertas; −10 % y −20 % contra la línea base.</td></tr>
+    <tr><td>Comandos de la API de Control-M</td><td><span class="st ok">Incluido</span></td><td><code>controlm_real.py</code> + documento §4</td><td>Los usados se ejecutan; el resto está documentado, verificado contra el Swagger.</td></tr>
+    <tr><td>Queries de limpieza</td><td><span class="st par">Parcial</span></td><td>documento §6</td><td>16 queries documentadas para Oracle. El motor no las ejecuta: prefiere la API (contrato estable y más fácil de aprobar en un banco).</td></tr>
+    <tr><td>Reprogramar mallas</td><td><span class="st par">Parcial</span></td><td><code>_redeploy_con()</code> + documento §7</td><td>Implementado: la reprogramación que requiere la cuarentena. Documentado pero no expuesto como acción: Deploy Descriptors (cambio masivo de host), consolidar duplicados, reparar condiciones.</td></tr>
+  </table></div>
+</section>
+
+<!-- 7 -->
+<section id="diseno">
+  <h2>9. Documento de diseño</h2>
+  <h3>Decisiones clave y por qué</h3>
+  <div class="grid3">
+    <div class="card"><b>Reglas deciden, IA explica</b><p>El puntaje lo calculan reglas deterministas y auditables. El ML solo prioriza y el LLM solo redacta. Un banco puede auditar una regla; no puede auditar una intuición.</p></div>
+    <div class="card"><b>Dos adaptadores, una interfaz</b><p>Regla permanente del ADR 002. Simulado y real implementan los mismos métodos; el switch es <code>ARGOS_ENTORNO</code>. Las demos no se pierden cuando llega lo real.</p></div>
+    <div class="card"><b>Solo librería estándar</b><p><code>urllib</code>, <code>sqlite3</code>, <code>smtplib</code>, ML propio. Cero dependencias nuevas que aprobar en el banco y cero riesgo de supply chain.</p></div>
+    <div class="card"><b>API antes que SQL</b><p>La Automation API es un contrato soportado por BMC; el esquema de la base cambia entre versiones y su acceso es más difícil de aprobar.</p></div>
+    <div class="card"><b>Nunca borrar directo</b><p>Cuarentena reversible, doble respaldo y verificación posterior. Lo que desaparece del catálogo queda inactivo, con historial.</p></div>
+    <div class="card"><b>13 meses de historia</b><p>Con menos de un año no se distingue un job anual de uno muerto. El factor de confianza baja el puntaje automáticamente cuando falta historia.</p></div>
+  </div>
+
+  <h3>Índice de Basura</h3>
+  <div class="callout"><code>score = min(100, Σ pesos × confianza)</code> · confianza 1.0 con 13 meses o más de historia, 0.6 con 3 o más, 0.3 con menos · tope de 59 si todas las reglas vienen de una sola fuente · 0 si está protegido. Objetos que no son jobs: <code>min(100, peso × 2)</code>, porque su evidencia es estructural. Bandas: <b>&lt;30</b> activa · <b>30–59</b> en observación · <b>≥60</b> candidata.</div>
+
+  <h3>Ciclo de vida de un caso</h3>
+  <figure>
+    <svg viewBox="0 0 1100 250" width="100%" role="img" aria-label="Máquina de estados del caso">
+      <defs><marker id="a4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="var(--muted)"/></marker></defs>
+      <g font-size="12.5" text-anchor="middle">
+        <rect x="10" y="30" width="120" height="40" rx="20" fill="var(--warn-soft)"/><text x="70" y="55" fill="var(--ink)">en_observacion</text>
+        <rect x="10" y="110" width="120" height="40" rx="20" fill="var(--bad-soft)"/><text x="70" y="135" fill="var(--ink)">candidata</text>
+        <rect x="180" y="110" width="110" height="40" rx="20" fill="var(--info-soft)"/><text x="235" y="135" fill="var(--ink)">notificada</text>
+        <rect x="340" y="110" width="110" height="40" rx="20" fill="var(--acc-soft)" stroke="var(--acc)"/><text x="395" y="135" fill="var(--ink)" font-weight="700">aprobada</text>
+        <rect x="500" y="110" width="110" height="40" rx="20" fill="var(--panel2)" stroke="var(--line)"/><text x="555" y="135" fill="var(--ink)">cuarentena</text>
+        <rect x="660" y="110" width="110" height="40" rx="20" fill="var(--ok-soft)"/><text x="715" y="135" fill="var(--ink)">eliminada</text>
+        <rect x="820" y="110" width="110" height="40" rx="20" fill="var(--ok-soft)"/><text x="875" y="135" fill="var(--ink)">verificada</text>
+        <rect x="340" y="195" width="110" height="36" rx="18" fill="var(--panel2)"/><text x="395" y="218" fill="var(--muted)">rechazada</text>
+        <rect x="180" y="195" width="130" height="36" rx="18" fill="var(--panel2)"/><text x="245" y="218" fill="var(--muted)">info / a_reparar</text>
+        <rect x="500" y="195" width="110" height="36" rx="18" fill="var(--panel2)"/><text x="555" y="218" fill="var(--muted)">descartada</text>
+      </g>
+      <g stroke="var(--muted)" stroke-width="1.5" fill="none" marker-end="url(#a4)">
+        <path d="M70 72 V108"/><path d="M132 130 H178"/><path d="M292 130 H338"/><path d="M452 130 H498"/><path d="M612 130 H658"/><path d="M772 130 H818"/>
+        <path d="M280 150 L360 194"/><path d="M250 150 V193"/><path d="M555 150 V193"/>
+      </g>
+      <g font-size="11" fill="var(--muted)" text-anchor="middle">
+        <text x="112" y="96">score ≥ 60</text><text x="155" y="120">email</text><text x="315" y="100">dueño aprueba</text>
+        <text x="475" y="100">OC + respaldo</text><text x="635" y="100">vence plazo</text><text x="795" y="100">siguiente ciclo</text>
+        <text x="600" y="180">liberar</text><text x="345" y="178">dueño rechaza → protegido</text>
+      </g>
+    </svg>
+    <figcaption>Si un caso descartado o verificado vuelve a tener hallazgos, se reabre solo. Un rechazo protege el objeto 365 días; "proteger" lo protege sin fecha de término.</figcaption>
+  </figure>
+
+  <h3>Modelo de datos (<code>argos_universal.db</code>, 11 tablas)</h3>
+  <div class="tbl"><table>
+    <tr><th>Tabla</th><th>Guarda</th><th>Claves</th></tr>
+    <tr><td><code>fuentes</code></td><td>Fuentes registradas, estado y última sincronización</td><td>id</td></tr>
+    <tr><td><code>objetos</code></td><td>Catálogo universal: todo lo visto de cualquier fuente, con atributos y features</td><td>uid · tipo · aplicación · activo</td></tr>
+    <tr><td><code>ciclos</code></td><td>Cada ejecución (manual, proactiva, reactiva) con su resumen</td><td>id</td></tr>
+    <tr><td><code>hallazgos</code></td><td>Regla disparada, peso, fuente y evidencia por objeto y ciclo</td><td>uid + ciclo</td></tr>
+    <tr><td><code>casos</code></td><td>Un caso por objeto sospechoso: puntaje, ML, prioridad, estado, dueño, dictamen, <b>impacto</b>, recordatorios, cuarentena, OC, respaldo</td><td>uid único · estado</td></tr>
+    <tr><td><code>decisiones</code></td><td>Decisiones humanas con autor, rol, motivo y features congeladas (etiquetas del ML)</td><td>caso_id</td></tr>
+    <tr><td><code>proteccion</code></td><td>Objetos protegidos, motivo, quién y hasta cuándo</td><td>uid</td></tr>
+    <tr><td><code>notificaciones</code></td><td>Cada mensaje por canal, con estado y error</td><td>id</td></tr>
+    <tr><td><code>bitacora</code></td><td>Auditoría de solo inserción</td><td>id · objeto</td></tr>
+    <tr><td><code>observaciones_ajf</code></td><td>Foto del estado de ejecución de cada ciclo: la historia propia que supera los 3 días del log de Control-M</td><td>uid + order_date + estado</td></tr>
+    <tr><td><code>memoria</code></td><td>Aprendizaje entre ciclos: tendencias, línea base de KPIs, serie de KPIs, comparaciones del piloto</td><td>clave</td></tr>
+  </table></div>
+
+  <h3>Seguridad</h3>
+  <ul>
+    <li>Credenciales solo en <code>.env</code>; <code>data/real/</code> excluido de git; la UI muestra claves enmascaradas.</li>
+    <li>TLS siempre verificado (<code>CTM_CA_BUNDLE</code> para la CA del banco), nunca <code>verify=False</code>.</li>
+    <li>Solo lectura por defecto; escribir exige interruptor + orden de cambio (probado en tests).</li>
+    <li>El LLM no tiene credenciales y no decide. Antes de activarlo con datos de BCI hay que confirmar si se puede enviar metadata de definiciones afuera.</li>
+    <li>La API está pensada para uso local o intranet: aún <b>no tiene autenticación de usuarios</b> (ver pendientes).</li>
+  </ul>
+</section>
+
+<!-- 8 -->
+<section id="inventario">
+  <h2>10. Inventario técnico</h2>
+  <p class="sub">Cada archivo y cada función del módulo, con lo que hace. Filtra por nombre o por palabra.</p>
+  <input class="search" id="q" placeholder="Filtrar funciones… (ej: cuarentena, historia, dueño, xml)" oninput="filtrar(this.value)">
+  <div id="inv"></div>
+</section>
+
+<!-- 9 -->
+<section id="api">
+  <h2>11. API REST <code>/api/limpieza</code> (35 endpoints)</h2>
+  <div class="tbl"><table id="tbl-api">
+    <tr><th>Método</th><th>Ruta</th><th>Qué hace</th></tr>
+  </table></div>
+</section>
+
+<!-- 10 -->
+<section id="config">
+  <h2>12. Dónde va cada API, clave, usuario y dato</h2>
+  <p class="sub">Regla única: <b>secretos en <code>.env</code></b> (raíz del repo, fuera de git); <b>datos operativos en <code>data/&lt;entorno&gt;/limpieza/</code></b>; <b>conocimiento versionado en <code>data/reglas_limpieza/</code> y <code>docs/</code></b>. El único lector de variables es <code>src/backend/limpieza/ajustes.py</code>.</p>
+  <div class="tbl"><table>
+    <tr><th>Qué</th><th>Variable / ruta</th><th>Quién lo entrega</th></tr>
+    <tr><td>Modo</td><td><code>ARGOS_ENTORNO=simulado|real</code></td><td>AIWIS</td></tr>
+    <tr><td>URL del Control-M</td><td><code>CTM_ENDPOINT=https://&lt;host-em&gt;:8443</code></td><td>Control Batch BCI</td></tr>
+    <tr><td>Credencial API (preferida)</td><td><code>CTM_API_KEY</code></td><td>Admin Control-M BCI</td></tr>
+    <tr><td>Usuario de servicio (alternativa)</td><td><code>CTM_USER</code>, <code>CTM_PASSWORD</code> — <b>solo lectura</b></td><td>Admin Control-M BCI</td></tr>
+    <tr><td>Certificado del banco</td><td><code>CTM_CA_BUNDLE</code></td><td>Seguridad TI BCI</td></tr>
+    <tr><td>Alcance</td><td><code>CTM_SERVIDORES</code>, <code>CTM_FOLDERS</code>, <code>LIMPIEZA_HISTORIA_MESES</code></td><td>Acuerdo del piloto</td></tr>
+    <tr><td>Permitir escribir</td><td><code>LIMPIEZA_ESCRITURA_HABILITADA=1</code></td><td>Solo con autorización formal</td></tr>
+    <tr><td>Carpetas y nube sincronizada</td><td><code>LIMPIEZA_CARPETAS</code> o UI → Fuentes</td><td>Analista</td></tr>
+    <tr><td>Correo</td><td><code>SMTP_HOST/PORT/USER/PASSWORD/FROM/TLS</code></td><td>TI BCI</td></tr>
+    <tr><td>Alertas</td><td><code>LIMPIEZA_EMAIL_OPERACION</code>, <code>LIMPIEZA_WEBHOOK_URL</code></td><td>Operación</td></tr>
+    <tr><td>Automatización</td><td><code>LIMPIEZA_CICLO_MINUTOS</code>, <code>LIMPIEZA_AUTO_NOTIFICAR</code>, <code>LIMPIEZA_RECORDATORIO_DIAS</code></td><td>AIWIS + BCI</td></tr>
+    <tr><td>Metas de KPIs</td><td><code>data/reglas_limpieza/reglas.json</code> → <code>objetivos</code></td><td>Gerencia de Operaciones</td></tr>
+    <tr><td>LLM (opcional)</td><td><code>LLM_PROVIDER</code> (anthropic|gemini), <code>LLM_API_KEY</code>, <code>LLM_MODEL</code></td><td>AIWIS, previa aprobación BCI</td></tr>
+    <tr><td>Dueños por aplicación</td><td><code>data/&lt;entorno&gt;/limpieza/duenos_aplicaciones.json</code> o UI → Dueños</td><td>CMDB BCI</td></tr>
+    <tr><td>Respaldos</td><td><code>data/&lt;entorno&gt;/limpieza/respaldos/&lt;fecha&gt;/</code></td><td>Automático</td></tr>
+    <tr><td>Base universal</td><td><code>data/&lt;entorno&gt;/limpieza/argos_universal.db</code></td><td>Automático</td></tr>
+    <tr><td>Reglas y umbrales</td><td><code>data/reglas_limpieza/reglas.json</code></td><td>AIWIS (versionado)</td></tr>
+  </table></div>
+  <div class="callout">Permisos mínimos a pedir a BCI. <b>Fase 1, lectura:</b> <code>/config/servers</code>, <code>/deploy/jobs</code>, <code>/deploy/folders</code>, <code>/deploy/calendars</code>, <code>/config/server/{s}/agents</code>, <code>/runasusers</code>, <code>/run/jobs/status</code>, <code>/run/resources</code>, <code>/archive/search</code>. <b>Fase 2, escritura con OC:</b> <code>POST /deploy</code>, <code>DELETE /deploy/job/…</code>, <code>DELETE /deploy/folder/…</code>. Primero en certificación.</div>
+</section>
+
+
+<!-- siguiente -->
+<section id="siguiente">
+  <h2>13. Siguiente nivel: hecho a la medida de un banco</h2>
+  <p class="sub">Lo que convierte el módulo en producto bancario. Ordenado por lo que pediría primero un comité de riesgo o de cambios.</p>
+  <div class="tbl"><table>
+    <tr><th style="width:30%">Mejora</th><th>Qué agrega y por qué importa en un banco</th><th style="width:11%">Prioridad</th></tr>
+    <tr><td><b>Identidad y roles del banco (SSO / Active Directory)</b></td><td>Hoy el rol 'dueño' se elige en pantalla. En un banco tiene que venir del login corporativo, con segregación de funciones: quien propone no aprueba, quien aprueba no ejecuta.</td><td>Alta</td></tr>
+    <tr><td><b>Integración con Control de Cambios (Helix / ServiceNow)</b></td><td>Crear la OC automáticamente con la evidencia, el impacto y el respaldo adjuntos, y leer su estado para habilitar la cuarentena o la eliminación.</td><td>Alta</td></tr>
+    <tr><td><b>Paquete de evidencia para auditoría</b></td><td>Por cada eliminación, un PDF o JSON firmado con hallazgos, impacto aceptado, decisión del dueño, OC, respaldo y verificación. Es lo que pedirá Auditoría Interna o el regulador.</td><td>Alta</td></tr>
+    <tr><td><b>Lector de logs exportados y de IOA Log (mainframe)</b></td><td>Convierte los exports cada 3 días en historia (causas de Hold y cancelaciones), que es justo lo que el banco dice no tener.</td><td>Alta</td></tr>
+    <tr><td><b>Simulación de lote: 'qué pasa si limpio estas 5 mallas'</b></td><td>El motor de impacto ya acepta varios objetos. Falta la vista para planificar oleadas completas y mostrarlas a gerencia.</td><td>Media</td></tr>
+    <tr><td><b>Licencias liberadas y costo evitado</b></td><td>Jobs retirados multiplicados por el costo de licencia por job (Control-M licencia por job cargado), más horas de operador ahorradas en alertas eliminadas. Es el número que Eduardo necesita.</td><td>Media</td></tr>
+    <tr><td><b>Tablero ejecutivo para gerencia</b></td><td>KPIs contra metas, oleadas de limpieza, dueños pendientes y tendencia semanal, en una vista sin detalle técnico.</td><td>Media</td></tr>
+    <tr><td><b>Prevención: reglas en Malla Builder</b></td><td>Que la autogestión 2027 no genere basura nueva: el formulario valida contra las mismas reglas R-* antes de crear un job.</td><td>Media</td></tr>
+    <tr><td><b>Sensores, file watchers y dependencias entre plataformas</b></td><td>Incluir en el impacto los File Watchers, las transferencias MFT y los eventos externos, además de las condiciones.</td><td>Media</td></tr>
+    <tr><td><b>Eventos automáticos desde PANOPTES y AIX</b></td><td>Que los incidentes y guardias alimenten el modo reactivo y los patrones (un job que cae seguido y genera tickets).</td><td>Media</td></tr>
+    <tr><td><b>LLM on-premise o en región aprobada</b></td><td>Si el banco no permite enviar metadata afuera, los dictámenes siguen con plantilla o con un modelo aprobado por Seguridad.</td><td>Según política</td></tr>
+    <tr><td><b>Multi-banco: reglas y umbrales por cliente</b></td><td>reglas.json por cliente, con su nomenclatura, calendarios y protecciones, para replicar el piloto en otro banco sin tocar código.</td><td>Media</td></tr>
+  </table></div>
+</section>
+
+<!-- 11 -->
+<section id="verificacion">
+  <h2>14. Verificación y límites</h2>
+  <div class="grid2">
+    <div class="card"><h3 style="margin-top:0">Cómo se verificó</h3>
+      <ul>
+        <li><b>13 tests</b> (<code>python -m unittest tests.test_limpieza</code>): detección ≥ 97 % (dio 100 %: 261/261), protecciones, regla de dos fuentes, alerta temprana, flujo completo con candados, rechazo que protege y entrena el ML, escritura bloqueada, XML igual a JSON, adaptador real por HTTP, <b>impacto cruzado con candado, patrones recurrentes, línea base de KPIs y comparación con la limpieza manual</b>.</li>
+        <li><b>Por HTTP real</b>: ciclo, casos, dictamen, notificación a dueños y ML contra el backend en :8321.</li>
+        <li><b>En navegador</b>: vista cargada, detalle de caso, sin errores de consola.</li>
+      </ul></div>
+    <div class="card"><h3 style="margin-top:0">Lo que estas pruebas NO demuestran</h3>
+      <ul>
+        <li>El 261/261 es contra datos sintéticos que construí yo; mide que el motor hace lo que las reglas dicen, no que las reglas acierten en BCI. La comparación del piloto con la lista manual del equipo es la que lo va a demostrar.</li>
+        <li>El laboratorio HTTP imita la API; formatos como <code>/archive/search</code> y los estados de ejecución hay que confirmarlos en Control-M Workbench o en BCI.</li>
+      </ul></div>
+  </div>
+  <h3>Pendientes, en orden</h3>
+  <div class="tbl"><table>
+    <tr><th>#</th><th>Pendiente</th><th>Por qué importa</th></tr>
+    <tr><td>1</td><td>Credenciales de solo lectura en certificación de BCI y primer ciclo real</td><td>Validar reglas y umbrales con datos reales</td></tr>
+    <tr><td>2</td><td>Probar contra Control-M Workbench (Docker gratuito de BMC)</td><td>Confirmar formatos antes de tocar el banco</td></tr>
+    <tr><td>3</td><td>Fecha de creación de jobs en real (reporte del EM o query Q-05)</td><td>La API no la entrega; sin ella no aplica la protección de job nuevo</td></tr>
+    <tr><td>4</td><td>Miembros de <code>EXPOD.SPC20.JCLLIB</code> (py3270 o listado en carpeta)</td><td>Habilita R-DEF-05 y R-ZOS-01 en real</td></tr>
+    <tr><td>5</td><td>Dueños reales por aplicación (CMDB)</td><td>Sin dueño no hay validación</td></tr>
+    <tr><td>6</td><td>Autenticación de usuarios en la API y la vista (hoy el rol lo declara quien usa la UI)</td><td>En producción, "rol dueño" debe venir de un login (SSO del banco), no de un selector</td></tr>
+    <tr><td>7</td><td>Integrar el catálogo con Catálogo de Mallas, Solicitudes y grafo de dependencias; eventos automáticos desde AIX/PANOPTES</td><td>El "músculo" transversal en toda ArgOS</td></tr>
+    <tr><td>7b</td><td>Lector de los logs exportados por BCI (formato a confirmar con la muestra)</td><td>Es el insumo del piloto acordado el 14-09</td></tr>
+    <tr><td>8</td><td>Acciones de reprogramación en la UI (Deploy Descriptor, consolidar duplicados, reparar condiciones)</td><td>Hoy están documentadas, no expuestas</td></tr>
+    <tr><td>9</td><td>Conectores de nube directa (S3/GCS/Blob) y RAG vectorial si el corpus crece</td><td>Hoy cubierto por carpetas sincronizadas y BM25</td></tr>
+  </table></div>
+</section>
+</main>
+</div>
+
+<script>
+const INV = [
+ {f:"limpieza/ajustes.py", d:"Único lector de variables de entorno del módulo y rutas por entorno.", fx:[
+  ["ctm()","Arma la configuración de Control-M: endpoint, API key o usuario, CA, servidores, folders, forecast, meses de historia."],
+  ["escritura_habilitada()","Devuelve si LIMPIEZA_ESCRITURA_HABILITADA=1 (interruptor de escritura en Control-M)."],
+  ["carpetas_extra()","Lista de carpetas de LIMPIEZA_CARPETAS (separadas por ;)."],
+  ["smtp() · webhook_url() · email_operacion()","Configuración de correo, del webhook de chat y de la casilla de Operación."],
+  ["envio_real_notificaciones()","En real envía de verdad; en simulado solo si LIMPIEZA_NOTIF_ENVIO_REAL=1."],
+  ["ciclo_minutos() · auto_notificar() · llm() · url_publica()","Ciclo proactivo, auto-notificación a dueños, proveedor LLM y URL para links de correo."],
+  ["diagnostico()","Resumen enmascarado de todo lo configurado, para la pestaña Configuración (nunca devuelve un secreto completo)."],
+  ["_env() · _flag() · _mask()","Helpers: leer variable, leer booleano, enmascarar un secreto."]]},
+ {f:"limpieza/fuentes/base.py", d:"Contrato común de fuentes (ADR 002).", fx:[
+  ["Fuente (Protocol)","Toda fuente: nombre, tipo, probar_conexion(), extraer() → inventario normalizado."],
+  ["FuenteControlM (Protocol)","Además: respaldar_folder, cuarentena_job, liberar_job, eliminar_job, eliminar_folder."],
+  ["EscrituraBloqueada","Excepción cuando se intenta escribir sin habilitación u orden de cambio."],
+  ["partir_uid(uid)","'CTMPROD/FOLDER/SUB/JOB' → (servidor, ruta de folder, job)."]]},
+ {f:"limpieza/fuentes/__init__.py", d:"Selección de fuentes: único lugar que decide simulado o real.", fx:[
+  ["controlm()","Devuelve ControlMReal si ARGOS_ENTORNO=real; si no, ControlMSimulado."],
+  ["todas(carpetas)","Control-M + carpetas de .env + carpetas registradas en la UI, sin duplicar."]]},
+ {f:"limpieza/fuentes/controlm_simulado.py", d:"Adaptador simulado: entrega la carga sintética en formato de la API real.", fx:[
+  ["ControlMSimulado.extraer()","Lee la carga, corre las fechas a hoy, aplica las acciones de la demo y normaliza igual que el real."],
+  [".probar_conexion()","Verifica que exista la carga sintética (meta.json)."],
+  ["._deploy_jobs() · ._aplicar()","Construye el /deploy/jobs simulado aplicando cuarentenas y eliminaciones guardadas."],
+  [".respaldar_folder()","Devuelve el JSON actual del folder, como hace la API."],
+  [".cuarentena_job() · .liberar_job()","Registra o quita la cuarentena en estado_simulador.json (When.Schedule=Never)."],
+  [".eliminar_job() · .eliminar_folder()","Registra la eliminación e informa el comando real equivalente."],
+  [".resetear_demo()","Borra el estado de la demo; la carga original no se toca."],
+  ["_leer() · _desplazar() · _desplazar_yyyymmdd()","Leer archivos de carga y correr fechas ISO / YYYYMMDD."]]},
+ {f:"limpieza/fuentes/controlm_real.py", d:"Adaptador real: Automation API REST con urllib, TLS verificado, solo lectura por defecto.", fx:[
+  ["ControlMReal.__init__()","Toma la configuración de .env, prepara el contexto TLS con la CA del banco; falla claro si falta CTM_ENDPOINT."],
+  ["._headers()","x-api-key, o login en /session/login y token Bearer."],
+  ["._raw() · ._get()","Cliente HTTP genérico: JSON, texto, multipart para /deploy; convierte los errores en ErrorControlM legibles."],
+  [".probar_conexion()","GET /config/servers."],
+  ["._servidores()","CTM_SERVIDORES o todos los de /config/servers."],
+  [".extraer()","Por servidor: /deploy/jobs, agents, runasusers, /run/jobs/status; más resources, calendars y /archive/search por folder. Los avisos no detienen el proceso."],
+  [".forecast_folder()","/run/forecast/timeline + poll (opcional por costo)."],
+  ["._guard()","Candado: exige LIMPIEZA_ESCRITURA_HABILITADA=1 y número de OC."],
+  [".respaldar_folder()","Descarga el folder en JSON y XML."],
+  ["._redeploy_con() · .cuarentena_job()","Baja el folder, cambia el job (Schedule Never + marca en descripción) y lo redespliega con POST /deploy."],
+  [".restaurar_folder()","Redespliega el respaldo (así se libera una cuarentena en real)."],
+  [".eliminar_job() · .eliminar_folder()","DELETE /deploy/job/{jobPath} y DELETE /deploy/folder/{server}/{folder}."]]},
+ {f:"limpieza/fuentes/carpeta.py", d:"Fuente para información sin acceso directo o desestructurada.", fx:[
+  ["FuenteCarpeta.extraer()","Recorre la carpeta y reconoce por contenido: definiciones JSON o XML, estado activo, historia, agentes, JCL (librería = carpeta) y listados miembros_<LIB>.txt. Un archivo roto no detiene el ciclo."],
+  [".probar_conexion()","Verifica que la ruta exista y cuenta los archivos."]]},
+ {f:"limpieza/normalizador.py", d:"Convierte cualquier formato de Control-M en un inventario único.", fx:[
+  ["inventario_vacio()","Estructura base del inventario."],
+  ["fusionar(base, extra)","Une inventarios de varias fuentes sin pisar; acumula fuentes de origen."],
+  ["desde_deploy_jobs()","Parsea el JSON de /deploy/jobs: folders, subfolders, jobs, condiciones, recursos, calendarios, FORCEJOB."],
+  ["desde_xml()","Parsea exports XML (DEFTABLE/FOLDER/JOB, INCOND/OUTCOND, QUANTITATIVE/CONTROL) y reutiliza el parser JSON."],
+  ["activos_desde_status()","/run/jobs/status → estado del día (held, deleted, order date)."],
+  ["historia_desde_archive()","/archive/search → corridas [fecha, OK/NOTOK, duración, forzado]."],
+  ["agentes_desde_api() · recursos_desde_api() · calendarios_desde_api()","Normalizan agentes, recursos y calendarios."],
+  ["_job_normalizado()","Una definición de job → registro con host, run-as, MEMNAME/MEMLIB, When, eventos, recursos, forcejobs."],
+  ["_eventos() · _recursos_de() · _calendarios_de() · _acciones_run()","Extraen condiciones, recursos, calendarios y Action:Run en cualquier nivel."],
+  ["_tipos_accion()","Detecta acciones del job (correo, FORCEJOB, notificaciones): un dummy con acciones tiene propósito y no es basura."],
+  ["_fecha() · _duracion_s() · _uid_de_status() · _primero()","Helpers de fechas en varios formatos, duración, clave universal y campos alternativos."]]},
+ {f:"limpieza/store.py", d:"Catálogo universal SQLite: objetos, casos, bitácora, memoria.", fx:[
+  ["conexion()","Abre la base del entorno, crea el esquema si falta, con commit y lock de hilo."],
+  ["filas() · fila()","Consultas que devuelven dicts con los JSON ya decodificados."],
+  ["bitacora()","Inserta un registro de auditoría (nunca se edita)."],
+  ["recordar() · recuerdo()","Memoria clave → valor entre ciclos."],
+  ["registrar_fuente() · estado_fuente() · carpetas_registradas()","Alta y estado de fuentes; carpetas agregadas desde la UI."],
+  ["upsert_objetos()","Inserta o actualiza el catálogo; marca inactivo lo que ya no aparece."],
+  ["buscar_objetos() · resumen_catalogo()","Búsqueda paginada y conteos por tipo y aplicación."],
+  ["abrir_ciclo() · cerrar_ciclo() · guardar_hallazgos() · hallazgos_de()","Registro de ciclos y de hallazgos por objeto."],
+  ["proteger() · protegidos_vigentes()","Lista de protección con vencimiento."],
+  ["guardar_observaciones()","Archiva la foto del estado de ejecución de cada ciclo: la historia que supera los 3 días del log."],
+  ["_migrar()","Agrega columnas nuevas a bases de versiones anteriores."]]},
+ {f:"limpieza/reglas.py", d:"Motor de reglas deterministas e Índice de Basura.", fx:[
+  ["evaluar(inv, protegidos)","Aplica las 28 reglas, arma features por job, detecta duplicados y deadlocks, evalúa folders, calendarios, recursos, agentes y JCL, y calcula el puntaje con confianza, dos fuentes y protección."],
+  ["perfil_programacion()","Desde el When: si es programable, vencido, Schedule Never, calendario faltante, on-demand, frecuencia (diaria, mensual, anual)."],
+  ["umbral_sin_ejecutar()","Días sin correr tolerados según frecuencia (90 / 100 / 400)."],
+  ["metricas_historia()","Corridas, fallas, forzadas, última ejecución, duraciones, corridas 90 d vs. 91–365 d."],
+  ["_ciclos()","Tarjan iterativo: ciclos de condiciones (deadlocks)."],
+  ["cargar_reglas() · _d() · _yyyymmdd()","Lee reglas.json; helpers de fechas."]]},
+ {f:"limpieza/impacto.py", d:"Análisis de impacto: qué se rompe si se retira un job, un dummy o un folder.", fx:[
+  ["simular_retiro(inv, uids)","Quita los objetos, propaga las condiciones perdidas hasta un punto fijo (directos y cascada), marca cruces de malla, servidor y plataforma, FORCEJOB rotos, recursos liberados, foto antes/después y riesgo nulo/bajo/medio/alto."],
+  ["plataforma(job)","Clasifica un job como mainframe o distribuido."],
+  ["_expandir()","Acepta uids de jobs o de folders y los expande a jobs."]]},
+ {f:"limpieza/patrones.py", d:"Patrones operacionales, KPIs con línea base y validación del piloto.", fx:[
+  ["detectar_patrones(inv, ventana)","Cancelaciones, Hold, confirmaciones y forzados recurrentes, y ruido de alertas, desde la historia y las fotos acumuladas; con sugerencia por patrón."],
+  ["kpis(inv, evaluacion)","Tasa de cancelación y obsoletos; congela la línea base el primer día y mide el avance contra −10 % y −20 %."],
+  ["comparar_con_manual(inv, ev, lista)","Compara la limpieza manual del equipo con ArgOS: coincidencias, precisión, cobertura, lo que falta (con motivo) y lo que agrega."],
+  ["_sugerencia()","Texto de acción recomendado por tipo de patrón."]]},
+ {f:"limpieza/ml.py", d:"Predicción: regresión logística propia + alerta temprana por tendencia.", fx:[
+  ["vector()","11 features: días sin correr, nunca corrió, % fallas, % forzadas, declive, sin consumidores, espera imposible, dummy, no programable, on-demand, score."],
+  ["entrenar()","Decisiones de dueños (peso 1.0) + etiquetas débiles de reglas (0.15); guarda pesos y accuracy sobre decisiones."],
+  ["predecir()","Probabilidad de basura de un job."],
+  ["en_riesgo()","Jobs sanos que van a peor: tendencia de ejecuciones o probabilidad del modelo, con el motivo."],
+  ["_entrenar_lr() · _sig() · _guardar() · modelo_actual()","Descenso de gradiente con L2, sigmoide y persistencia del modelo."]]},
+ {f:"limpieza/rag.py", d:"Recuperación (BM25), dictamen y catálogo de habilidades.", fx:[
+  ["buscar(consulta, k, origen)","Busca en documento, reglas, Swagger y decisiones; devuelve fragmentos con puntaje."],
+  ["dictamen(caso, hallazgos)","Recupera contexto por regla y decisiones previas; redacta con LLM o plantilla. Nunca bloquea."],
+  ["_dictamen_plantilla()","Dictamen determinista: evidencia por regla, riesgo y acción."],
+  ["_chunks_documento() · _chunks_reglas() · _chunks_swagger() · _chunks_decisiones()","Arman el corpus."],
+  ["_indice() · _firma() · estadisticas()","Índice en memoria que se reconstruye solo si cambian los archivos o las decisiones."],
+  ["HABILIDADES","Las 10 capacidades del agente de limpieza con su endpoint."]]},
+ {f:"limpieza/flujo.py", d:"Consenso: casos, dueños, decisiones, cuarentena, eliminación.", fx:[
+  ["duenos() · guardar_dueno()","Registro de dueños (fuente + archivo editable)."],
+  ["actualizar_casos()","Crea o actualiza casos por puntaje, asigna dueño (infraestructura → Control Batch), descarta los que sanaron y verifica las eliminaciones (alerta si quedaron condiciones colgando)."],
+  ["listar() · obtener()","Casos filtrados; detalle con hallazgos, decisiones, objeto e historial."],
+  ["generar_dictamen()","Dictamen RAG guardado en el caso."],
+  ["notificar_duenos()","Un correo por dueño con sus candidatos y link; alerta por los que no tienen dueño."],
+  ["recordatorios()","2 recordatorios a dueños que no responden y luego escala a Operación."],
+  ["_exigir_impacto()","Candado: con impacto, no se actúa sin aceptarlo explícitamente (queda en bitácora)."],
+  ["registrar_decision()","aprobar / rechazar / proteger / reparar / info, con candado de rol dueño; guarda features para el ML."],
+  ["cuarentena() · liberar()","Respaldo + Schedule Never por N días; liberar = restaurar + proteger 180 días."],
+  ["eliminar()","Respaldo + eliminación, solo desde cuarentena cumplida o excepción justificada."],
+  ["_respaldar() · _eventos_producidos() · _set() · _estado_por_score() · ajustes_umbral()","Respaldos JSON/XML, condiciones que producía el objeto, actualizaciones y umbrales."]]},
+ {f:"limpieza/notificaciones.py", d:"Mensajería y alertas multicanal.", fx:[
+  ["notificar()","Panel + outbox siempre; email y webhook según configuración y modo. Nunca lanza error: registra el estado."],
+  ["alerta_operacion()","Alertas a Control Batch por correo y chat."],
+  ["bandeja()","Listado de notificaciones."],
+  ["_enviar_email() · _enviar_webhook() · _registrar() · _outbox()","SMTP con STARTTLS, POST a Teams/Slack/GChat, registro y copia en disco."]]},
+ {f:"limpieza/motor.py", d:"Orquesta el ciclo completo.", fx:[
+  ["ejecutar_ciclo(tipo)","Extraer → catálogo → reglas → ML → casos → alertas críticas nuevas → auto-notificación → memoria → bitácora. Un ciclo a la vez."],
+  ["extraer_todo()","Recorre las fuentes, fusiona, registra el estado de cada una."],
+  ["procesar_evento()","Modo reactivo: registra el evento, re-evalúa y alerta."],
+  ["estado_general()","KPIs, configuración, fuentes, último ciclo, memoria, para la vista."],
+  ["ultima_evaluacion() · ultimo_inventario()","Evaluación e inventario en memoria (ejecuta un ciclo si no hay)."],
+  ["_objetos_catalogo() · _memoria()","Arman objetos del catálogo y la memoria de tendencias."]]},
+ {f:"limpieza/programador.py", d:"Ciclo proactivo en segundo plano.", fx:[
+  ["iniciar()","Arranca un hilo si LIMPIEZA_CICLO_MINUTOS > 0."],
+  ["detener() · _bucle()","Para el hilo; bucle que nunca muere por un ciclo fallido."]]},
+ {f:"limpieza_api.py", d:"API REST /api/limpieza (35 endpoints, ver sección 11).", fx:[
+  ["_err()","Traduce errores: 400 validación, 403 escritura bloqueada, 502 Control-M."]]},
+ {f:"frontend/limpieza.html", d:"Vista operativa.", fx:[
+  ["cargarEstado()","Badge de modo, KPIs, fuentes, configuración."],
+  ["cargarCasos() · verCaso()","Tabla de casos priorizada (filtro por dueño con ?dueno=) y detalle con evidencia, dictamen, validación y acciones."],
+  ["dictamen() · decidir() · accion()","Generar dictamen, registrar decisión, cuarentena, liberar, eliminar."],
+  ["ejecutarCiclo() · notificarDuenos() · resetDemo()","Acciones globales."],
+  ["cargarML() · buscarRag() · cargarListas()","Alerta temprana, búsqueda de conocimiento, notificaciones, bitácora, dueños."],
+  ["cargarImpacto() · cargarPatronesKpis() · compararPiloto()","Análisis de impacto del caso, paneles de patrones y KPIs, validación del piloto."],
+  ["registrarCarpeta() · guardarDueno() · renderConfig()","Alta de fuentes y dueños; tabla de configuración."]]},
+ {f:"scripts/generar_carga_controlm_sintetica.py", d:"Carga sintética precargada con patrones de basura y trampas.", fx:[
+  ["generar(semilla)","Arma 240 jobs y 27 folders en formato API, historia de 14 meses, estado activo, agentes, recursos, calendarios, JCLLIB, dueños y verdad de terreno."],
+  ["Gen.cadena() · .job() · .folder() · .corridas() · .activo() · .marcar()","Constructores de mallas encadenadas, definiciones, historia, estado del día y etiquetas."]]},
+ {f:"scripts/controlm_api_laboratorio.py", d:"Imitación HTTP de la Automation API para probar el adaptador real.", fx:[
+  ["servidor(puerto)","Levanta el servidor (x-api-key: laboratorio)."],
+  ["H.do_GET · do_POST · do_DELETE","config/servers, deploy/jobs, agents, runasusers, run/jobs/status, resources, calendars, archive/search, session/login, deploy, delete job/folder."]]},
+ {f:"tests/test_limpieza.py", d:"10 tests con unittest.", fx:[
+  ["TestDeteccion","Contra la verdad de terreno, protecciones, dos fuentes, alerta temprana."],
+  ["TestFlujoConsenso","Flujo completo con todos los candados; rechazo que protege y entrena el ML."],
+  ["TestSeguridadReal · TestNormalizador","Escritura bloqueada; XML equivalente a JSON."],
+  ["TestAdaptadorRealContraLaboratorio","Extracción, detección y escritura con candados por HTTP."],
+  ["TestMusculoOperaciones","Impacto cruzado con candado, patrones recurrentes, KPIs con línea base, comparación con la limpieza manual."]]},
+];
+const API = [
+ ["GET","/estado","KPIs, configuración enmascarada, fuentes, último ciclo, memoria"],
+ ["GET","/habilidades","Capacidades del agente de limpieza"],
+ ["GET","/fuentes","Fuentes y su estado"],["POST","/fuentes/carpeta","Registrar una carpeta (workspace, nube sincronizada, share)"],
+ ["POST","/ciclo","Ejecutar ciclo completo"],["GET","/ciclos","Historial de ciclos"],
+ ["POST","/evento","Webhook reactivo para eventos externos"],
+ ["GET","/catalogo","Buscar en el catálogo universal"],["GET","/catalogo/resumen","Conteos del catálogo"],
+ ["GET","/casos","Casos filtrados y priorizados"],["GET","/casos/{id}","Detalle del caso"],
+ ["POST","/casos/{id}/dictamen","Generar dictamen RAG"],["POST","/casos/{id}/decision","Decisión del dueño o de Control Batch"],
+ ["POST","/casos/{id}/cuarentena","Cuarentena con OC"],["POST","/casos/{id}/liberar","Liberar cuarentena"],["POST","/casos/{id}/eliminar","Eliminar con respaldo"],
+ ["GET","/casos/{id}/impacto","Análisis de impacto del caso (foto antes/después)"],["POST","/impacto","Simular el retiro de varios jobs o folders"],
+ ["GET","/patrones","Patrones operacionales recurrentes"],["GET","/kpis","KPIs contra la línea base y las metas"],
+ ["POST","/piloto/comparar","Comparar con la limpieza manual del equipo"],["GET","/piloto/comparaciones","Historial de comparaciones"],
+ ["POST","/recordatorios","Enviar recordatorios y escalamientos ahora"],
+ ["POST","/notificar-duenos","Pedir validación a dueños"],
+ ["GET","/duenos","Registro de dueños"],["PUT","/duenos/{aplicacion}","Guardar dueño"],
+ ["GET","/notificaciones","Bandeja"],["POST","/notificaciones/leidas","Marcar leídas"],
+ ["GET","/bitacora","Auditoría"],["GET","/memoria","Memoria aprendida"],
+ ["GET","/ml","Modelo y jobs en riesgo"],["POST","/ml/entrenar","Re-entrenar"],
+ ["GET","/rag/buscar","Buscar en la base de conocimiento"],["GET","/reglas","Reglas y umbrales"],
+ ["POST","/demo/reset","Reset de la demo (solo simulado)"],
+];
+function esc(s){return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
+function render(q=""){
+  q=q.toLowerCase().trim();
+  document.getElementById("inv").innerHTML = INV.map(m=>{
+    const fx = m.fx.filter(([n,d])=>!q || (m.f+" "+n+" "+d).toLowerCase().includes(q));
+    if(!fx.length) return "";
+    return `<details class="inv" ${q?"open":""}><summary>${esc(m.f)} <span>${esc(m.d)} · ${fx.length} elemento(s)</span></summary>
+      <table>${fx.map(([n,d])=>`<tr><td>${esc(n)}</td><td>${esc(d)}</td></tr>`).join("")}</table></details>`;
+  }).join("") || '<p style="color:var(--muted)">Sin coincidencias.</p>';
+}
+function filtrar(v){render(v)}
+render();
+document.getElementById("tbl-api").insertAdjacentHTML("beforeend",
+  API.map(([m,r,d])=>`<tr><td><span class="pill">${m}</span></td><td><code>/api/limpieza${esc(r)}</code></td><td>${esc(d)}</td></tr>`).join(""));
+function toggleTheme(){
+  const r=document.documentElement, dark = r.dataset.theme ? r.dataset.theme==="dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  r.dataset.theme = dark ? "light" : "dark";
+  try{localStorage.setItem("argos-informe-tema", r.dataset.theme)}catch(e){}
+}
+try{const t=localStorage.getItem("argos-informe-tema"); if(t) document.documentElement.dataset.theme=t}catch(e){}
+const links=[...document.querySelectorAll("nav.toc a")];
+const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){links.forEach(a=>a.classList.toggle("on",a.getAttribute("href")==="#"+e.target.id))}}),{rootMargin:"-30% 0px -60% 0px"});
+document.querySelectorAll("main section").forEach(s=>obs.observe(s));
+</script>
+</body>
+</html>
