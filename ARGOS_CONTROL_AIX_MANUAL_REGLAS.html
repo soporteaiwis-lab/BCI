@@ -1,0 +1,1960 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#b5651d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23b5651d'/%3E%3Ctext x='32' y='44' font-size='32' text-anchor='middle' fill='white' font-family='Georgia'%3EA%3C/text%3E%3C/svg%3E">
+<title>CONTROL-AIX · Manual de reglas</title>
+<meta name="description" content="ARGOS · CONTROL-AIX: manual de reglas para detectar y limpiar basura en Control-M con validación del dueño.">
+<style>
+:root{--bg:#f6f5f1;--panel:#fff;--panel2:#f0eee8;--ink:#1d1f24;--muted:#5d636e;--line:#dcd8cf;--acc:#b5651d;--acc-soft:#f6e7d6;
+ --ok:#1f7a55;--ok-soft:#dcf1e6;--warn:#9a6a00;--warn-soft:#fbefcc;--bad:#a8322d;--bad-soft:#f8dedb;
+ --mono:"Cascadia Mono","Consolas",monospace;--sans:"Segoe UI","Inter",system-ui,sans-serif;--serif:"Georgia","Cambria",serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14161a;--panel:#1c1f25;--panel2:#23272e;--ink:#e8e6e1;--muted:#9aa1ad;--line:#333842;
+ --acc:#e0a86a;--acc-soft:#3a2c1d;--ok:#5cc79a;--ok-soft:#1b3328;--warn:#e2b84f;--warn-soft:#3a3016;--bad:#ef8a83;--bad-soft:#3d2120}}
+:root[data-theme="dark"]{--bg:#14161a;--panel:#1c1f25;--panel2:#23272e;--ink:#e8e6e1;--muted:#9aa1ad;--line:#333842;
+ --acc:#e0a86a;--acc-soft:#3a2c1d;--ok:#5cc79a;--ok-soft:#1b3328;--warn:#e2b84f;--warn-soft:#3a3016;--bad:#ef8a83;--bad-soft:#3d2120}
+*{box-sizing:border-box} html{scroll-behavior:smooth}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+img,svg{max-width:100%}
+code{overflow-wrap:anywhere;word-break:break-word}
+a{overflow-wrap:anywhere}
+input,select,textarea{font-size:16px!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 var(--sans)}
+a{color:var(--acc)} code{font-family:var(--mono);font-size:.86em;background:var(--panel2);padding:1px 5px;border-radius:4px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+header.top{border-bottom:1px solid var(--line);background:var(--panel);padding-top:env(safe-area-inset-top)}
+header.top .wrap{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-top:12px;padding-bottom:12px;flex-wrap:wrap}
+.marca{font:700 15px var(--sans);letter-spacing:.08em} .marca span{color:var(--acc)}
+.acciones{display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:6px;font:600 13px var(--sans);padding:8px 14px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;text-decoration:none}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+.hero{padding:44px 0 18px}
+.hero h1{font-family:var(--serif);font-size:2.4rem;line-height:1.1;margin:0 0 10px}
+.hero p{color:var(--muted);font-size:1.06rem;max-width:760px;margin:0}
+.tres{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:26px 0 8px}
+.tres div{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.tres b{display:block;font-size:1.02rem;margin-bottom:4px} .tres span{color:var(--muted);font-size:14px}
+@media(max-width:800px){.tres{grid-template-columns:1fr}.hero h1{font-size:1.8rem}}
+nav.indice{display:flex;gap:6px;flex-wrap:wrap;margin:22px 0 0;font-size:13px}
+nav.indice a{padding:6px 11px;border-radius:14px;background:var(--panel2);text-decoration:none;color:var(--ink)}
+h2{font-family:var(--serif);font-size:1.6rem;margin:52px 0 8px}
+h3{margin:0;font-size:1.2rem} h4{margin:18px 0 6px;font-size:1rem}
+.sub{color:var(--muted);margin:0 0 16px;max-width:820px}
+.filtros{position:sticky;top:0;z-index:5;background:var(--bg);padding:12px 0;border-bottom:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.filtros input{flex:1;min-width:220px;padding:9px 13px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:14px var(--sans)}
+.chip{font:600 12px var(--sans);min-height:36px;white-space:nowrap;padding:6px 11px;border-radius:14px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+.chip small{color:var(--muted);font-weight:400} .chip.on{background:var(--acc);border-color:var(--acc);color:#fff} .chip.on small{color:#fff}
+.familia{margin-top:34px}
+.fam-head{display:flex;gap:14px;align-items:center}
+.letra{width:42px;height:42px;border-radius:10px;background:var(--acc-soft);color:var(--acc);font:700 20px/42px var(--serif);text-align:center;flex:none}
+.t-md{margin:0;color:var(--muted);font-size:13px}
+.simple{background:var(--panel2);border-radius:10px;padding:12px 16px;margin:12px 0} .simple p{margin:3px 0}
+.reglas{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:12px}
+.regla{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.regla h4{margin:0;font-size:.98rem;line-height:1.35}
+.rid{font:700 11.5px var(--mono);color:var(--acc)}
+.det,.fp{font-size:13.5px;color:var(--ink)} .fp{color:var(--muted)}
+.peso{margin-top:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.peso span{display:block;height:6px;border-radius:3px;background:var(--acc);flex:none}
+.peso.alto span{background:var(--bad)} .peso.medio span{background:var(--warn)} .peso.bajo span{background:var(--ok)}
+.peso em{font-style:normal}
+.nota{border-left:0;background:var(--warn-soft);border-radius:8px;padding:10px 14px;margin:12px 0;font-size:14px}
+.tbl{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:auto;margin:12px 0}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font:600 11px var(--sans);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:8px 10px;background:var(--panel2);border-bottom:1px solid var(--line)}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top} tr:last-child td{border-bottom:0}
+pre.code{background:#1b1d22;color:#e6e6e6;border-radius:10px;padding:14px 16px;overflow:auto;font:12.5px/1.5 var(--mono)}
+pre.code code{background:none;padding:0;color:inherit}
+section.doc h4{font-size:1.05rem;margin-top:26px}
+details.anexo{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin:10px 0}
+details.anexo summary{cursor:pointer;padding:14px 18px;font-weight:600}
+.anexo-body{padding:0 18px 16px;border-top:1px solid var(--line)}
+.cta{margin:60px 0 40px;background:var(--acc-soft);border-radius:16px;padding:28px;display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}
+.cta h3{font-family:var(--serif);font-size:1.4rem} .cta p{margin:4px 0 0;color:var(--muted)}
+footer{color:var(--muted);font-size:12.5px;padding:24px 0 60px;border-top:1px solid var(--line)}
+.oculto{display:none!important}
+.tbl table{min-width:520px}
+@media(max-width:700px){
+ .wrap{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}
+ .ocultar-movil{display:none}
+ header.top .wrap{padding-top:8px;padding-bottom:8px;flex-wrap:nowrap}
+ .marca{white-space:nowrap;font-size:12.5px;letter-spacing:.04em}
+ .acciones{flex-wrap:nowrap;gap:6px}
+ .solo-escritorio{display:none}
+ .btn{padding:8px 10px;min-height:40px;white-space:nowrap}
+ .hero{padding-top:24px} .hero h1{font-size:1.6rem} .hero p{font-size:1rem}
+ h2{font-size:1.3rem;margin-top:40px}
+ .filtros{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:10px 0}
+ .filtros::-webkit-scrollbar{display:none}
+ .filtros input{min-width:200px;flex:0 0 72%}
+ nav.indice{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none} nav.indice a{white-space:nowrap}
+ .regla{padding:12px 14px}
+ .cta{padding:20px} .cta .btn{width:100%;justify-content:center}
+}
+@media(orientation:landscape) and (max-height:500px){.filtros{position:static}}
+.vacio{color:var(--muted);padding:20px 0}
+@media print{header.top,.filtros,.cta,nav.indice{display:none} details.anexo{display:block} .regla{break-inside:avoid}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="marca"><b class="ocultar-movil">ARGOS · </b><span>CONTROL-AIX</span></div>
+  <div class="acciones">
+    <a class="btn" href="index.html" aria-label="Menú">◈<span class="ocultar-movil">&nbsp;Menú</span></a>
+    <button class="btn" onclick="descargarMd()" aria-label="Descargar .md">⬇<span class="ocultar-movil">&nbsp;Descargar</span>&nbsp;.md</button>
+    <a class="btn pri" href="ARGOS_CONTROL_AIX_BRIEF_VALIDACION.html" aria-label="Dar mi opinión">✍&nbsp;Opinar</a>
+    <button class="btn solo-escritorio" onclick="tema()" title="Tema claro u oscuro">◐</button>
+  </div>
+</div></header>
+
+<main class="wrap">
+  <div class="hero">
+    <h1>Manual de reglas de limpieza<br>de mallas Control-M</h1>
+    <p>Cómo ArgOS decide que un job, una malla o una condición es "basura", cómo se llega a un acuerdo con el dueño antes de tocar nada y qué comandos lo ejecutan. Es la fuente única de reglas de aquí en adelante.</p>
+    <div class="tres">
+      <div><b>1 · Nunca por una sola señal</b><span>Se necesitan al menos dos evidencias de fuentes distintas y 13 meses de historia para no confundir un job anual con uno muerto.</span></div>
+      <div><b>2 · Decide el dueño</b><span>ArgOS reúne la evidencia y mide el impacto; el dueño de la aplicación aprueba y Control de Cambios autoriza.</span></div>
+      <div><b>3 · Nada se borra directo</b><span>Primero cuarentena reversible, respaldo y orden de cambio; después eliminación y verificación.</span></div>
+    </div>
+    <nav class="indice">
+      <a href="#reglas">Las 54 reglas</a><a href="#puntaje">Cómo se puntúa</a><a href="#consenso">Cómo se llega a acuerdo</a>
+      <a href="#confianza">Qué tan confiable es cada dato</a><a href="#anexos">Anexos técnicos</a>
+    </nav>
+  </div>
+
+  <h2 id="reglas">Las 54 reglas, por familia</h2>
+  <p class="sub">Cada tarjeta dice qué es la basura, cómo se detecta, cuándo NO lo es y cuánto pesa en el Índice de Basura (0 a 100). Filtra por familia o busca por palabra.</p>
+  <div class="filtros">
+    <input id="q" placeholder="Buscar: dummy, calendario, sin ejecución, mainframe, R-CND-02…" oninput="filtrar()">
+    <button class="chip on" data-fam="*">Todas <small>54</small></button><button class="chip" data-fam="A">A · Jobs muertos <small>14</small></button><button class="chip" data-fam="B">B · Mallas y folders <small>6</small></button><button class="chip" data-fam="C">C · Condiciones <small>5</small></button><button class="chip" data-fam="D">D · Calendarios <small>3</small></button><button class="chip" data-fam="E">E · Recursos, variables y eventos <small>4</small></button><button class="chip" data-fam="F">F · Infraestructura <small>6</small></button><button class="chip" data-fam="G">G · Lo que cuelga hoy <small>6</small></button><button class="chip" data-fam="H">H · Históricos y datos <small>4</small></button><button class="chip" data-fam="I">I · Mainframe (z/OS) <small>6</small></button>
+  </div>
+  <div id="familias"><section class="familia" data-fam="A" id="familia-A">
+  <div class="fam-head"><span class="letra">A</span><div><h3>Jobs muertos</h3><p class="t-md">Definiciones de jobs muertas (lo principal)</p></div></div>
+  <div class="simple"><p><b>En simple:</b> Jobs cuya definición sigue en Control-M pero ya no hacen trabajo útil: no corren, no se van a volver a programar, apuntan a algo que no existe o están duplicados.</p><p><b>Por qué importa:</b> Es la mayor parte de la basura. Ocupan licencias, ensucian la malla y confunden a quien opera.</p></div>
+  <div class="reglas"><article class="regla" data-buscar="**r-def-01** **job sin ejecución en n días** (n=90 alerta, 400 fuerte) última corrida en `cmr_runinf`/archive/`/archive/search` vs. definición en `/deploy/jobs` 25 jobs anuales, cierre fiscal, contingencia/dr, on-demand r-def-01" data-peso="25" id="R-DEF-01">
+  <div class="rid">R-DEF-01</div>
+  <h4><b>Job sin ejecución en N días</b> (N=90 alerta, 400 fuerte)</h4>
+  <div class="det"><b>Cómo se detecta:</b> Última corrida en <code>CMR_RUNINF</code>/Archive/<code>/archive/search</code> vs. definición en <code>/deploy/jobs</code></div>
+  <div class="fp"><b>Cuándo NO es basura:</b> Jobs anuales, cierre fiscal, contingencia/DR, on-demand</div>
+  <div class="peso medio" title="Peso en el Índice de Basura"><span style="width:55.00000000000001%"></span><em>peso 25</em></div>
+</article><article class="regla" data-buscar="**r-def-02** **job que nunca se ha ejecutado** desde que se creó sin registros en `cmr_runinf` ni en archive + `creationdatetime` antigua (&gt; 180 días) 30 job recién creado para un proyecto que aún no sale a producción r-def-02" data-peso="30" id="R-DEF-02">
+  <div class="rid">R-DEF-02</div>
+  <h4><b>Job que nunca se ha ejecutado</b> desde que se creó</h4>
+  <div class="det"><b>Cómo se detecta:</b> Sin registros en <code>CMR_RUNINF</code> ni en Archive + <code>CREATIONDATETIME</code> antigua (&gt; 180 días)</div>
+  <div class="fp"><b>Cuándo NO es basura:</b> Job recién creado para un proyecto que aún no sale a producción</div>
+  <div class="peso alto" title="Peso en el Índice de Basura"><span style="width:66.0%"></span><em>peso 30</em></div>
+</article><article class="regla" data-buscar="**r-def-03** **job cuyo calendario nunca lo va a programar** en los próximos 24 meses ✅ `get /run/forecast/timeline` (rango −24..+24 meses) devuelve vacío 30 jobs que se ordenan a mano (`ctmorder`, `/run/order`) o por `do forcejob` desde otro job r-def-03" data-peso="30" id="R-DEF-03">
+  <div class="rid">R-DEF-03</div>
+  <h4><b>Job cuyo calendario nunca lo va a programar</b> en los próximos 24 meses</h4>
+  <div class="det"><b>Cómo se detecta:</b> ✅ <code>GET /run/forecast/timeline</code> (rango −24..+24 meses) devuelve vacío</div>
+  <div class="fp"><b>Cuándo NO es basura:</b> Jobs que se ordenan a mano (<code>ctmorder</code>, <code>/run/order</code>) o por <code>DO FORCEJOB</code> desde otro job</div>
+  <div class="peso alto" title="Peso en el Índice de Basura"><span style="width:66.0%"></span><em>peso 30</em></div>
+</article><article class="regla" data-buscar="**r-def-04** **job con fecha de vigencia vencida** (active from/until, `activeretentionpolicy`, `until`) campo de vigencia en la definición &lt; hoy 35 ninguno relevante: si venció, ya no corre r-def-04" data-peso="35" id="R-DEF-04">
+  <div class="rid">R-DEF-04</div>
+  <h4><b>Job con fecha de vigencia vencida</b> (Active From/Until, <code>ActiveRetentionPolicy</code>, <code>Until</code>)</h4>
+  <div class="det"><b>Cómo se detecta:</b> Campo de vigencia en la definición &lt; hoy</div>
+  <div class="fp"><b>Cuándo NO es basura:</b> Ninguno relevante: si venció, ya no corre</div>
+  <div class="peso alto" title="Peso en el Índice de Basura"><span style="width:77.0%"></span><em>peso 35</em></div>
+</article><article class="regla" data-buscar="**r-def-05** **job huérfano de script/jcl**: el `memname`/`filename`/`command` apunta a algo que no existe z/os: el miembro no está en `expod.spc20.jcllib`. distribuido: el script no existe en el agente 30 miembro generado dinámicamente, librería con concatenación (`memlib` alternativo) r-def-05" data-peso="30" id="R-DEF-05">
+  <div class="rid">R-DEF-05</div>
+  <h4><b>Job huérfano de script/JCL</b>: el <code>MEMNAME</code>/<code>FileName</code>/<code>Command</code> apunta a algo que no existe</h4>
+  <div class="det"><b>Cómo se detecta:</b> z/OS: el miembro no está en <code>EXPOD.SPC20.JCLLIB</code>. Distribuido: el script no existe en el agente</div>
+  <div class="fp"><b>Cuándo NO es basura:</b> Miembro generado dinámicamente, librería con concatenación (<code>MEMLIB</code> alternativo)</div>
+  <div class="peso alto" title="Peso en el Índice de Basura"><span style="width:66.0%"></span><em>peso 30</em></div>
+</article><article class="regla" data-buscar="**r-def-06** **job apuntando a agente/host inexistente o deshabilitado** `host`/`nodeid` de la definición ∉ ✅ `get /config/server/{server}/agents` o agente en estado `disabled`/`unavailable` 25 agente caído temporalmente; hostgroup que se resuelve en tiempo de ejecución r-def-06" data-peso="25" id="R-DEF-06">
+  <div class="rid">R-DEF-06</div>
+  <h4><b>Job apuntando a agente/host inexistente o deshabilitado</b></h4>
+  <div class="det"><b>Cómo se detecta:</b> <code>Host</code>/<code>NODEID</code> de la definición ∉ ✅ <code>GET /config/server/{server}/agents</code> o agente en estado <code>Disabled</code>/<code>Unavailable</code></div>
+  <div class="fp"><b>Cuándo NO es basura:</b> Agente caído temporalmente; hostgroup que se resuelve en tiempo de ejecución</div>
+  <div class="peso medio" title="Peso en el Índice de Basura"><span style="width:55.00000000000001%"></span><em>peso 25</em></div>
+</article><article class="regla" data-buscar="**r-def-07** **run-as user inexistente** `runas` ∉ ✅ `get /config/server/{server}/runasusers` (o usuario dado de baja en el so/racf) 15 usuarios con alias o resueltos por ldap r-def-07" data-peso="15" id="R-DEF-07">
+  <div class="rid">R-DEF-07</div>
+  <h4><b>Run-as user inexistente</b></h4>
+  <div class="det"><b>Cómo se detecta:</b> <code>RunAs</code> ∉ ✅ <code>GET /config/server/{server}/runasusers</code> (o usuario dado de baja en el SO/RACF)</div>
+  <div class="fp"><b>Cuándo NO es basura:</b> Usuarios con alias o resueltos por LDAP</div>
+  <div class="peso bajo" title="Peso en el Índice de Basura"><span style="width:33.0%"></span><em>peso 15</em></div>
+</article><article class="regla" data-buscar="**r-def-08** **duplicados**: 2+ jobs que ejecutan lo mismo (mismo `command`/`memname`+`memlib`+host, mismos parámetros) con distinto nombre hash de (tipo, command/memname, host, runas, parámetros) agrupando en `/deploy/jobs` 20 mismo programa con parámetros o calendarios distintos a propósito (p. ej. diario vs. mensual) r-def-08" data-peso="20" id="R-DEF-08">
+  <div class="rid">R-DEF-08</div>
+  <h4><b>Duplicados</b>: 2+ jobs que ejecutan lo mismo (mismo <code>Command</code>/<code>MEMNAME</code>+<code>MEMLIB</code>+host, mismos parámetros) con distinto nombre</h4>
+  <div class="det"><b>Cómo se detecta:</b> Hash de (tipo, command/memname, host, runAs, parámetros) agrupando en <code>/deploy/jobs</code></div>
+  <div class="fp"><b>Cuándo NO es basura:</b> Mismo programa con parámetros o calendarios distintos a propósito (p. ej. diario vs. mensual)</div>
+  <div class="peso medio" title="Peso en el Índice de Basura"><span style="width:44.0%"></span><em>peso 20</em></div>
+</article><article class="regla" data-buscar="**r-def-09** **jobs de prueba en producción** (`test`, `prueba`, `_old`, `_bkp`, `copia`, `_tmp`, `xx`, `zz`, iniciales de persona) regex sobre nombre/descripción/folder 15 jobs productivos con nombre heredado mal puesto (confirmar con dueño) r-def-09" data-peso="15" id="R-DEF-09">
+  <div class="rid">R-DEF-09</div>
+  <h4><b>Jobs de prueba en producción</b> (<code>TEST</code>, <code>PRUEBA</code>, <code>_OLD</code>, <code>_BKP</code>, <code>COPIA</code>, <code>_TMP</code>, <code>XX</code>, <code>ZZ</code>, iniciales de persona)</h4>
+  <div class="det"><b>Cómo se detecta:</b> Regex sobre nombre/descripción/folder</div>
+  <div class="fp"><b>Cuándo NO es basura:</b> Jobs productivos con nombre heredado mal puesto (confirmar con dueño)</div>
+  <div class="peso bajo" title="Peso en el Índice de Basura"><span style="width:33.0%"></span><em>peso 15</em></div>
+</article><article class="regla" data-buscar="**r-def-10** **dummy sin propósito**: job tipo dummy sin in-conditions, sin out-conditions, sin `do` actions tipo `job:dummy` + listas vacías 20 dummy usado como &quot;hito&quot; en un servicio bim/sla r-def-10" data-peso="20" id="R-DEF-10">
+  <div class="rid">R-DEF-10</div>
+  <h4><b>Dummy sin propósito</b>: job tipo Dummy sin in-conditions, sin out-conditions, sin <code>DO</code> actions</h4>
+  <div class="det"><b>Cómo se detecta:</b> Tipo <code>Job:Dummy</code> + listas vacías</div>
+  <div class="fp"><b>Cuándo NO es basura:</b> Dummy usado como "hito" en un servicio BIM/SLA</div>
+  <div class="peso medio" title="Peso en el Índice de Basura"><span style="width:44.0%"></span><em>peso 20</em></div>
+</article><article class="regla" data-buscar="**r-def-11** **nomenclatura inválida** (dominio tdc: `tdco` + `d/e/m` + 3 caracteres = 8 fijos) regex `^tdco[dem][a-z0-9]{3}$` sobre el `memname`/`jobname` de la aplicación tdc 5 jobs de otra aplicación dentro del mismo folder. **solo señal de gobierno, no de basura por sí sola** r-def-11" data-peso="5" id="R-DEF-11">
+  <div class="rid">R-DEF-11</div>
+  <h4><b>Nomenclatura inválida</b> (dominio TDC: <code>TDCO</code> + <code>D/E/M</code> + 3 caracteres = 8 fijos)</h4>
+  <div class="det"><b>Cómo se detecta:</b> Regex <code>^TDCO[DEM][A-Z0-9]{3}$</code> sobre el <code>MEMNAME</code>/<code>JobName</code> de la aplicación TDC</div>
+  <div class="fp"><b>Cuándo NO es basura:</b> Jobs de otra aplicación dentro del mismo folder. <b>Solo señal de gobierno, no de basura por sí sola</b></div>
+  <div class="peso bajo" title="Peso en el Índice de Basura"><span style="width:11.0%"></span><em>peso 5</em></div>
+</article><article class="regla" data-buscar="**r-def-12** **sin dueño**: `application`/`subapplication` que ya no existe en el inventario, `createdby` dado de baja, descripción vacía cruce con el inventario de aplicaciones/cmdb de bci 10 sistemas vivos con documentación mala r-def-12" data-peso="10" id="R-DEF-12">
+  <div class="rid">R-DEF-12</div>
+  <h4><b>Sin dueño</b>: <code>Application</code>/<code>SubApplication</code> que ya no existe en el inventario, <code>CreatedBy</code> dado de baja, descripción vacía</h4>
+  <div class="det"><b>Cómo se detecta:</b> Cruce con el inventario de aplicaciones/CMDB de BCI</div>
+  <div class="fp"><b>Cuándo NO es basura:</b> Sistemas vivos con documentación mala</div>
+  <div class="peso bajo" title="Peso en el Índice de Basura"><span style="width:22.0%"></span><em>peso 10</em></div>
+</article><article class="regla" data-buscar="**r-def-13** **job &quot;siempre ok en ~0 s&quot;**: termina ok en &lt; 2 s en el 100% de las corridas y con output vacío ✅ `get /run/job/{jobid}/statistics` + `/archive/search?outputcontains=` / `cmr_runinf.elaptime` 15 jobs de *touch*/marca, jobs de validación rápida legítimos r-def-13" data-peso="15" id="R-DEF-13">
+  <div class="rid">R-DEF-13</div>
+  <h4><b>Job "siempre OK en ~0 s"</b>: termina OK en &lt; 2 s en el 100% de las corridas y con output vacío</h4>
+  <div class="det"><b>Cómo se detecta:</b> ✅ <code>GET /run/job/{jobId}/statistics</code> + <code>/archive/search?outputContains=</code> / <code>CMR_RUNINF.ELAPTIME</code></div>
+  <div class="fp"><b>Cuándo NO es basura:</b> Jobs de <i>touch</i>/marca, jobs de validación rápida legítimos</div>
+  <div class="peso bajo" title="Peso en el Índice de Basura"><span style="width:33.0%"></span><em>peso 15</em></div>
+</article><article class="regla" data-buscar="**r-def-14** **job forzado a mano de forma sistemática** (`set to ok`, `bypass`, `force ok`) en la mayoría de sus corridas `cmr_ioalog` / audit / log de operación 20 jobs con bug conocido en espera de corrección (eso es deuda, no basura: se clasifica aparte) r-def-14" data-peso="20" id="R-DEF-14">
+  <div class="rid">R-DEF-14</div>
+  <h4><b>Job forzado a mano de forma sistemática</b> (<code>Set To OK</code>, <code>Bypass</code>, <code>Force OK</code>) en la mayoría de sus corridas</h4>
+  <div class="det"><b>Cómo se detecta:</b> <code>CMR_IOALOG</code> / Audit / log de operación</div>
+  <div class="fp"><b>Cuándo NO es basura:</b> Jobs con bug conocido en espera de corrección (eso es deuda, no basura: se clasifica aparte)</div>
+  <div class="peso medio" title="Peso en el Índice de Basura"><span style="width:44.0%"></span><em>peso 20</em></div>
+</article></div>
+  
+</section>
+<section class="familia" data-fam="B" id="familia-B">
+  <div class="fam-head"><span class="letra">B</span><div><h3>Mallas y folders</h3><p class="t-md">Folders / mallas / sub-folders</p></div></div>
+  <div class="simple"><p><b>En simple:</b> Carpetas vacías o mallas completas donde todos los jobs están muertos.</p><p><b>Por qué importa:</b> Retirar una malla completa es el mayor avance de una sola vez.</p></div>
+  <div class="reglas"><article class="regla" data-buscar="**r-fld-01** **folder vacío** (0 jobs) ✅ `get /deploy/folders` vs. `get /deploy/jobs?folder=` 40 r-fld-01" data-peso="40" id="R-FLD-01">
+  <div class="rid">R-FLD-01</div>
+  <h4><b>Folder vacío</b> (0 jobs)</h4>
+  <div class="det"><b>Cómo se detecta:</b> ✅ <code>GET /deploy/folders</code> vs. <code>GET /deploy/jobs?folder=</code></div>
+  
+  <div class="peso alto" title="Peso en el Índice de Basura"><span style="width:88.0%"></span><em>peso 40</em></div>
+</article><article class="regla" data-buscar="**r-fld-02** **sub-folder vacío** idem, en smart folders 35 r-fld-02" data-peso="35" id="R-FLD-02">
+  <div class="rid">R-FLD-02</div>
+  <h4><b>Sub-folder vacío</b></h4>
+  <div class="det"><b>Cómo se detecta:</b> idem, en SMART folders</div>
+  
+  <div class="peso alto" title="Peso en el Índice de Basura"><span style="width:77.0%"></span><em>peso 35</em></div>
+</article><article class="regla" data-buscar="**r-fld-03** **folder cuyo 100 % de jobs ya es basura** (malla muerta completa) agregación de puntajes: todos los jobs ≥ 60 40 r-fld-03" data-peso="40" id="R-FLD-03">
+  <div class="rid">R-FLD-03</div>
+  <h4><b>Folder cuyo 100 % de jobs ya es basura</b> (malla muerta completa)</h4>
+  <div class="det"><b>Cómo se detecta:</b> Agregación de puntajes: todos los jobs ≥ 60</div>
+  
+  <div class="peso alto" title="Peso en el Índice de Basura"><span style="width:88.0%"></span><em>peso 40</em></div>
+</article><article class="regla" data-buscar="**r-fld-04** **folder que nunca se ordena** (smart folder sin reglas de scheduling válidas / user daily inexistente) ✅ `/run/forecast/timeline?folder=` vacío; ✅ `/run/userdaily/{userdaily}/missing/list` 30 r-fld-04" data-peso="30" id="R-FLD-04">
+  <div class="rid">R-FLD-04</div>
+  <h4><b>Folder que nunca se ordena</b> (SMART folder sin reglas de scheduling válidas / User Daily inexistente)</h4>
+  <div class="det"><b>Cómo se detecta:</b> ✅ <code>/run/forecast/timeline?folder=</code> vacío; ✅ <code>/run/userDaily/{userDaily}/missing/list</code></div>
+  
+  <div class="peso alto" title="Peso en el Índice de Basura"><span style="width:66.0%"></span><em>peso 30</em></div>
+</article><article class="regla" data-buscar="**r-fld-05** **versiones viejas** de la definición acumuladas en el em (`def_ver_*`) 🟡 historial de versiones en tablas `def_ver_*` 5 (higiene de bd) r-fld-05" data-peso="5" id="R-FLD-05">
+  <div class="rid">R-FLD-05</div>
+  <h4><b>Versiones viejas</b> de la definición acumuladas en el EM (<code>DEF_VER_*</code>)</h4>
+  <div class="det"><b>Cómo se detecta:</b> 🟡 historial de versiones en tablas <code>DEF_VER_*</code></div>
+  
+  <div class="peso bajo" title="Peso en el Índice de Basura"><span style="width:11.0%"></span><em>peso 5</em></div>
+</article><article class="regla" data-buscar="**r-fld-06** **folder de proyecto cerrado** (nombre con código de proyecto/ticket ya finalizado) cruce con el portafolio de proyectos 15 r-fld-06" data-peso="15" id="R-FLD-06">
+  <div class="rid">R-FLD-06</div>
+  <h4><b>Folder de proyecto cerrado</b> (nombre con código de proyecto/ticket ya finalizado)</h4>
+  <div class="det"><b>Cómo se detecta:</b> Cruce con el portafolio de proyectos</div>
+  
+  <div class="peso bajo" title="Peso en el Índice de Basura"><span style="width:33.0%"></span><em>peso 15</em></div>
+</article></div>
+  
+</section>
+<section class="familia" data-fam="C" id="familia-C">
+  <div class="fam-head"><span class="letra">C</span><div><h3>Condiciones</h3><p class="t-md">Condiciones (la basura más peligrosa: es la que rompe o cuelga mallas)</p></div></div>
+  <div class="simple"><p><b>En simple:</b> Las 'señales' que un job deja al terminar y que otro espera para arrancar. Aquí están las que nadie usa y las que nunca llegan.</p><p><b>Por qué importa:</b> Es la basura más peligrosa: puede dejar mallas esperando para siempre. Antes de tocar algo aquí, siempre se mira el impacto.</p></div>
+  <div class="reglas"><article class="regla" data-buscar="**r-cnd-01** **out-condition huérfana**: un job la agrega (+) y **ningún** job la espera 🟡 `def_lnko_p` (sign=&#x27;+&#x27;) sin match en `def_lnki_p` 10 (higiene) r-cnd-01" data-peso="10" id="R-CND-01">
+  <div class="rid">R-CND-01</div>
+  <h4><b>Out-condition huérfana</b>: un job la agrega (+) y <b>ningún</b> job la espera</h4>
+  <div class="det"><b>Cómo se detecta:</b> 🟡 <code>DEF_LNKO_P</code> (SIGN='+') sin match en <code>DEF_LNKI_P</code></div>
+  
+  <div class="peso bajo" title="Peso en el Índice de Basura"><span style="width:22.0%"></span><em>peso 10</em></div>
+</article><article class="regla" data-buscar="**r-cnd-02** **in-condition imposible**: un job espera una condición que **ningún** job produce → el job queda en *wait condition* para siempre 🟡 `def_lnki_p` sin match en `def_lnko_p`; ✅ `/run/jobs/status?status=wait condition` 35 r-cnd-02" data-peso="35" id="R-CND-02">
+  <div class="rid">R-CND-02</div>
+  <h4><b>In-condition imposible</b>: un job espera una condición que <b>ningún</b> job produce → el job queda en <i>Wait Condition</i> para siempre</h4>
+  <div class="det"><b>Cómo se detecta:</b> 🟡 <code>DEF_LNKI_P</code> sin match en <code>DEF_LNKO_P</code>; ✅ <code>/run/jobs/status?status=Wait Condition</code></div>
+  
+  <div class="peso alto" title="Peso en el Índice de Basura"><span style="width:77.0%"></span><em>peso 35</em></div>
+</article><article class="regla" data-buscar="**r-cnd-03** **condiciones antiguas acumuladas** en la tabla de condiciones (odate vieja, nunca borradas) 🟠 `ctmcontb -list` (distribuido) / ioacnd (z/os); ✅ `get /run/events` 10 r-cnd-03" data-peso="10" id="R-CND-03">
+  <div class="rid">R-CND-03</div>
+  <h4><b>Condiciones antiguas acumuladas</b> en la tabla de condiciones (ODATE vieja, nunca borradas)</h4>
+  <div class="det"><b>Cómo se detecta:</b> 🟠 <code>ctmcontb -LIST</code> (distribuido) / IOACND (z/OS); ✅ <code>GET /run/events</code></div>
+  
+  <div class="peso bajo" title="Peso en el Índice de Basura"><span style="width:22.0%"></span><em>peso 10</em></div>
+</article><article class="regla" data-buscar="**r-cnd-04** **condiciones hacia/desde jobs eliminados** (quedaron colgando tras un borrado anterior) cruce de nombres de condición contra jobs vivos 25 r-cnd-04" data-peso="25" id="R-CND-04">
+  <div class="rid">R-CND-04</div>
+  <h4><b>Condiciones hacia/desde jobs eliminados</b> (quedaron colgando tras un borrado anterior)</h4>
+  <div class="det"><b>Cómo se detecta:</b> Cruce de nombres de condición contra jobs vivos</div>
+  
+  <div class="peso medio" title="Peso en el Índice de Basura"><span style="width:55.00000000000001%"></span><em>peso 25</em></div>
+</article><article class="regla" data-buscar="**r-cnd-05** **ciclos de condiciones** (a espera b, b espera a) grafo de dependencias (argos ya tiene `dependency_graph.py`) — detección de ciclos 30 r-cnd-05" data-peso="30" id="R-CND-05">
+  <div class="rid">R-CND-05</div>
+  <h4><b>Ciclos de condiciones</b> (A espera B, B espera A)</h4>
+  <div class="det"><b>Cómo se detecta:</b> Grafo de dependencias (ArgOS ya tiene <code>dependency_graph.py</code>) — detección de ciclos</div>
+  
+  <div class="peso alto" title="Peso en el Índice de Basura"><span style="width:66.0%"></span><em>peso 30</em></div>
+</article></div>
+  
+</section>
+<section class="familia" data-fam="D" id="familia-D">
+  <div class="fam-head"><span class="letra">D</span><div><h3>Calendarios</h3><p class="t-md">Calendarios</p></div></div>
+  <div class="simple"><p><b>En simple:</b> Calendarios que ningún job usa o que ya no tienen fechas.</p><p><b>Por qué importa:</b> Ruido administrativo: confunde al programar y al auditar.</p></div>
+  <div class="reglas"><article class="regla" data-buscar="**r-cal-01** **calendario no referenciado** por ningún job ni folder ✅ `get /deploy/calendars` vs. referencias en `/deploy/jobs` 30 r-cal-01" data-peso="30" id="R-CAL-01">
+  <div class="rid">R-CAL-01</div>
+  <h4><b>Calendario no referenciado</b> por ningún job ni folder</h4>
+  <div class="det"><b>Cómo se detecta:</b> ✅ <code>GET /deploy/calendars</code> vs. referencias en <code>/deploy/jobs</code></div>
+  
+  <div class="peso alto" title="Peso en el Índice de Basura"><span style="width:66.0%"></span><em>peso 30</em></div>
+</article><article class="regla" data-buscar="**r-cal-02** **calendario vencido** (sin días marcados para el año en curso ni el siguiente) contenido del calendario 25 r-cal-02" data-peso="25" id="R-CAL-02">
+  <div class="rid">R-CAL-02</div>
+  <h4><b>Calendario vencido</b> (sin días marcados para el año en curso ni el siguiente)</h4>
+  <div class="det"><b>Cómo se detecta:</b> Contenido del calendario</div>
+  
+  <div class="peso medio" title="Peso en el Índice de Basura"><span style="width:55.00000000000001%"></span><em>peso 25</em></div>
+</article><article class="regla" data-buscar="**r-cal-03** **rule-based calendar (rbc) sin uso** ✅ `/deploy/jobs` + `/run/forecast/timeline?rbc=` 25 r-cal-03" data-peso="25" id="R-CAL-03">
+  <div class="rid">R-CAL-03</div>
+  <h4><b>Rule-Based Calendar (RBC) sin uso</b></h4>
+  <div class="det"><b>Cómo se detecta:</b> ✅ <code>/deploy/jobs</code> + <code>/run/forecast/timeline?rbc=</code></div>
+  
+  <div class="peso medio" title="Peso en el Índice de Basura"><span style="width:55.00000000000001%"></span><em>peso 25</em></div>
+</article></div>
+  
+</section>
+<section class="familia" data-fam="E" id="familia-E">
+  <div class="fam-head"><span class="letra">E</span><div><h3>Recursos, variables y eventos</h3><p class="t-md">Recursos, variables y eventos</p></div></div>
+  <div class="simple"><p><b>En simple:</b> Recursos de capacidad, variables globales y políticas de carga que nadie referencia.</p><p><b>Por qué importa:</b> Pueden bloquear o distorsionar la asignación de capacidad.</p></div>
+  <div class="reglas"><article class="regla" data-buscar="**r-res-01** **recurso cuantitativo (pool) sin jobs que lo usen** ✅ `get /run/resources` vs. `resources` en `/deploy/jobs` 25 r-res-01" data-peso="25" id="R-RES-01">
+  <div class="rid">R-RES-01</div>
+  <h4><b>Recurso cuantitativo (pool) sin jobs que lo usen</b></h4>
+  <div class="det"><b>Cómo se detecta:</b> ✅ <code>GET /run/resources</code> vs. <code>Resources</code> en <code>/deploy/jobs</code></div>
+  
+  <div class="peso medio" title="Peso en el Índice de Basura"><span style="width:55.00000000000001%"></span><em>peso 25</em></div>
+</article><article class="regla" data-buscar="**r-res-02** **control resource (mutex/semáforo) sin uso** idem (`resourcemutex`, `resourcesemaphore` en `/run/jobs/status`) 25 r-res-02" data-peso="25" id="R-RES-02">
+  <div class="rid">R-RES-02</div>
+  <h4><b>Control resource (mutex/semáforo) sin uso</b></h4>
+  <div class="det"><b>Cómo se detecta:</b> idem (<code>resourceMutex</code>, <code>resourceSemaphore</code> en <code>/run/jobs/status</code>)</div>
+  
+  <div class="peso medio" title="Peso en el Índice de Basura"><span style="width:55.00000000000001%"></span><em>peso 25</em></div>
+</article><article class="regla" data-buscar="**r-res-03** **variable global/pool no referenciada** (`%%var` que nadie lee) ✅ `get /run/variables` vs. texto de definiciones 15 r-res-03" data-peso="15" id="R-RES-03">
+  <div class="rid">R-RES-03</div>
+  <h4><b>Variable global/pool no referenciada</b> (<code>%%VAR</code> que nadie lee)</h4>
+  <div class="det"><b>Cómo se detecta:</b> ✅ <code>GET /run/variables</code> vs. texto de definiciones</div>
+  
+  <div class="peso bajo" title="Peso en el Índice de Basura"><span style="width:33.0%"></span><em>peso 15</em></div>
+</article><article class="regla" data-buscar="**r-res-04** **workload policy inactiva o sin jobs** ✅ `get /run/workloadpolicies/detailed` 20 r-res-04" data-peso="20" id="R-RES-04">
+  <div class="rid">R-RES-04</div>
+  <h4><b>Workload Policy inactiva o sin jobs</b></h4>
+  <div class="det"><b>Cómo se detecta:</b> ✅ <code>GET /run/workloadpolicies/detailed</code></div>
+  
+  <div class="peso medio" title="Peso en el Índice de Basura"><span style="width:44.0%"></span><em>peso 20</em></div>
+</article></div>
+  
+</section>
+<section class="familia" data-fam="F" id="familia-F">
+  <div class="fam-head"><span class="letra">F</span><div><h3>Infraestructura</h3><p class="t-md">Infraestructura</p></div></div>
+  <div class="simple"><p><b>En simple:</b> Agentes (servidores), grupos de hosts, conexiones y usuarios de ejecución sin uso o caídos.</p><p><b>Por qué importa:</b> Un agente caído con jobs asignados es un incidente esperando ocurrir.</p></div>
+  <div class="reglas"><article class="regla" data-buscar="**r-inf-01** **agente sin jobs asignados** ✅ `/config/server/{server}/agents` vs. hosts en `/deploy/jobs` 20 r-inf-01" data-peso="20" id="R-INF-01">
+  <div class="rid">R-INF-01</div>
+  <h4><b>Agente sin jobs asignados</b></h4>
+  <div class="det"><b>Cómo se detecta:</b> ✅ <code>/config/server/{server}/agents</code> vs. hosts en <code>/deploy/jobs</code></div>
+  
+  <div class="peso medio" title="Peso en el Índice de Basura"><span style="width:44.0%"></span><em>peso 20</em></div>
+</article><article class="regla" data-buscar="**r-inf-02** **agente deshabilitado/desconectado con jobs** (los jobs no pueden correr) ✅ `/config/server/{server}/agents` (estado) + ✅ `post .../agent/{agent}/ping` 30 r-inf-02" data-peso="30" id="R-INF-02">
+  <div class="rid">R-INF-02</div>
+  <h4><b>Agente deshabilitado/desconectado con jobs</b> (los jobs no pueden correr)</h4>
+  <div class="det"><b>Cómo se detecta:</b> ✅ <code>/config/server/{server}/agents</code> (estado) + ✅ <code>POST .../agent/{agent}/ping</code></div>
+  
+  <div class="peso alto" title="Peso en el Índice de Basura"><span style="width:66.0%"></span><em>peso 30</em></div>
+</article><article class="regla" data-buscar="**r-inf-03** **hostgroup vacío o sin uso** ✅ `get /config/server/{server}/hostgroups` + `.../hostgroup/{hg}/agents` 20 r-inf-03" data-peso="20" id="R-INF-03">
+  <div class="rid">R-INF-03</div>
+  <h4><b>Hostgroup vacío o sin uso</b></h4>
+  <div class="det"><b>Cómo se detecta:</b> ✅ <code>GET /config/server/{server}/hostgroups</code> + <code>.../hostgroup/{hg}/agents</code></div>
+  
+  <div class="peso medio" title="Peso en el Índice de Basura"><span style="width:44.0%"></span><em>peso 20</em></div>
+</article><article class="regla" data-buscar="**r-inf-04** **connection profile sin uso** (db, ftp, sap, databricks…) ✅ `get /deploy/connectionprofiles/centralized` y `/local` vs. `connectionprofile` en jobs 20 r-inf-04" data-peso="20" id="R-INF-04">
+  <div class="rid">R-INF-04</div>
+  <h4><b>Connection profile sin uso</b> (DB, FTP, SAP, Databricks…)</h4>
+  <div class="det"><b>Cómo se detecta:</b> ✅ <code>GET /deploy/connectionprofiles/centralized</code> y <code>/local</code> vs. <code>ConnectionProfile</code> en jobs</div>
+  
+  <div class="peso medio" title="Peso en el Índice de Basura"><span style="width:44.0%"></span><em>peso 20</em></div>
+</article><article class="regla" data-buscar="**r-inf-05** **run-as user sin uso** ✅ `get /config/server/{server}/runasusers` vs. `runas` en jobs 15 r-inf-05" data-peso="15" id="R-INF-05">
+  <div class="rid">R-INF-05</div>
+  <h4><b>Run-as user sin uso</b></h4>
+  <div class="det"><b>Cómo se detecta:</b> ✅ <code>GET /config/server/{server}/runasusers</code> vs. <code>RunAs</code> en jobs</div>
+  
+  <div class="peso bajo" title="Peso en el Índice de Basura"><span style="width:33.0%"></span><em>peso 15</em></div>
+</article><article class="regla" data-buscar="**r-inf-06** **remote host / agentless host sin uso** ✅ `/config/server/{server}/remotehosts`, `/agentlesshosts` 15 r-inf-06" data-peso="15" id="R-INF-06">
+  <div class="rid">R-INF-06</div>
+  <h4><b>Remote host / agentless host sin uso</b></h4>
+  <div class="det"><b>Cómo se detecta:</b> ✅ <code>/config/server/{server}/remotehosts</code>, <code>/agentlesshosts</code></div>
+  
+  <div class="peso bajo" title="Peso en el Índice de Basura"><span style="width:33.0%"></span><em>peso 15</em></div>
+</article></div>
+  
+</section>
+<section class="familia" data-fam="G" id="familia-G">
+  <div class="fam-head"><span class="letra">G</span><div><h3>Lo que cuelga hoy</h3><p class="t-md">Estado en ejecución (Active Jobs File / AJF — "lo que cuelga hoy")</p></div></div>
+  <div class="simple"><p><b>En simple:</b> Jobs del día que quedan esperando, en Hold o cancelados por días sin que nadie actúe.</p><p><b>Por qué importa:</b> Es operación, no necesariamente basura. Pero si se repite día tras día, suma evidencia de que el job ya no sirve.</p></div>
+  <div class="reglas"><article class="regla" data-buscar="**r-run-01** **job en wait eterno**: odate vieja (&gt; 3 días) y sigue esperando condición/usuario/recurso ✅ `get /run/jobs/status?status=wait condition&amp;orderdateto=&lt;hoy-3&gt;` 20 r-run-01" data-peso="20" id="R-RUN-01">
+  <div class="rid">R-RUN-01</div>
+  <h4><b>Job en Wait eterno</b>: ODATE vieja (&gt; 3 días) y sigue esperando condición/usuario/recurso</h4>
+  <div class="det"><b>Cómo se detecta:</b> ✅ <code>GET /run/jobs/status?status=Wait Condition&amp;orderDateTo=&lt;hoy-3&gt;</code></div>
+  
+  <div class="peso medio" title="Peso en el Índice de Basura"><span style="width:44.0%"></span><em>peso 20</em></div>
+</article><article class="regla" data-buscar="**r-run-02** **job en hold por más de n días** (n=15) ✅ `/run/jobs/status?held=true` + fecha de orden 20 r-run-02" data-peso="20" id="R-RUN-02">
+  <div class="rid">R-RUN-02</div>
+  <h4><b>Job en HOLD por más de N días</b> (N=15)</h4>
+  <div class="det"><b>Cómo se detecta:</b> ✅ <code>/run/jobs/status?held=true</code> + fecha de orden</div>
+  
+  <div class="peso medio" title="Peso en el Índice de Basura"><span style="width:44.0%"></span><em>peso 20</em></div>
+</article><article class="regla" data-buscar="**r-run-03** **ended not ok abandonado**: falló y nadie lo reejecutó ni lo cerró en n días ✅ `/run/jobs/status?status=ended not ok` + odate 20 r-run-03" data-peso="20" id="R-RUN-03">
+  <div class="rid">R-RUN-03</div>
+  <h4><b>Ended Not OK abandonado</b>: falló y nadie lo reejecutó ni lo cerró en N días</h4>
+  <div class="det"><b>Cómo se detecta:</b> ✅ <code>/run/jobs/status?status=Ended Not OK</code> + ODATE</div>
+  
+  <div class="peso medio" title="Peso en el Índice de Basura"><span style="width:44.0%"></span><em>peso 20</em></div>
+</article><article class="regla" data-buscar="**r-run-04** **job cíclico improductivo**: corre cada x minutos y siempre termina en segundos sin hacer nada ✅ `cyclic=true` + estadísticas 15 r-run-04" data-peso="15" id="R-RUN-04">
+  <div class="rid">R-RUN-04</div>
+  <h4><b>Job cíclico improductivo</b>: corre cada X minutos y siempre termina en segundos sin hacer nada</h4>
+  <div class="det"><b>Cómo se detecta:</b> ✅ <code>cyclic=true</code> + estadísticas</div>
+  
+  <div class="peso bajo" title="Peso en el Índice de Basura"><span style="width:33.0%"></span><em>peso 15</em></div>
+</article><article class="regla" data-buscar="**r-run-05** **jobs marcados &quot;deleted&quot; que siguen en el ajf** ✅ `/run/jobs/status?deleted=true` 10 r-run-05" data-peso="10" id="R-RUN-05">
+  <div class="rid">R-RUN-05</div>
+  <h4><b>Jobs marcados "deleted" que siguen en el AJF</b></h4>
+  <div class="det"><b>Cómo se detecta:</b> ✅ <code>/run/jobs/status?deleted=true</code></div>
+  
+  <div class="peso bajo" title="Peso en el Índice de Basura"><span style="width:22.0%"></span><em>peso 10</em></div>
+</article><article class="regla" data-buscar="**r-run-06** **confirm pendiente** (wait user) que nadie confirma ✅ `status=wait user` + odate vieja 20 r-run-06" data-peso="20" id="R-RUN-06">
+  <div class="rid">R-RUN-06</div>
+  <h4><b>Confirm pendiente</b> (Wait User) que nadie confirma</h4>
+  <div class="det"><b>Cómo se detecta:</b> ✅ <code>status=Wait User</code> + ODATE vieja</div>
+  
+  <div class="peso medio" title="Peso en el Índice de Basura"><span style="width:44.0%"></span><em>peso 20</em></div>
+</article></div>
+  <div class="nota">Importante: la Familia G es <b>basura operacional</b> (se limpia sacando el job del día con</div><div class="nota"><code>delete</code>/<code>setToOk</code>), no necesariamente basura de <b>definición</b>. Pero si el mismo job cae</div><div class="nota">en G varios días seguidos, eso <b>suma evidencia</b> a las reglas A.</div>
+</section>
+<section class="familia" data-fam="H" id="familia-H">
+  <div class="fam-head"><span class="letra">H</span><div><h3>Históricos y datos</h3><p class="t-md">Históricos y datos (higiene de base de datos)</p></div></div>
+  <div class="simple"><p><b>En simple:</b> Históricos, logs y salidas que crecen sin control.</p><p><b>Por qué importa:</b> Se resuelve con políticas de retención, no borrando a mano.</p></div>
+  <div class="reglas"><article class="regla" data-buscar="**r-his-01** archive (workload archiving) con retención excedida ✅ `get /config/archive/statistics`, `/config/archive/rules` ✅ `delete /config/archive/cleanup` con filtros y excepciones r-his-01" data-peso="0" id="R-HIS-01">
+  <div class="rid">R-HIS-01</div>
+  <h4>Archive (Workload Archiving) con retención excedida</h4>
+  <div class="det"><b>Cómo se detecta:</b> ✅ <code>GET /config/archive/statistics</code>, <code>/config/archive/rules</code></div>
+  <div class="fp"><b>Qué se hace:</b> ✅ <code>DELETE /config/archive/cleanup</code> con filtros y excepciones</div>
+  <div class="peso"><em></em></div>
+</article><article class="regla" data-buscar="**r-his-02** `cmr_ioalog` y logs crecidos sin purgar 🟡 tamaño de tabla / 🟠 parámetros de retención (`ctm_menu`, `ctmdiskspace`) ajustar retención, no borrar a mano r-his-02" data-peso="0" id="R-HIS-02">
+  <div class="rid">R-HIS-02</div>
+  <h4><code>CMR_IOALOG</code> y logs crecidos sin purgar</h4>
+  <div class="det"><b>Cómo se detecta:</b> 🟡 tamaño de tabla / 🟠 parámetros de retención (<code>ctm_menu</code>, <code>ctmdiskspace</code>)</div>
+  <div class="fp"><b>Qué se hace:</b> Ajustar retención, no borrar a mano</div>
+  <div class="peso"><em></em></div>
+</article><article class="regla" data-buscar="**r-his-03** sysouts/outputs de jobs antiguos en los agentes filesystem de los agentes (`proclog`, `sysout`) purga por política r-his-03" data-peso="0" id="R-HIS-03">
+  <div class="rid">R-HIS-03</div>
+  <h4>Sysouts/outputs de jobs antiguos en los agentes</h4>
+  <div class="det"><b>Cómo se detecta:</b> Filesystem de los agentes (<code>proclog</code>, <code>sysout</code>)</div>
+  <div class="fp"><b>Qué se hace:</b> Purga por política</div>
+  <div class="peso"><em></em></div>
+</article><article class="regla" data-buscar="**r-his-04** reportes/netreports viejos directorios de reportes del em purga por política r-his-04" data-peso="0" id="R-HIS-04">
+  <div class="rid">R-HIS-04</div>
+  <h4>Reportes/netreports viejos</h4>
+  <div class="det"><b>Cómo se detecta:</b> Directorios de reportes del EM</div>
+  <div class="fp"><b>Qué se hace:</b> Purga por política</div>
+  <div class="peso"><em></em></div>
+</article></div>
+  
+</section>
+<section class="familia" data-fam="I" id="familia-I">
+  <div class="fam-head"><span class="letra">I</span><div><h3>Mainframe (z/OS)</h3><p class="t-md">Mainframe z/OS (específico dominio TDC de BCI)</p></div></div>
+  <div class="simple"><p><b>En simple:</b> JCL, programas COBOL, tarjetas SORT y archivos del mainframe que ningún job usa.</p><p><b>Por qué importa:</b> Es donde ArgOS ve lo que Control-M no ve: Control-M no sabe si el JCL o el programa al que apunta está vivo.</p></div>
+  <div class="reglas"><article class="regla" data-buscar="**r-zos-01** **miembro jcl huérfano**: existe en `expod.spc20.jcllib` pero **ningún** job de control-m lo referencia en `memname` listado de miembros de la librería (ispf 3.4 / `listds ... members`, extractor py3270 de argos) vs. `memname` de todas las definiciones 30 r-zos-01" data-peso="30" id="R-ZOS-01">
+  <div class="rid">R-ZOS-01</div>
+  <h4><b>Miembro JCL huérfano</b>: existe en <code>EXPOD.SPC20.JCLLIB</code> pero <b>ningún</b> job de Control-M lo referencia en <code>MEMNAME</code></h4>
+  <div class="det"><b>Cómo se detecta:</b> Listado de miembros de la librería (ISPF 3.4 / <code>LISTDS ... MEMBERS</code>, extractor py3270 de ArgOS) vs. <code>MEMNAME</code> de todas las definiciones</div>
+  
+  <div class="peso alto" title="Peso en el Índice de Basura"><span style="width:66.0%"></span><em>peso 30</em></div>
+</article><article class="regla" data-buscar="**r-zos-02** **programa cobol huérfano** (`cctsf.paso`): ningún jcl hace `exec pgm=` sobre él parser jcl de argos (`malla_catalog._agregar_steps_jcl`) sobre todos los jcl vivos 25 r-zos-02" data-peso="25" id="R-ZOS-02">
+  <div class="rid">R-ZOS-02</div>
+  <h4><b>Programa COBOL huérfano</b> (<code>CCTSF.PASO</code>): ningún JCL hace <code>EXEC PGM=</code> sobre él</h4>
+  <div class="det"><b>Cómo se detecta:</b> Parser JCL de ArgOS (<code>malla_catalog._agregar_steps_jcl</code>) sobre todos los JCL vivos</div>
+  
+  <div class="peso medio" title="Peso en el Índice de Basura"><span style="width:55.00000000000001%"></span><em>peso 25</em></div>
+</article><article class="regla" data-buscar="**r-zos-03** **tarjeta sort huérfana** en `expod.sortlib` (ningún `sysin dd dsn=expod.sortlib(xxx)`) parser jcl 20 r-zos-03" data-peso="20" id="R-ZOS-03">
+  <div class="rid">R-ZOS-03</div>
+  <h4><b>Tarjeta SORT huérfana</b> en <code>EXPOD.SORTLIB</code> (ningún <code>SYSIN DD DSN=EXPOD.SORTLIB(xxx)</code>)</h4>
+  <div class="det"><b>Cómo se detecta:</b> Parser JCL</div>
+  
+  <div class="peso medio" title="Peso en el Índice de Basura"><span style="width:44.0%"></span><em>peso 20</em></div>
+</article><article class="regla" data-buscar="**r-zos-04** **dataset que se escribe y nadie lee** (dsn solo con `disp=(new,catlg)` y sin lectores en ningún jcl) grafo dsn productor→consumidor (argos ya arma aristas `lee`/`escribe`) 20 r-zos-04" data-peso="20" id="R-ZOS-04">
+  <div class="rid">R-ZOS-04</div>
+  <h4><b>Dataset que se escribe y nadie lee</b> (DSN solo con <code>DISP=(NEW,CATLG)</code> y sin lectores en ningún JCL)</h4>
+  <div class="det"><b>Cómo se detecta:</b> Grafo DSN productor→consumidor (ArgOS ya arma aristas <code>lee</code>/<code>escribe</code>)</div>
+  
+  <div class="peso medio" title="Peso en el Índice de Basura"><span style="width:44.0%"></span><em>peso 20</em></div>
+</article><article class="regla" data-buscar="**r-zos-05** **gdg con generaciones que nadie consume** grafo dsn + catálogo 15 r-zos-05" data-peso="15" id="R-ZOS-05">
+  <div class="rid">R-ZOS-05</div>
+  <h4><b>GDG con generaciones que nadie consume</b></h4>
+  <div class="det"><b>Cómo se detecta:</b> Grafo DSN + catálogo</div>
+  
+  <div class="peso bajo" title="Peso en el Índice de Basura"><span style="width:33.0%"></span><em>peso 15</em></div>
+</article><article class="regla" data-buscar="**r-zos-06** **tablas datacom sin acceso** (el dominio tdc usa datacom, no db2) cruce programas cobol ↔ tablas datacom vs. programas vivos 15 r-zos-06" data-peso="15" id="R-ZOS-06">
+  <div class="rid">R-ZOS-06</div>
+  <h4><b>Tablas Datacom sin acceso</b> (el dominio TDC usa Datacom, no DB2)</h4>
+  <div class="det"><b>Cómo se detecta:</b> Cruce programas COBOL ↔ tablas Datacom vs. programas vivos</div>
+  
+  <div class="peso bajo" title="Peso en el Índice de Basura"><span style="width:33.0%"></span><em>peso 15</em></div>
+</article></div>
+  <div class="nota">La Familia I es donde ArgOS tiene <b>ventaja real frente a las herramientas de BMC</b>:</div><div class="nota">Control-M no sabe si el JCL o el COBOL al que apunta está vivo o si su dataset de salida</div><div class="nota">lo lee alguien; ArgOS sí, porque parsea JCL y COBOL. Es el argumento comercial más fuerte.</div>
+</section></div>
+  <div id="sin" class="vacio oculto">Ninguna regla coincide con la búsqueda.</div>
+
+  <section class="doc" id="puntaje"><h2>Puntaje de basura (Índice de Basura 0–100) 🔵 CRITERIO</h2><h4>2.1 Fórmula</h4>
+<pre class="code" data-lang=""><code>score_bruto(job) = Σ peso(regla) para cada regla que dispara
+score(job)       = min(100, score_bruto × factor_confianza × factor_exclusion)
+
+factor_confianza = 1.0  si la historia de ejecución cubre ≥ 13 meses
+                   0.6  si cubre entre 3 y 13 meses
+                   0.3  si cubre &lt; 3 meses   (no se puede opinar sobre jobs anuales)
+
+factor_exclusion = 0    si el job está en la LISTA DE PROTECCIÓN (2.3)
+                   1    en otro caso</code></pre>
+<p><b>¿Por qué 13 meses?</b> Porque existen jobs <b>anuales</b> (cierre contable, cierre fiscal, informes regulatorios CMF de fin de año, recálculo anual de tasas/cupos de tarjeta). Con menos de un año de historia, un job anual es indistinguible de uno muerto. Este es el falso positivo número uno en limpiezas de Control-M.</p>
+<h4>2.2 Bandas → estados de ArgOS (ya existen en <code>malla_catalog.ESTADOS_LIMPIEZA</code>)</h4>
+<div class="tbl"><table><tr><th>Score</th><th>Estado ArgOS</th><th>Qué significa</th><th>Qué se hace</th></tr><tr><td>0–29</td><td><code>activa</code></td><td>Sin hallazgos relevantes</td><td>Nada</td></tr><tr><td>30–59</td><td><code>en_observacion</code></td><td>Hay señales, pero no alcanzan</td><td>Se revisa en el siguiente ciclo; se puede pedir info al dueño</td></tr><tr><td>60–79</td><td><code>candidata_limpieza</code></td><td>Evidencia suficiente para proponer</td><td>Entra al flujo de consenso (sección 3)</td></tr><tr><td>80–100</td><td><code>candidata_limpieza</code> + prioridad alta</td><td>Evidencia fuerte y de varias fuentes</td><td>Idem, primero en la cola</td></tr><tr><td>—</td><td><code>suspendida</code></td><td>En cuarentena, reversible</td><td>Sección 3, paso 6</td></tr><tr><td>—</td><td><code>en_limpieza</code></td><td>Respaldada, a la espera de la eliminación final</td><td>Sección 3, paso 7</td></tr><tr><td>—</td><td><code>limpiada</code></td><td>Eliminada de Control-M, con respaldo y bitácora</td><td>Fin</td></tr></table></div>
+<h4>2.3 Lista de protección (nunca se proponen, aunque el puntaje dé 100)</h4>
+<ol><li>Jobs marcados como <b>contingencia / DR / recuperación</b> (por folder, prefijo o etiqueta acordada con BCI).</li><li>Jobs <b>regulatorios</b> (CMF, SII, UAF, Banco Central) aunque corran una vez al año.</li><li>Jobs <b>on-demand</b> documentados (los ordena otro sistema, un operador o <code>DO FORCEJOB</code>).</li><li>Jobs que son <b>destino de <code>DO FORCEJOB</code>/<code>Run Job</code></b> de otro job vivo.</li><li>Jobs con <b>ventana de congelamiento</b> (freeze de fin de año, cambios en curso).</li><li>Jobs creados hace <b>&lt; 180 días</b> (proyecto en implantación).</li><li>Todo lo que el dueño de la aplicación haya marcado como "no tocar" en una revisión anterior (esa respuesta queda guardada y se respeta en los ciclos siguientes, con fecha de vencimiento).</li></ol>
+<h4>2.4 Regla de las dos fuentes</h4>
+<p>Una propuesta de limpieza <b>exige al menos 2 fuentes independientes</b> que coincidan. Por ejemplo:</p>
+<ul><li><i>Definición</i> (<code>/deploy/jobs</code>) <b>+</b> <i>historia</i> (<code>CMR_RUNINF</code>/Archive) <b>+</b> <i>forecast</i> (<code>/run/forecast/timeline</code>), o</li><li><i>Definición</i> <b>+</b> <i>z/OS</i> (JCL inexistente en la librería).</li></ul>
+<p>Una sola fuente (p. ej. "no corrió en 90 días") deja el job como máximo en <code>en_observacion</code>.</p></section>
+  <section class="doc" id="consenso"><h2>Proceso de consenso: cómo se llega a "esto es basura y se elimina"</h2><p>Es el proceso manual que describió BCI, formalizado. Cada paso deja registro (ArgOS ya lo hace en <code>historial_limpieza</code> y <code>bitacora_limpieza.json</code>: <i>nunca una baja silenciosa</i>).</p>
+<pre class="code" data-lang=""><code> 1. EXTRAER       →  2. DETECTAR     →  3. PUNTUAR      →  4. DICTAMEN IA
+ (API/SQL/z/OS,       (reglas R-*,        (índice 0-100,     (explica la evidencia,
+  solo lectura)        deterministas)      protección)        no decide)
+        ↓
+ 5. REVISIÓN DUEÑO  →  6. CUARENTENA   →  7. RESPALDO +    →  8. VERIFICACIÓN
+ (dueño de aplicación   (30-90 días,        ELIMINACIÓN        (nada se rompió,
+  + control batch)       reversible)         (orden de cambio)  bitácora cerrada)</code></pre>
+<h4>Paso 1 — Extraer (solo lectura)</h4>
+<p>Usuario de servicio <b>de solo lectura</b> en Control-M (perfil de consulta, sin permisos de deploy ni delete). Se extrae: definiciones completas (<code>/deploy/jobs?format=json&amp;useArrayFormat=true</code>), folders, calendarios, recursos, agentes, estado activo, historia (Archive/CMR_RUNINF), forecast y, en z/OS, los miembros de las librerías.</p>
+<h4>Paso 2 — Detectar</h4>
+<p>Reglas deterministas de la sección 1 (código, no IA). Salida: lista de hallazgos <code>{job, regla, evidencia, fuente, fecha}</code>.</p>
+<h4>Paso 3 — Puntuar</h4>
+<p>Fórmula de la sección 2 + lista de protección + regla de las dos fuentes.</p>
+<h4>Paso 4 — Dictamen IA (RAG)</h4>
+<p>El LLM recibe los hallazgos, la definición del job, su vecindario en el grafo (quién lo dispara, a quién dispara) y este documento como contexto recuperado. Produce un <b>dictamen explicado</b> en lenguaje de negocio: <i>"TDCOD123 no se ejecuta desde el 2025-03-02; su JCL no existe en EXPOD.SPC20.JCLLIB; la condición TDCOD123-OK no la espera nadie; forecast vacío 24 meses. Riesgo de eliminar: bajo. Impacto aguas abajo: ninguno."</i> <b>El LLM no cambia el puntaje ni el estado.</b> Si el LLM contradice las reglas, se marca para revisión humana.</p>
+<h4>Paso 5 — Revisión del dueño</h4>
+<p>ArgOS genera el correo/ticket al <b>dueño de la aplicación</b> (ya existe <code>solicitudes_malla.borrador_correo</code> como patrón). Respuestas posibles: <code>aprobar</code> / <code>rechazar (proteger)</code> / <code>necesita más info</code>. El rechazo alimenta la lista de protección 2.3 (punto 7).</p>
+<h4>Paso 6 — Cuarentena (reversible) — <b>nunca borrar directo</b></h4>
+<p>Opciones, de menos a más invasiva:</p>
+<div class="tbl"><table><tr><th>Opción</th><th>Cómo</th><th>Reversión</th></tr><tr><td>a) Sacar del scheduling</td><td>Redeploy del job con <code>"When": {"Schedule": "Never"}</code> 🟠 (validar el valor soportado en la versión de BCI con <code>ctm build</code>) o calendario vacío</td><td>Redeploy de la definición respaldada</td></tr><tr><td>b) Mover a folder de cuarentena</td><td>Folder <code>ZZ_CUARENTENA_&lt;AAAAMM&gt;</code> sin reglas de orden</td><td>Mover de vuelta</td></tr><tr><td>c) Hold del job ordenado</td><td>✅ <code>POST /run/job/{jobId}/hold</code></td><td>✅ <code>POST /run/job/{jobId}/free</code></td></tr></table></div>
+<p>Duración recomendada: <b>30 días</b> para diarios/semanales, <b>1 ciclo completo</b> (hasta 13 meses) si hay duda de que sea mensual/anual. Si nadie reclama en la cuarentena, pasa al paso 7.</p>
+<h4>Paso 7 — Respaldo + eliminación (con orden de cambio)</h4>
+<ol><li>Respaldo <b>obligatorio</b>: ✅ <code>GET /deploy/jobs?folder=&lt;f&gt;&amp;format=json</code> y <code>format=xml</code> → se guarda en <code>data/&lt;entorno&gt;/respaldos_limpieza/&lt;fecha&gt;/&lt;folder&gt;.json|.xml</code> + commit git.</li><li>Eliminación: ✅ <code>DELETE /deploy/job/{jobPath}?server=&lt;ctm&gt;</code> (job) o ✅ <code>DELETE /deploy/folder/{server}/{folderName}</code> (folder completo) o ✅ <code>DELETE /deploy/subfolder/{subFolderPath}?server=</code>.</li><li>Limpieza asociada: calendarios (✅ <code>DELETE /deploy/calendar/{name}</code>), recursos (✅ <code>DELETE /run/resource/{server}/{name}</code>), variables (✅ <code>DELETE /run/variables/{server}</code>), eventos/condiciones (✅ <code>DELETE /run/event/{server}/{name}/{date}</code>), connection profiles (✅ <code>DELETE /deploy/connectionprofile/...</code>).</li><li>z/OS: mover el miembro JCL a una librería de retirados (<code>EXPOD.SPC20.JCLLIB.RETIRADOS</code>), no borrarlo. Lo ejecuta el equipo de BCI con su proceso de cambio.</li></ol>
+<h4>Paso 8 — Verificación</h4>
+<ul><li>Al día siguiente del New Day: ✅ <code>/run/jobs/status?status=Wait Condition</code> no debe mostrar jobs</li></ul>
+<p>nuevos esperando condiciones que producía algo eliminado.</p>
+<ul><li>✅ <code>GET /usage/jobs</code> antes/después → <b>métrica de valor</b> para el informe (jobs eliminados,</li></ul>
+<p>% de reducción, licencias liberadas si BCI paga por job).</p>
+<ul><li>Bitácora cerrada con: quién aprobó, número de orden de cambio, respaldo, resultado.</li></ul>
+<h4>RACI mínimo 🔵</h4>
+<div class="tbl"><table><tr><th>Actividad</th><th>ArgOS (IA)</th><th>Analista AIWIS</th><th>Dueño aplicación BCI</th><th>Control Batch / Operación BCI</th><th>Gestión de cambios BCI</th></tr><tr><td>Detectar y puntuar</td><td><b>R</b></td><td>A</td><td>I</td><td>I</td><td>—</td></tr><tr><td>Dictamen</td><td><b>R</b></td><td>A</td><td>I</td><td>C</td><td>—</td></tr><tr><td>Aprobar eliminación</td><td>—</td><td>C</td><td><b>A/R</b></td><td>C</td><td>I</td></tr><tr><td>Cuarentena</td><td>C</td><td>R</td><td>I</td><td><b>A</b></td><td>I</td></tr><tr><td>Eliminar en producción</td><td>—</td><td>C</td><td>I</td><td><b>R</b></td><td><b>A</b></td></tr><tr><td>Verificar</td><td><b>R</b></td><td>A</td><td>I</td><td>C</td><td>I</td></tr></table></div></section>
+
+  <section class="doc" id="confianza"><h2>Qué tan confiable es cada dato</h2><div class="tbl"><table><tr><th>Marca</th><th>Significado</th></tr><tr><td>✅ <b>API</b></td><td>Endpoint verificado contra el <b>Swagger oficial de Control-M Automation API v9.22.125</b> (copiado en <code>docs/referencia_controlm_api/controlm_swagger_9.22.125.json</code>, 300 endpoints). Es la fuente más confiable de este documento.</td></tr><tr><td>🟡 <b>SQL</b></td><td>Tablas y columnas documentadas por BMC y comunidad (DEF_JOB, DEF_LNKI_P, DEF_LNKO_P, CMS_JOBDEF, CMR_RUNINF, CMR_AJF, CMR_IOALOG). <b>Validar contra el Physical Data Model de la versión instalada en BCI</b> antes de correr en producción: los nombres de columna cambian entre versiones.</td></tr><tr><td>🟠 <b>UTIL</b></td><td>Utilitarios de línea de comando (ctmpsm, ctmcontb, emdef, IOA/z/OS). Existen y se usan así habitualmente, pero la sintaxis exacta depende de la versión: validar con <code>-h</code> o con el manual de la versión antes de automatizarlos.</td></tr><tr><td>🔵 <b>CRITERIO</b></td><td>Umbral o práctica de gobierno propuesta por AIWIS. No es un estándar de BMC; es la política que ArgOS propone y que BCI debe aprobar.</td></tr></table></div>
+<p><b>Regla de oro del documento:</b> <i>ningún job se elimina porque una sola señal lo diga</i>. La basura se declara por <b>consenso de evidencias</b> (sección 3), y la IA <b>propone pero nunca decide ni ejecuta</b> la eliminación.</p>
+<p>Contexto de negocio: en la llamada de preventa (ver <code>docs/ANALISIS MEET BCI-AIWIS PROYECTO ARGOS/PABLO_SANDOVAL_LLAMADA1_ARGOS_PREVENTA_TRANSCRIPCION.md</code>) el pedido fue: <i>"quiero saber cómo lo hacen a mano, qué comandos corren (…) con esto logré determinar que sí, candidatos a eliminar (…) pido la autorización, luego ya se elimina"</i>. Este documento reconstruye justamente ese proceso manual para que ArgOS lo haga con IA.</p></section>
+
+  <h2 id="anexos">Anexos técnicos</h2>
+  <p class="sub">Para el equipo técnico: comandos de la API, utilitarios, consultas SQL, reprogramación de mallas, código, diseño del RAG, hoja de ruta, checklist y fuentes. Haz clic para abrir cada uno.</p>
+  <details class="anexo" id="anexo-4"><summary><span>Comandos: Control-M Automation API (REST + CLI <code>ctm</code>)</span></summary><div class="anexo-body"><h4>4.1 Autenticación ✅</h4>
+<pre class="code" data-lang="bash"><code># Opción A — API Key (recomendada para servicios; Control-M 9.0.21+ / SaaS)
+curl -H &quot;x-api-key: $CTM_API_KEY&quot; &quot;$CTM_ENDPOINT/automation-api/deploy/folders?server=*&amp;folder=*&quot;
+
+# Opción B — sesión con usuario/clave → token Bearer
+TOKEN=$(curl -s -k -X POST &quot;$CTM_ENDPOINT/automation-api/session/login&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &quot;{\&quot;username\&quot;:\&quot;$CTM_USER\&quot;,\&quot;password\&quot;:\&quot;$CTM_PASSWORD\&quot;}&quot; | jq -r .token)
+curl -k -H &quot;Authorization: Bearer $TOKEN&quot; &quot;$CTM_ENDPOINT/automation-api/...&quot;
+curl -k -X POST -H &quot;Authorization: Bearer $TOKEN&quot; &quot;$CTM_ENDPOINT/automation-api/session/logout&quot;
+
+# CLI ctm (mismo backend REST)
+ctm environment add bci_ro &quot;$CTM_ENDPOINT/automation-api&quot; &quot;$CTM_USER&quot; &quot;$CTM_PASSWORD&quot;
+ctm environment set bci_ro
+ctm session login</code></pre>
+<p><code>$CTM_ENDPOINT</code> típico: <code>https://&lt;host-em&gt;:8443</code>. <b>Nunca</b> hardcodear: van en <code>.env</code> (regla de CLAUDE.md).</p>
+<h4>4.2 Extracción (lectura) — mapa regla → endpoint ✅</h4>
+<div class="tbl"><table><tr><th>Para qué</th><th>REST</th><th>CLI <code>ctm</code></th></tr><tr><td>Todas las definiciones (JSON)</td><td><code>GET /deploy/jobs?ctm=<i>&amp;folder=</i>&amp;format=json&amp;useArrayFormat=true</code></td><td><code>ctm deploy jobs::get -s "ctm=<i>&amp;folder=</i>"</code></td></tr><tr><td>Definiciones en XML (respaldo)</td><td><code>GET /deploy/jobs?...&amp;format=xml</code></td><td><code>ctm deploy jobs::get xml -s "..."</code></td></tr><tr><td>Folders por aplicación</td><td><code>GET /deploy/folders?server=<i>&amp;folder=</i>&amp;application=TDC*</code></td><td><code>ctm deploy folders::get -s "..."</code></td></tr><tr><td>z/OS: filtrar por librería</td><td>parámetro <code>library=</code> en <code>/deploy/jobs</code> y <code>/deploy/folders</code></td><td>idem</td></tr><tr><td>Calendarios</td><td><code>GET /deploy/calendars?server=<i>&amp;name=</i></code></td><td><code>ctm deploy calendars::get -s "..."</code></td></tr><tr><td>Estado del día (AJF)</td><td><code>GET /run/jobs/status?limit=10000&amp;folder=...&amp;status=...&amp;held=...&amp;deleted=...&amp;cyclic=...&amp;orderDateFrom=...&amp;orderDateTo=...</code></td><td><code>ctm run jobs:status::get -s "..."</code></td></tr><tr><td>Log / output de un job</td><td><code>GET /run/job/{jobId}/log</code>, <code>/output</code></td><td><code>ctm run job:log::get &lt;jobId&gt;</code></td></tr><tr><td>Estadísticas de un job</td><td><code>GET /run/job/{jobId}/statistics</code></td><td><code>ctm run job:statistics::get &lt;jobId&gt;</code></td></tr><tr><td>Por qué espera</td><td><code>GET /run/job/{jobId}/waitingInfo</code></td><td><code>ctm run job:waitingInfo::get &lt;jobId&gt;</code></td></tr><tr><td><b>Historia larga (Archive)</b></td><td><code>GET /archive/search?jobname=&amp;folder=&amp;fromTime=YYYY-MM-DD&amp;toTime=&amp;status=&amp;numberOfRuns=&amp;limit=</code></td><td><code>ctm archive jobs::get -s "..."</code></td></tr><tr><td><b>Forecast 24 meses</b> (R-DEF-03)</td><td><code>GET /run/forecast/timeline?ctm=&amp;folder=&amp;jobs=*&amp;filterType=relativeMonths&amp;from=-24&amp;to=24</code> → <code>pollId</code> → <code>GET /run/forecast/timeline/poll/{poll}</code></td><td>🟠 <code>ctm run forecast...</code> (validar nombre del subcomando)</td></tr><tr><td>Jobs no ordenados de un User Daily</td><td><code>GET /run/userDaily/{userDaily}/missing/list?server=</code></td><td>🟠</td></tr><tr><td>Recursos</td><td><code>GET /run/resources?ctm=<i>&amp;name=</i></code></td><td><code>ctm run resources::get -s "..."</code></td></tr><tr><td>Eventos/condiciones</td><td><code>GET /run/events?ctm=<i>&amp;name=</i>&amp;date=*&amp;limit=</code></td><td><code>ctm run events::get -s "..."</code></td></tr><tr><td>Variables</td><td><code>GET /run/variables?server=&amp;pool=&amp;variable=</code></td><td>🟠</td></tr><tr><td>Servidores</td><td><code>GET /config/servers</code></td><td><code>ctm config servers::get</code></td></tr><tr><td>Agentes</td><td><code>GET /config/server/{server}/agents</code></td><td><code>ctm config server:agents::get &lt;server&gt;</code></td></tr><tr><td>Hostgroups</td><td><code>GET /config/server/{server}/hostgroups</code></td><td><code>ctm config server:hostgroups::get &lt;server&gt;</code></td></tr><tr><td>Run-as users</td><td><code>GET /config/server/{server}/runasusers</code></td><td><code>ctm config server:runasusers::get &lt;server&gt;</code></td></tr><tr><td>Connection profiles</td><td><code>GET /deploy/connectionprofiles/centralized?type=<i>&amp;name=</i></code>, <code>/deploy/connectionprofiles/local</code></td><td><code>ctm deploy connectionprofiles:centralized::get -t "*"</code></td></tr><tr><td>Workload policies</td><td><code>GET /run/workloadpolicies/detailed</code></td><td><code>ctm run workloadpolicies::get</code></td></tr><tr><td>Conteo de jobs (métrica de valor)</td><td><code>GET /usage/jobs</code></td><td>🟠</td></tr><tr><td>Reportes del EM (CSV)</td><td><code>POST /reporting/report</code> body <code>{"name":"&lt;reporte&gt;","format":"CSV"}</code> → <code>GET /reporting/status/{reportId}</code> → <code>GET /reporting/download?...</code></td><td><code>ctm reporting report::get "&lt;reporte&gt;" -o CSV</code></td></tr><tr><td>Estadísticas del Archive</td><td><code>GET /config/archive/statistics</code></td><td>🟠</td></tr></table></div>
+<div class="nota">Tip: crear en el EM un reporte compartido "ArgOS_JobDef_Completo" (tipo <i>Job Definition</i> con todas las columnas) y bajarlo por <code>POST /reporting/report</code> con <code>"name":"shared:ArgOS_JobDef_Completo"</code>. Es la forma más barata de sacar TODO el inventario de una vez sin tocar la base de datos.</div>
+<h4>4.3 Acciones (escritura) — solo en pasos 6 y 7, con aprobación ✅</h4>
+<div class="tbl"><table><tr><th>Acción</th><th>REST</th><th>CLI</th></tr><tr><td>Validar un JSON sin desplegar</td><td><code>POST /build</code> (multipart <code>definitionsFile</code>)</td><td><code>ctm build &lt;archivo.json&gt;</code></td></tr><tr><td>Transformar con Deploy Descriptor</td><td><code>POST /deploy/transform</code> (<code>definitionsFile</code> + <code>deployDescriptorFile</code>)</td><td><code>ctm deploy transform &lt;def.json&gt; &lt;descriptor.json&gt;</code></td></tr><tr><td>Desplegar (reprogramar)</td><td><code>POST /deploy</code> (<code>definitionsFile</code> JSON/XML/zip + <code>deployDescriptorFile</code> opcional)</td><td><code>ctm deploy &lt;def.json&gt; [descriptor.json]</code></td></tr><tr><td>Hold / Free</td><td><code>POST /run/job/{jobId}/hold</code> / <code>/free</code></td><td><code>ctm run job::hold &lt;jobId&gt;</code> / <code>job::free</code></td></tr><tr><td>Borrar job del día (AJF)</td><td><code>POST /run/job/{jobId}/delete</code> / <code>/undelete</code></td><td><code>ctm run job::delete &lt;jobId&gt;</code></td></tr><tr><td>Set to OK / Rerun / Kill</td><td><code>POST /run/job/{jobId}/setToOk</code> / <code>/rerun</code> / <code>/kill</code></td><td><code>ctm run job::setToOk &lt;jobId&gt;</code></td></tr><tr><td>Ordenar un folder</td><td><code>POST /run/order</code> body <code>{"ctm":"","folder":"","jobs":""}</code></td><td><code>ctm run order &lt;ctm&gt; &lt;folder&gt; [jobs]</code></td></tr><tr><td><b>Eliminar job (definición)</b></td><td><code>DELETE /deploy/job/{jobPath}?server=&lt;ctm&gt;</code></td><td>🟠 <code>ctm deploy job::delete ...</code></td></tr><tr><td><b>Eliminar folder</b></td><td><code>DELETE /deploy/folder/{server}/{folderName}</code></td><td><code>ctm deploy folder::delete &lt;server&gt; &lt;folder&gt;</code></td></tr><tr><td>Eliminar sub-folder</td><td><code>DELETE /deploy/subfolder/{subFolderPath}?server=</code></td><td>🟠</td></tr><tr><td>Eliminar calendario</td><td><code>DELETE /deploy/calendar/{calendarName}?server=&amp;type=</code></td><td>🟠</td></tr><tr><td>Eliminar recurso</td><td><code>DELETE /run/resource/{server}/{name}</code></td><td><code>ctm run resource::delete &lt;server&gt; &lt;name&gt;</code></td></tr><tr><td>Eliminar evento/condición</td><td><code>DELETE /run/event/{server}/{name}/{date}</code></td><td><code>ctm run event::delete &lt;server&gt; &lt;name&gt; &lt;date&gt;</code></td></tr><tr><td>Eliminar variables</td><td><code>DELETE /run/variables/{server}</code></td><td>🟠</td></tr><tr><td>Eliminar connection profile</td><td><code>DELETE /deploy/connectionprofile/centralized/{type}/{name}</code></td><td>🟠</td></tr><tr><td>Deshabilitar / eliminar agente</td><td><code>POST /config/server/{server}/agent/{agent}/disable</code> / <code>DELETE .../agent/{agent}</code></td><td><code>ctm config server:agent::disable ...</code></td></tr><tr><td>Purgar Archive</td><td><code>DELETE /config/archive/cleanup?folder=&amp;jobname=&amp;jobStatus=&amp;...Exceptions=</code></td><td>🟠</td></tr></table></div>
+<h4>4.4 Ejemplos curl listos (lectura)</h4>
+<pre class="code" data-lang="bash"><code>H=&quot;x-api-key: $CTM_API_KEY&quot;; B=&quot;$CTM_ENDPOINT/automation-api&quot;
+
+# Inventario completo TDC en JSON (arrays siempre)
+curl -sk -H &quot;$H&quot; &quot;$B/deploy/jobs?ctm=*&amp;folder=TDC*&amp;format=json&amp;useArrayFormat=true&quot; &gt; defs_tdc.json
+
+# Jobs esperando condición desde hace más de 3 días
+curl -sk -H &quot;$H&quot; &quot;$B/run/jobs/status?limit=10000&amp;status=Wait%20Condition&amp;orderDateTo=$(date -d &#x27;-3 day&#x27; +%y%m%d)&quot;
+
+# Jobs en HOLD
+curl -sk -H &quot;$H&quot; &quot;$B/run/jobs/status?limit=10000&amp;held=true&quot;
+
+# Historia de un job en el Archive (últimos 13 meses)
+curl -sk -H &quot;$H&quot; &quot;$B/archive/search?jobname=TDCOD123&amp;fromTime=$(date -d &#x27;-13 month&#x27; +%F)&amp;toTime=$(date +%F)&amp;limit=500&quot;
+
+# Forecast 24 meses de un folder (asíncrono)
+POLL=$(curl -sk -H &quot;$H&quot; &quot;$B/run/forecast/timeline?ctm=CTMPROD&amp;folder=TDC_DIARIO&amp;jobs=*&amp;filterType=relativeMonths&amp;from=-24&amp;to=24&quot; | jq -r &#x27;.pollId // .poll&#x27;)
+curl -sk -H &quot;$H&quot; &quot;$B/run/forecast/timeline/poll/$POLL&quot;
+
+# Agentes y su estado
+curl -sk -H &quot;$H&quot; &quot;$B/config/server/CTMPROD/agents&quot;</code></pre>
+<div class="nota">Formato de <code>orderDateFrom/To</code> y de estados (<code>Ended OK</code>, <code>Ended Not OK</code>, <code>Wait Condition</code>, <code>Wait User</code>, <code>Wait Resource</code>, <code>Wait Host</code>, <code>Executing</code>…): validar contra la instalación de BCI con un par de llamadas de prueba; la documentación de BMC los describe, pero el Swagger no los enumera.</div></div></details>
+<details class="anexo" id="anexo-5"><summary><span>Utilitarios de línea de comando (cuando no hay API o para validar) 🟠</span></summary><div class="anexo-body"><h4>5.1 Control-M/Server distribuido (Unix/Windows)</h4>
+<div class="tbl"><table><tr><th>Utilitario</th><th>Uso en limpieza</th></tr><tr><td><code>ctmpsm</code></td><td>Menú/listados del Active Jobs File (jobs del día, estado, hold). Útil para R-RUN-*</td></tr><tr><td><code>ctmcontb -LIST "<i>" "</i>"</code> / <code>-DELETE &lt;cond&gt; &lt;odate&gt;</code> / <code>-DELETEALL</code>(con filtros)</td><td>Listar y borrar condiciones (R-CND-03)</td></tr><tr><td><code>ctmruninf -list &lt;from&gt; &lt;to&gt; -JOBNAME &lt;j&gt;</code></td><td>Historia de ejecuciones (lee <code>CMR_RUNINF</code>) → R-DEF-01/02/13</td></tr><tr><td><code>ctmjsa</code></td><td>Acumulación de estadísticas de jobs</td></tr><tr><td><code>ctmlog listjob ...</code> / <code>ctmlog list ...</code></td><td>Log del servidor (quién forzó OK, reruns) → R-DEF-14</td></tr><tr><td><code>ctmvar -action list</code></td><td>Variables → R-RES-03</td></tr><tr><td><code>ctmloadset</code>, <code>ctmldnrs</code></td><td>Recursos cuantitativos y condiciones en lote</td></tr><tr><td><code>ctmudly</code>, <code>ctmorder</code></td><td>Ordenamiento manual (útil para probar cuarentena)</td></tr><tr><td><code>ctmwhy &lt;orderno&gt;</code></td><td>Por qué un job no arranca → R-RUN-01</td></tr><tr><td><code>ctmdefine</code> / <code>ctmcpt</code></td><td>Definir/copiar tablas (reprogramación rápida)</td></tr><tr><td><code>ctm_menu</code> → Database Maintenance</td><td>Purga de históricos y logs (Familia H)</td></tr></table></div>
+<h4>5.2 Control-M/Enterprise Manager</h4>
+<div class="tbl"><table><tr><th>Utilitario</th><th>Uso</th></tr><tr><td><code>emdef exportdeffolder -u &lt;u&gt; -p &lt;p&gt; -s &lt;em&gt; -arg &lt;args.xml&gt; -out &lt;out.xml&gt;</code></td><td>Respaldo XML de folders (paso 7)</td></tr><tr><td><code>emdef exportdefjob ...</code></td><td>Respaldo/extracción de jobs por filtro</td></tr><tr><td><code>emdef deldefjob ...</code></td><td>Borrado de definiciones por filtro (alternativa a la API)</td></tr><tr><td><code>emdef deffolder ... -src &lt;xml&gt;</code></td><td>Re-importar (rollback)</td></tr><tr><td><code>emdef updatedef ...</code></td><td>Cambios masivos de atributos (reprogramar calendarios, hosts)</td></tr><tr><td><code>emdef duplicatedefjob ...</code></td><td>Duplicar para pruebas</td></tr><tr><td><code>emreportcli</code></td><td>Generar reportes del EM por línea de comando</td></tr></table></div>
+<h4>5.3 Control-M for z/OS (IOA) — dominio TDC</h4>
+<div class="tbl"><table><tr><th>Utilitario</th><th>Uso</th></tr><tr><td><code>CTMRPLN</code></td><td>Plan de jobs por calendario (qué días corre cada job) → R-DEF-03 en mainframe</td></tr><tr><td><code>CTMRFLW</code></td><td>Reporte de flujo de dependencias (condiciones in/out) → Familia C</td></tr><tr><td><code>CTMRNSC</code></td><td>Reporte del night schedule</td></tr><tr><td><code>CTMRAFL</code></td><td>Flujo del Active Jobs File</td></tr><tr><td><code>CTMJSA</code></td><td>Estadísticas de ejecución</td></tr><tr><td><code>IOACND</code></td><td>Listar/agregar/borrar condiciones IOA → R-CND-03</td></tr><tr><td><code>CTMTBUPD</code> / <code>CTMBLT</code></td><td>Actualizar/crear tablas por lote (reprogramar)</td></tr><tr><td>IOA Log (pantalla 5) / <code>IOALOG</code></td><td>Quién forzó, holdeó, borró → R-DEF-14</td></tr><tr><td>ISPF 3.4 / TSO <code>LISTDS 'EXPOD.SPC20.JCLLIB' MEMBERS</code></td><td>Inventario de miembros JCL → R-ZOS-01</td></tr><tr><td>SuperC (ISRSUPC) search-for <code>EXEC PGM=</code></td><td>Programas referenciados → R-ZOS-02</td></tr></table></div>
+<div class="nota">En BCI el extractor de ArgOS (Capa 3, py3270) debería automatizar justamente estas pantallas y reportes IOA cuando no haya Automation API disponible para el Control-M de z/OS.</div></div></details>
+<details class="anexo" id="anexo-6"><summary><span>Queries SQL de limpieza 🟡</span></summary><div class="anexo-body"><p>Escritas para <b>Oracle</b> (la base del Control-M de BCI, según <code>src/backend/db_motor.py</code>). Corren con un <b>usuario de solo lectura</b>. <b>Antes de usarlas:</b> validar nombres de tablas y columnas contra el <i>Physical Data Model</i> de la versión instalada (BMC lo publica por versión). Las marcadas <code>DEF_*</code> son del <b>EM</b>; las <code>CMS_*</code>/<code>CMR_*</code> son del <b>Control-M/Server</b>.</p>
+<h4>6.1 Control-M/Server</h4>
+<pre class="code" data-lang="sql"><code>-- Q-01 · R-DEF-01/02 · Jobs definidos y su última ejecución exitosa conocida
+-- OJO: CMR_RUNINF guarda solo las últimas ~20 corridas EXITOSAS por job.
+--      Ausencia de filas = nunca terminó OK *o* la historia se purgó. Cruzar con Archive.
+SELECT d.SCHEDTAB            AS folder,
+       d.JOBNAME,
+       d.MEMNAME,
+       d.NODEID              AS host,
+       d.CREATIONDATETIME,
+       d.CHANGEDATETIME,
+       MAX(r.TIMESTMP)       AS ultima_corrida_ok,
+       COUNT(r.JOBNAME)      AS corridas_registradas
+FROM   CMS_JOBDEF d
+LEFT JOIN CMR_RUNINF r
+       ON r.JOBNAME = d.JOBNAME AND r.MEMNAME = d.MEMNAME AND r.NODEID = d.NODEID
+GROUP BY d.SCHEDTAB, d.JOBNAME, d.MEMNAME, d.NODEID, d.CREATIONDATETIME, d.CHANGEDATETIME
+HAVING MAX(r.TIMESTMP) IS NULL
+    OR MAX(r.TIMESTMP) &lt; TO_CHAR(SYSDATE - 90, &#x27;YYYYMMDDHH24MISS&#x27;)
+ORDER BY ultima_corrida_ok NULLS FIRST;</code></pre>
+<pre class="code" data-lang="sql"><code>-- Q-02 · R-DEF-13 · Jobs que siempre terminan en menos de 2 segundos
+SELECT JOBNAME, MEMNAME, NODEID,
+       COUNT(*)              AS corridas,
+       MAX(ELAPTIME)         AS max_elapsed,
+       AVG(ELAPTIME)         AS avg_elapsed
+FROM   CMR_RUNINF
+GROUP BY JOBNAME, MEMNAME, NODEID
+HAVING COUNT(*) &gt;= 5 AND MAX(ELAPTIME) &lt; 200     -- ELAPTIME en centésimas: validar unidad
+ORDER BY corridas DESC;</code></pre>
+<pre class="code" data-lang="sql"><code>-- Q-03 · R-RUN-01/02/03 · Jobs del AJF colgados (ODATE vieja)
+-- STATE/STATUS/HOLDFLAG determinan el estado: mapear códigos con la doc de la versión.
+SELECT ODATE, ORDERNO, JOBNAME, MEMNAME, STATE, STATUS, HOLDFLAG, STARTRUN, ENDRUN, OSCOMPMSG
+FROM   CMR_AJF
+WHERE  ODATE &lt; TO_CHAR(SYSDATE - 3, &#x27;YYYYMMDD&#x27;)
+ORDER BY ODATE;</code></pre>
+<pre class="code" data-lang="sql"><code>-- Q-04 · R-DEF-14 · Jobs forzados a mano (IOA log)
+-- Identificar primero los MSGID de &quot;force OK / set to OK / bypass&quot; en la versión instalada
+-- (5133 = ended OK, 5134 = ended not OK son los más citados).
+SELECT JOBNAME, COUNT(*) AS veces
+FROM   CMR_IOALOG
+WHERE  MSGID IN (:msgid_force_ok, :msgid_bypass)
+  AND  LOGDATE &gt;= TO_CHAR(SYSDATE - 365, &#x27;YYYYMMDD&#x27;)
+GROUP BY JOBNAME
+ORDER BY veces DESC;</code></pre>
+<pre class="code" data-lang="sql"><code>-- Q-05 · Auditoría: quién creó / cambió por última vez (para encontrar al dueño, R-DEF-12)
+SELECT JOBNAME, CREATIONUSERID, CREATIONDATETIME, CHANGEUSERID, CHANGEDATETIME
+FROM   CMS_JOBDEF
+ORDER BY CHANGEDATETIME;</code></pre>
+<h4>6.2 Enterprise Manager (definiciones y condiciones)</h4>
+<pre class="code" data-lang="sql"><code>-- Q-10 · R-CND-02 · IN-conditions que ningún job produce (espera eterna)
+SELECT t.TABLE_NAME AS folder, j.JOB_NAME, i.CONDITION
+FROM   DEF_LNKI_P i
+JOIN   DEF_JOB    j ON j.TABLE_ID = i.TABLE_ID AND j.JOB_ID = i.JOB_ID
+JOIN   DEF_TABLES t ON t.TABLE_ID = j.TABLE_ID
+WHERE  NOT EXISTS (
+         SELECT 1 FROM DEF_LNKO_P o
+         WHERE  o.CONDITION = i.CONDITION
+           AND  o.SIGN = &#x27;+&#x27;)                 -- &#x27;+&#x27; agrega, &#x27;-&#x27; borra
+ORDER BY folder, j.JOB_NAME;</code></pre>
+<pre class="code" data-lang="sql"><code>-- Q-11 · R-CND-01 · OUT-conditions que nadie espera (huérfanas)
+SELECT t.TABLE_NAME AS folder, j.JOB_NAME, o.CONDITION
+FROM   DEF_LNKO_P o
+JOIN   DEF_JOB    j ON j.TABLE_ID = o.TABLE_ID AND j.JOB_ID = o.JOB_ID
+JOIN   DEF_TABLES t ON t.TABLE_ID = j.TABLE_ID
+WHERE  o.SIGN = &#x27;+&#x27;
+  AND  NOT EXISTS (SELECT 1 FROM DEF_LNKI_P i WHERE i.CONDITION = o.CONDITION)
+ORDER BY folder, j.JOB_NAME;</code></pre>
+<pre class="code" data-lang="sql"><code>-- Q-12 · R-FLD-01 · Folders sin jobs
+SELECT t.TABLE_NAME, t.DATA_CENTER
+FROM   DEF_TABLES t
+WHERE  NOT EXISTS (SELECT 1 FROM DEF_JOB j WHERE j.TABLE_ID = t.TABLE_ID);</code></pre>
+<pre class="code" data-lang="sql"><code>-- Q-13 · R-DEF-08 · Duplicados (mismo miembro + librería + host)
+SELECT j.MEM_NAME, j.MEM_LIB, j.NODE_ID, COUNT(*) AS copias,
+       LISTAGG(t.TABLE_NAME || &#x27;/&#x27; || j.JOB_NAME, &#x27;, &#x27;) WITHIN GROUP (ORDER BY j.JOB_NAME) AS jobs
+FROM   DEF_JOB j JOIN DEF_TABLES t ON t.TABLE_ID = j.TABLE_ID
+GROUP BY j.MEM_NAME, j.MEM_LIB, j.NODE_ID
+HAVING COUNT(*) &gt; 1
+ORDER BY copias DESC;</code></pre>
+<pre class="code" data-lang="sql"><code>-- Q-14 · R-DEF-09 · Nombres de prueba/obsoletos en producción
+SELECT t.TABLE_NAME, j.JOB_NAME, j.DESCRIPTION
+FROM   DEF_JOB j JOIN DEF_TABLES t ON t.TABLE_ID = j.TABLE_ID
+WHERE  REGEXP_LIKE(j.JOB_NAME || &#x27; &#x27; || NVL(j.DESCRIPTION,&#x27;&#x27;),
+                   &#x27;(TEST|PRUEBA|_OLD|_BKP|BACKUP|COPIA|_TMP|TEMP|OBSOLET|NO USAR|BORRAR)&#x27;, &#x27;i&#x27;);</code></pre>
+<pre class="code" data-lang="sql"><code>-- Q-15 · R-DEF-11 · Nomenclatura TDC inválida (8 caracteres: TDCO + D/E/M + 3)
+SELECT t.TABLE_NAME, j.JOB_NAME, j.MEM_NAME
+FROM   DEF_JOB j JOIN DEF_TABLES t ON t.TABLE_ID = j.TABLE_ID
+WHERE  j.APPLICATION LIKE &#x27;TDC%&#x27;
+  AND  NOT REGEXP_LIKE(j.MEM_NAME, &#x27;^TDCO[DEM][A-Z0-9]{3}$&#x27;);</code></pre>
+<pre class="code" data-lang="sql"><code>-- Q-16 · R-CAL-01 · Calendarios no referenciados
+-- (la tabla de calendarios y las columnas de calendario en DEF_JOB — DAYS_CAL, WEEKS_CAL,
+--  CONF_CAL — varían por versión; validar)
+SELECT c.CALENDAR
+FROM   DF_CALENDARS c        -- nombre a validar según versión
+WHERE  NOT EXISTS (SELECT 1 FROM DEF_JOB j
+                   WHERE c.CALENDAR IN (j.DAYS_CAL, j.WEEKS_CAL, j.CONF_CAL));</code></pre>
+<div class="nota">Recomendación fuerte: <b>preferir la API sobre el SQL</b> siempre que se pueda. La API es un contrato estable y soportado por BMC; el esquema de la base no lo es, y a un banco le cuesta mucho más aprobar acceso directo a la base de Control-M que un usuario de API de solo lectura. El SQL queda como plan B y para validar.</div></div></details>
+<details class="anexo" id="anexo-7"><summary><span>Reprogramación de mallas (código real, Jobs-as-Code)</span></summary><div class="anexo-body"><h4>7.1 Poner un job en cuarentena (sacarlo del scheduling sin borrarlo)</h4>
+<pre class="code" data-lang="json"><code>{
+  &quot;TDC_DIARIO&quot;: {
+    &quot;Type&quot;: &quot;Folder&quot;,
+    &quot;ControlmServer&quot;: &quot;CTMPROD&quot;,
+    &quot;TDCOD123&quot;: {
+      &quot;Type&quot;: &quot;Job:Command&quot;,
+      &quot;Description&quot;: &quot;[ARGOS-CUARENTENA 2026-09-24 hasta 2026-10-24] candidato R-DEF-01,R-DEF-05 score 85&quot;,
+      &quot;When&quot;: { &quot;Schedule&quot;: &quot;Never&quot; }
+    }
+  }
+}</code></pre>
+<div class="nota">Se despliega con <code>ctm build</code> → <code>ctm deploy</code>. <b>Validar</b> que <code>"Schedule": "Never"</code> exista en la versión de BCI; si no, usar un calendario vacío <code>ARGOS_NUNCA</code> o mover el job al folder <code>ZZ_CUARENTENA_202609</code>. Ojo: el deploy de un folder <b>reemplaza el folder completo</b>. Siempre partir del JSON extraído con <code>GET /deploy/jobs</code> y modificar solo el job, nunca armar el folder a mano.</div>
+<h4>7.2 Deploy Descriptor: cambios masivos sin tocar el JSON original</h4>
+<p>Repuntar todos los jobs de un agente retirado a uno nuevo (R-DEF-06/R-INF-02) y marcar la descripción:</p>
+<pre class="code" data-lang="json"><code>{
+  &quot;DeployDescriptor&quot;: [
+    {
+      &quot;ApplyOn&quot;: { &quot;@&quot;: &quot;TDC_*&quot;, &quot;Type&quot;: &quot;Job:*&quot; },
+      &quot;Property&quot;: &quot;Host&quot;,
+      &quot;Replace&quot;: [ { &quot;srvtdc01old&quot;: &quot;srvtdc05&quot; } ]
+    },
+    {
+      &quot;ApplyOn&quot;: { &quot;@&quot;: &quot;TDC_*&quot; },
+      &quot;Property&quot;: &quot;Description&quot;,
+      &quot;Replace&quot;: [ { &quot;^(.*)$&quot;: &quot;$1 [ARGOS: host migrado 2026-09]&quot; } ]
+    }
+  ]
+}</code></pre>
+<pre class="code" data-lang="bash"><code>ctm deploy transform defs_tdc.json descriptor_host.json &gt; defs_tdc_nuevo.json   # ver el resultado
+ctm build  defs_tdc_nuevo.json                                                  # validar
+ctm deploy defs_tdc.json descriptor_host.json                                   # aplicar</code></pre>
+<h4>7.3 Consolidar duplicados (R-DEF-08)</h4>
+<ol><li>Elegir el job "sobreviviente" (el que tiene más consumidores de sus out-conditions).</li><li>Redirigir las in-conditions de los consumidores del duplicado hacia las out-conditions del sobreviviente (edición del JSON extraído).</li><li>Duplicado → cuarentena (7.1) → eliminación en el paso 7.</li></ol>
+<h4>7.4 Reparar una in-condition imposible (R-CND-02) en vez de borrar</h4>
+<p>Si el dueño confirma que el job <b>sí</b> debe correr: cambiar la condición esperada por la que produce el predecesor real (o quitar la condición si el predecesor ya no existe):</p>
+<pre class="code" data-lang="json"><code>&quot;TDCOD200&quot;: {
+  &quot;Type&quot;: &quot;Job:Command&quot;,
+  &quot;WaitForEvents&quot;: [ { &quot;Event&quot;: &quot;TDCOD123-ENDED-OK&quot; } ]
+}</code></pre>
+<h4>7.5 Rollback</h4>
+<pre class="code" data-lang="bash"><code># El respaldo del paso 7 es el mismo JSON/XML que devolvió GET /deploy/jobs
+ctm deploy data/real/respaldos_limpieza/2026-09-24/TDC_DIARIO.json
+# o con emdef:
+emdef deffolder -u $U -p $P -s $EM -src TDC_DIARIO.xml</code></pre></div></details>
+<details class="anexo" id="anexo-8"><summary><span>Código Python de referencia (adaptador real + motor de reglas)</span></summary><div class="anexo-body"><p>Encaja en ArgOS respetando el ADR 002: <b>misma interfaz</b> que <code>db_motor.py</code> (simulado), seleccionada por <code>config.es_real()</code>. Credenciales solo desde <code>.env</code>.</p>
+<h4>8.1 Adaptador real — <code>src/backend/controlm_real.py</code> (propuesta)</h4>
+<pre class="code" data-lang="python"><code>&quot;&quot;&quot;
+ArgOS — Adaptador REAL de Control-M (Automation API).
+
+Contraparte de db_motor.py (simulado). Solo se instancia si config.es_real().
+Credenciales: CTM_ENDPOINT, CTM_API_KEY (o CTM_USER/CTM_PASSWORD) desde .env.
+Por defecto SOLO LECTURA: los métodos de escritura exigen allow_write=True y una
+orden de cambio aprobada.
+&quot;&quot;&quot;
+from __future__ import annotations
+
+import os
+import time
+import requests
+
+class ControlMRealAdapter:
+    def __init__(self, allow_write: bool = False, timeout: int = 60):
+        self.base = os.environ[&quot;CTM_ENDPOINT&quot;].rstrip(&quot;/&quot;) + &quot;/automation-api&quot;
+        self.allow_write = allow_write
+        self.timeout = timeout
+        self.s = requests.Session()
+        self.s.verify = os.getenv(&quot;CTM_CA_BUNDLE&quot;, True)   # nunca verify=False en producción
+        if os.getenv(&quot;CTM_API_KEY&quot;):
+            self.s.headers[&quot;x-api-key&quot;] = os.environ[&quot;CTM_API_KEY&quot;]
+        else:
+            r = self.s.post(f&quot;{self.base}/session/login&quot;, json={
+                &quot;username&quot;: os.environ[&quot;CTM_USER&quot;], &quot;password&quot;: os.environ[&quot;CTM_PASSWORD&quot;]},
+                timeout=self.timeout)
+            r.raise_for_status()
+            self.s.headers[&quot;Authorization&quot;] = f&quot;Bearer {r.json()[&#x27;token&#x27;]}&quot;
+
+    # ---------------- lectura ----------------
+    def _get(self, path: str, **params):
+        r = self.s.get(f&quot;{self.base}{path}&quot;, params=params, timeout=self.timeout)
+        r.raise_for_status()
+        return r.json()
+
+    def job_definitions(self, ctm=&quot;*&quot;, folder=&quot;*&quot;):
+        return self._get(&quot;/deploy/jobs&quot;, ctm=ctm, folder=folder, format=&quot;json&quot;, useArrayFormat=&quot;true&quot;)
+
+    def folders(self, server=&quot;*&quot;, folder=&quot;*&quot;, application=None):
+        return self._get(&quot;/deploy/folders&quot;, server=server, folder=folder, application=application)
+
+    def active_jobs(self, **filters):
+        return self._get(&quot;/run/jobs/status&quot;, limit=filters.pop(&quot;limit&quot;, 10000), **filters)
+
+    def archive_runs(self, jobname: str, from_date: str, to_date: str, limit=500):
+        return self._get(&quot;/archive/search&quot;, jobname=jobname, fromTime=from_date, toTime=to_date, limit=limit)
+
+    def forecast(self, ctm: str, folder: str, jobs=&quot;*&quot;, months_back=-24, months_fwd=24, wait_s=120):
+        start = self._get(&quot;/run/forecast/timeline&quot;, ctm=ctm, folder=folder, jobs=jobs,
+                          filterType=&quot;relativeMonths&quot;, **{&quot;from&quot;: months_back, &quot;to&quot;: months_fwd})
+        poll = start.get(&quot;pollId&quot;) or start.get(&quot;poll&quot;)
+        deadline = time.time() + wait_s
+        while time.time() &lt; deadline:
+            res = self._get(f&quot;/run/forecast/timeline/poll/{poll}&quot;)
+            if res.get(&quot;status&quot;, &quot;&quot;).lower() in (&quot;completed&quot;, &quot;done&quot;, &quot;&quot;) and &quot;jobs&quot; in res:
+                return res
+            time.sleep(3)
+        raise TimeoutError(f&quot;forecast {folder} no terminó en {wait_s}s&quot;)
+
+    def agents(self, server: str):
+        return self._get(f&quot;/config/server/{server}/agents&quot;)
+
+    def calendars(self, server=&quot;*&quot;):
+        return self._get(&quot;/deploy/calendars&quot;, server=server, name=&quot;*&quot;)
+
+    def resources(self, ctm=&quot;*&quot;):
+        return self._get(&quot;/run/resources&quot;, ctm=ctm, name=&quot;*&quot;)
+
+    def usage(self):
+        return self._get(&quot;/usage/jobs&quot;)
+
+    # ---------------- escritura (paso 6/7, con aprobación) ----------------
+    def _guard(self, change_order: str | None):
+        if not self.allow_write or not change_order:
+            raise PermissionError(&quot;Escritura bloqueada: requiere allow_write=True y orden de cambio aprobada.&quot;)
+
+    def hold(self, job_id: str, change_order: str):
+        self._guard(change_order)
+        return self.s.post(f&quot;{self.base}/run/job/{job_id}/hold&quot;, timeout=self.timeout).json()
+
+    def backup_folder(self, server: str, folder: str) -&gt; dict:
+        return {&quot;json&quot;: self.job_definitions(ctm=server, folder=folder),
+                &quot;xml&quot;: self.s.get(f&quot;{self.base}/deploy/jobs&quot;,
+                                  params={&quot;ctm&quot;: server, &quot;folder&quot;: folder, &quot;format&quot;: &quot;xml&quot;},
+                                  timeout=self.timeout).text}
+
+    def delete_folder(self, server: str, folder: str, change_order: str):
+        self._guard(change_order)
+        r = self.s.delete(f&quot;{self.base}/deploy/folder/{server}/{folder}&quot;, timeout=self.timeout)
+        r.raise_for_status()
+        return r.json()
+
+    def delete_job(self, job_path: str, server: str, change_order: str):
+        self._guard(change_order)
+        r = self.s.delete(f&quot;{self.base}/deploy/job/{requests.utils.quote(job_path, safe=&#x27;&#x27;)}&quot;,
+                          params={&quot;server&quot;: server}, timeout=self.timeout)
+        r.raise_for_status()
+        return r.json()</code></pre>
+<div class="nota">Alternativa oficial: <b>Control-M Python Client</b> (<code>ctm-python-client</code>, BMC, open source) — sirve para construir y desplegar definiciones como código Python. Para lectura/limpieza el adaptador REST directo es más simple y controlable.</div>
+<h4>8.2 Motor de reglas — <code>src/backend/limpieza_reglas.py</code> (propuesta)</h4>
+<p>Reglas como <b>datos</b> (YAML/JSON) + funciones puras. Así la misma regla corre sobre el adaptador simulado y el real (ADR 002), y el RAG indexa el mismo archivo que ejecuta el motor.</p>
+<pre class="code" data-lang="yaml"><code># data/reglas_limpieza/reglas.yaml
+- id: R-DEF-01
+  familia: definicion
+  nombre: Job sin ejecución en N días
+  peso: 25
+  parametros: { dias_alerta: 90, dias_fuerte: 400 }
+  fuentes: [definiciones, historia]
+  falsos_positivos: [anual, contingencia, on_demand]
+  accion_sugerida: cuarentena
+- id: R-CND-02
+  familia: condiciones
+  nombre: In-condition que nadie produce
+  peso: 35
+  fuentes: [definiciones]
+  accion_sugerida: reparar_o_eliminar</code></pre>
+<pre class="code" data-lang="python"><code>from dataclasses import dataclass, field
+
+@dataclass
+class Finding:
+    rule_id: str
+    job: str
+    folder: str
+    weight: int
+    source: str
+    evidence: dict = field(default_factory=dict)
+
+def rule_no_runs(job, last_run_days: int | None, params) -&gt; Finding | None:
+    if last_run_days is None or last_run_days &gt; params[&quot;dias_alerta&quot;]:
+        w = 25 if (last_run_days or 10**6) &gt; params[&quot;dias_fuerte&quot;] else 15
+        return Finding(&quot;R-DEF-01&quot;, job[&quot;name&quot;], job[&quot;folder&quot;], w, &quot;historia&quot;,
+                       {&quot;dias_sin_ejecutar&quot;: last_run_days})
+
+def rule_impossible_in_condition(job, produced_events: set[str]) -&gt; Finding | None:
+    missing = [e for e in job.get(&quot;wait_for_events&quot;, []) if e not in produced_events]
+    if missing:
+        return Finding(&quot;R-CND-02&quot;, job[&quot;name&quot;], job[&quot;folder&quot;], 35, &quot;definiciones&quot;,
+                       {&quot;condiciones_sin_productor&quot;: missing})
+
+def score(findings: list[Finding], history_months: float, protected: bool) -&gt; int:
+    if protected:
+        return 0
+    conf = 1.0 if history_months &gt;= 13 else 0.6 if history_months &gt;= 3 else 0.3
+    distinct_sources = {f.source for f in findings}
+    raw = sum(f.weight for f in findings)
+    s = min(100, round(raw * conf))
+    return s if len(distinct_sources) &gt;= 2 else min(s, 59)   # regla de las dos fuentes</code></pre></div></details>
+<details class="anexo" id="anexo-9"><summary><span>Diseño del RAG en ArgOS</span></summary><div class="anexo-body"><h4>9.1 Qué se indexa (corpus)</h4>
+<ol><li><b>Este documento</b>, partido por regla (<code>R-XXX-NN</code>) y por sección → cada chunk con metadatos <code>{rule_id, familia, fuente, peso, confianza: API|SQL|UTIL|CRITERIO}</code>.</li><li><b><code>reglas.yaml</code></b> (8.2): la versión ejecutable de las reglas.</li><li><b>Swagger oficial</b> (<code>docs/referencia_controlm_api/controlm_swagger_9.22.125.json</code>): un chunk por endpoint (<code>método + path + parámetros + descripción</code>) → el agente arma llamadas correctas sin inventar endpoints.</li><li><b>Decisiones pasadas</b>: cada dictamen aprobado/rechazado por un dueño (con el motivo) → el RAG aprende las excepciones propias de BCI ("TDCOA01 es anual, no tocar").</li><li><b>Nomenclatura TDC y catálogo de aplicaciones/dueños</b> de BCI.</li><li><b>Manuales BMC</b> que BCI entregue (Physical Data Model, utilitarios de su versión).</li></ol>
+<h4>9.2 Cómo se usa (patrón Planner/Coder/Validator/Documenter de la Capa 5)</h4>
+<div class="tbl"><table><tr><th>Agente</th><th>Hace</th><th>No hace</th></tr><tr><td><b>Planner</b></td><td>Decide qué extraer y qué reglas aplicar a una malla/folder</td><td>No toca Control-M</td></tr><tr><td><b>Coder</b></td><td>Genera las consultas (API/SQL) y los JSON de reprogramación/cuarentena</td><td>No despliega</td></tr><tr><td><b>Validator</b></td><td>Corre <code>ctm build</code> / <code>POST /build</code>, verifica regla de dos fuentes y lista de protección, compara el forecast antes/después</td><td>No aprueba</td></tr><tr><td><b>Documenter</b></td><td>Escribe el dictamen de negocio, el correo al dueño y la entrada de bitácora</td><td>No decide</td></tr></table></div>
+<p><b>Guardrails no negociables:</b></p>
+<ul><li>El puntaje lo calculan <b>reglas deterministas</b>; el LLM solo explica y prioriza.</li><li>El LLM <b>no tiene credenciales de escritura</b>. Las acciones de escritura las ejecuta un</li></ul>
+<p>humano de BCI, o ArgOS con <code>allow_write=True</code> + orden de cambio aprobada.</p>
+<ul><li>Toda afirmación del dictamen debe <b>citar la evidencia</b> (regla + fuente + valor). Si no</li></ul>
+<p>puede citarla, la omite.</p>
+<ul><li>Prompt base del dictamen: *"Eres analista de Control Batch. Con los hallazgos adjuntos</li></ul>
+<p>(JSON) y el contexto recuperado, redacta un dictamen de ≤ 120 palabras: qué es el job, por qué parece basura, qué se rompería si se elimina (vecinos en el grafo), nivel de riesgo y acción recomendada (reparar / cuarentena / eliminar / proteger). No inventes datos que no estén en la evidencia."*</p>
+<h4>9.3 Stack sugerido (simple, local, sin nube obligatoria)</h4>
+<ul><li>Embeddings + índice: <b>SQLite + sqlite-vec</b> o <b>Chroma</b> en disco (<code>data/&lt;entorno&gt;/rag/</code>).</li><li>LLM: el <code>llm_client.py</code> que ya existe (Claude). Con datos de BCI, evaluar si el banco exige</li></ul>
+<p>un modelo on-premise o una región específica: <b>preguntar antes de mandar definiciones reales a una API externa.</b></p>
+<ul><li>Sin framework pesado: el volumen (miles de chunks) no lo justifica (Algoritmo AIWIS:</li></ul>
+<p>simplificar antes de automatizar).</p></div></details>
+<details class="anexo" id="anexo-10"><summary><span>Qué le falta a ArgOS para quedar 100 % real (hoja de ruta concreta)</span></summary><div class="anexo-body"><div class="nota"><b>Actualización 2026-09-24:</b> los puntos 1–10 y 12–13 ya están implementados en <code>src/backend/limpieza/</code> (ver <code>docs/decisiones/004-modulo-limpieza-real.md</code>). Lo que falta para producción es conectarse al Control-M de BCI (credenciales, Workbench, fechas de creación, JCLLIB, dueños reales). La tabla de abajo queda como registro del diagnóstico previo.</div>
+<p>Estado actual verificado en el código (2026-09-24):</p>
+<ul><li><code>src/backend/db_motor.py</code> es <b>100 % simulado</b>: genera filas aleatorias</li></ul>
+<p>(<code>generar_tabla</code>), y <code>limpiar()</code> solo marca <code>origen: "limpiada"</code> en un JSON.</p>
+<ul><li>Filtro "no corren" = <code>estado_job ∈ {WAIT, HELD, NOTOK, ENDED_NOT_OK}</code> <b>o</b> <code>dias_sin_ejecutar &gt; 3</code>.</li></ul>
+<p>Es una sola señal y con umbral de 3 días: <b>generaría muchos falsos positivos en la realidad</b> (cualquier job mensual o semanal cae).</p>
+<ul><li><code>malla_catalog.ESTADOS_LIMPIEZA</code> ya tiene los estados correctos (activa → en_observacion →</li></ul>
+<p>candidata_limpieza → en_limpieza → limpiada / suspendida) con historial. <b>Esto se mantiene.</b></p>
+<ul><li><code>solicitudes_malla.buscar_en_control_m()</code> busca en el catálogo local, no en Control-M.</li><li>No existe RAG ni embeddings en el backend. <code>requirements.txt</code> no tiene <code>requests</code>/<code>httpx</code>.</li><li><code>config.py</code> ya tiene el switch <code>es_real()</code> — es el punto de enganche.</li></ul>
+<h4>10.1 Mejoras priorizadas</h4>
+<div class="tbl"><table><tr><th>#</th><th>Mejora</th><th>Archivos</th><th>Por qué</th></tr><tr><td>1</td><td><b>Definir la interfaz <code>ControlMSource</code></b> (<code>job_definitions</code>, <code>active_jobs</code>, <code>run_history</code>, <code>forecast</code>, <code>agents</code>, <code>calendars</code>, <code>resources</code>, <code>backup_folder</code>, <code>delete_*</code>) y hacer que <code>db_motor.py</code> la implemente como adaptador simulado</td><td><code>db_motor.py</code>, nuevo <code>controlm_source.py</code></td><td>ADR 002: dos adaptadores detrás de una interfaz</td></tr><tr><td>2</td><td><b>Adaptador real</b> (sección 8.1) seleccionado por <code>config.es_real()</code></td><td>nuevo <code>controlm_real.py</code>, <code>requirements.txt</code> (+<code>requests</code>)</td><td>Sin esto nada es real</td></tr><tr><td>3</td><td><b>Enriquecer el modelo simulado</b> con los campos que el real sí tiene: <code>host</code>, <code>run_as</code>, <code>mem_name/mem_lib</code>, <code>wait_for_events</code>, <code>add_events</code>, <code>calendario</code>, <code>creado_en/por</code>, <code>historia_corridas[]</code>, <code>forecast_proximos_24m</code></td><td><code>db_motor.py</code></td><td>Las reglas se prueban en simulado con la misma forma de datos que tendrá el real</td></tr><tr><td>4</td><td><b>Motor de reglas</b> con <code>reglas.yaml</code> + scoring con las dos fuentes, confianza de 13 meses y lista de protección</td><td>nuevo <code>limpieza_reglas.py</code>, <code>data/reglas_limpieza/</code></td><td>Reemplaza el filtro de una sola señal</td></tr><tr><td>5</td><td><b>Flujo de consenso</b> conectado a los estados existentes + aprobación del dueño (reusar el patrón de <code>solicitudes_malla</code>: historial + borrador de correo)</td><td><code>malla_catalog.py</code>, nuevo <code>limpieza_flujo.py</code> + API</td><td>Pasos 5–8 de la sección 3</td></tr><tr><td>6</td><td><b>Respaldo automático antes de cualquier baja</b> en <code>data/&lt;entorno&gt;/respaldos_limpieza/</code> + commit</td><td>adaptador + flujo</td><td>Rollback garantizado</td></tr><tr><td>7</td><td><b>Escritura bloqueada por defecto</b> (<code>allow_write</code> + número de orden de cambio + usuario aprobador en bitácora)</td><td>adaptador real</td><td>Un banco no aceptará otra cosa</td></tr><tr><td>8</td><td><b>Probar contra un Control-M de verdad sin esperar a BCI: Control-M Workbench</b> (imagen Docker gratuita de BMC con Automation API)</td><td><code>scripts/</code>, <code>tests/</code></td><td>Permite pasar de "simulado" a "real" en tu máquina <b>ya</b>, con endpoints reales</td></tr><tr><td>9</td><td><b>Tests de contrato</b>: la misma suite corre contra el simulado y contra Workbench</td><td><code>tests/test_controlm_source.py</code></td><td>Garantiza que los dos adaptadores no se desalineen</td></tr><tr><td>10</td><td><b>RAG</b> (sección 9): indexar este doc + <code>reglas.yaml</code> + Swagger + decisiones</td><td>nuevo <code>rag/</code></td><td>Dictámenes explicados y citables</td></tr><tr><td>11</td><td><b>Extractor z/OS</b> (Capa 3, py3270) para R-ZOS-*: listar miembros JCL y cruzarlos con <code>MEMNAME</code></td><td><code>src/extraction/</code></td><td>Ventaja diferencial vs. BMC</td></tr><tr><td>12</td><td><b>Métrica de valor</b>: <code>GET /usage/jobs</code> antes/después + horas-hombre ahorradas → alimenta el informe comercial (5.000 UF piloto)</td><td>reportes</td><td>Justifica el precio</td></tr><tr><td>13</td><td><b>Cambiar el umbral de 3 días</b> en <code>db_motor.consultar/estadisticas</code> por el scoring real (o como mínimo por frecuencia: diario &gt; 3 días, mensual &gt; 35, anual &gt; 400)</td><td><code>db_motor.py</code></td><td>Evita que la demo muestre números que la realidad desmiente</td></tr></table></div>
+<h4>10.2 Preguntas para BCI (para validar el proceso manual actual)</h4>
+<ol><li>¿Qué versión exacta de Control-M (EM/Server) y de Control-M for z/OS usan? ¿Automation API habilitada? ¿Workload Archiving licenciado?</li><li>¿Pueden darnos un <b>usuario de API de solo lectura</b> (o API key) en certificación primero?</li><li>¿Cuántos meses de historia guardan (Archive, <code>CMR_RUNINF</code>, IOA Log)? → define el <code>factor_confianza</code>.</li><li>¿Cómo marcan hoy los jobs de contingencia, regulatorios y on-demand? (lista de protección)</li><li>¿Qué comandos/reportes usa hoy el equipo cuando "limpia a mano"? (CTMRPLN, reportes del EM, SQL…) → se replican 1:1 en ArgOS.</li><li>¿Quién aprueba una baja? ¿Qué sistema de órdenes de cambio usan (Helix)? ¿Cuánto dura una cuarentena?</li><li>¿Se puede mandar metadata de definiciones (no datos de clientes) a un LLM externo, o debe ser on-premise?</li><li>¿Cobran por job (licencia por tarea)? → la reducción de jobs se traduce directo en ahorro.</li></ol></div></details>
+<details class="anexo" id="anexo-11"><summary><span>Checklist operativo (una página)</span></summary><div class="anexo-body"><ul><li>☐ Usuario/API key de <b>solo lectura</b> configurado en <code>.env</code> (<code>CTM_ENDPOINT</code>, <code>CTM_API_KEY</code>).</li><li>☐ Extracción completa: definiciones (JSON+XML), folders, calendarios, recursos, agentes, AJF, Archive ≥ 13 meses, forecast 24 meses, miembros JCL z/OS.</li><li>☐ Reglas R-* corridas; hallazgos con fuente y evidencia.</li><li>☐ Puntaje con factor de confianza, lista de protección y regla de dos fuentes.</li><li>☐ Dictamen IA con citas; contradicciones → revisión humana.</li><li>☐ Correo/ticket al dueño; respuesta registrada.</li><li>☐ Cuarentena aplicada (Schedule Never / folder ZZ / hold) y fecha de fin.</li><li>☐ Respaldo JSON+XML versionado en git.</li><li>☐ Eliminación con orden de cambio aprobada (API <code>DELETE</code> o <code>emdef</code>).</li><li>☐ Verificación post New Day (sin Wait Condition nuevos) + métrica <code>/usage/jobs</code>.</li><li>☐ Bitácora cerrada (quién, cuándo, orden de cambio, respaldo, resultado).</li></ul></div></details>
+<details class="anexo" id="anexo-12"><summary><span>Fuentes</span></summary><div class="anexo-body"><ul><li><b>Swagger oficial Control-M Automation API v9.22.125</b> — <a href="http://aapi-swagger-doc.s3-website-us-west-2.amazonaws.com/" target="_blank" rel="noopener">http://aapi-swagger-doc.s3-website-us-west-2.amazonaws.com/</a> (copia local: <code>docs/referencia_controlm_api/controlm_swagger_9.22.125.json</code>)</li><li>Control-M Automation API — portal: <a href="https://controlm.github.io/" target="_blank" rel="noopener">https://controlm.github.io/</a></li><li>Ejemplos oficiales: <a href="https://github.com/controlm/automation-api-quickstart" target="_blank" rel="noopener">https://github.com/controlm/automation-api-quickstart</a></li><li>Control-M Python Client: <a href="https://controlm.github.io/ctm-python-client" target="_blank" rel="noopener">https://controlm.github.io/ctm-python-client</a></li><li>Documentación Automation API (servicios deploy/run): <a href="https://docs.bmc.com/docs/automation-api/monthly/services-1116950323.html" target="_blank" rel="noopener">https://docs.bmc.com/docs/automation-api/monthly/services-1116950323.html</a>, <a href="https://docs.bmc.com/docs/automation-api/920/deploy-service-887941140.html" target="_blank" rel="noopener">https://docs.bmc.com/docs/automation-api/920/deploy-service-887941140.html</a></li><li>Tablas DEF_JOB / DEF_LNKI_P / DEF_LNKO_P (condiciones en definiciones): <a href="https://scheduler-usage.com/forum/viewtopic.php?t=1224" target="_blank" rel="noopener">https://scheduler-usage.com/forum/viewtopic.php?t=1224</a>, <a href="http://www.ctmguru.com/2012/02/prerequisite-conditions.html" target="_blank" rel="noopener">http://www.ctmguru.com/2012/02/prerequisite-conditions.html</a></li><li>CMR_RUNINF (últimas ~20 corridas exitosas por job): <a href="https://scheduler-usage.com/forum/viewtopic.php?t=2084" target="_blank" rel="noopener">https://scheduler-usage.com/forum/viewtopic.php?t=2084</a>, <a href="https://community.bmc.com/s/question/0D53n00007aDgvJCAS/info-required-from-table-cmrruninf" target="_blank" rel="noopener">https://community.bmc.com/s/question/0D53n00007aDgvJCAS/info-required-from-table-cmrruninf</a></li><li>Queries sobre CMS_JOBDEF / CMR_AJF / CMR_IOALOG: <a href="http://ithowtoit.blogspot.com/2012/10/useful-sql-request-for-control-m.html" target="_blank" rel="noopener">http://ithowtoit.blogspot.com/2012/10/useful-sql-request-for-control-m.html</a></li><li>Esquema de base Control-M/Server 9: <a href="https://www.scribd.com/document/839651161/471972-BMC-Control-M-Server-9" target="_blank" rel="noopener">https://www.scribd.com/document/839651161/471972-BMC-Control-M-Server-9</a></li><li>Utilitario <code>em database</code> / estadísticas: <a href="https://controlm.uconn.edu/help/CTMHelp/en-US/Documentation/Utilities/em_database_menu.htm" target="_blank" rel="noopener">https://controlm.uconn.edu/help/CTMHelp/en-US/Documentation/Utilities/em_database_menu.htm</a>, <a href="https://controlm.uconn.edu/help/CTMHelp/en-US/Documentation/Utilities/Statistics_and_reporting.htm" target="_blank" rel="noopener">https://controlm.uconn.edu/help/CTMHelp/en-US/Documentation/Utilities/Statistics_and_reporting.htm</a></li></ul></div></details>
+
+  <div class="cta">
+    <div><h3>¿Vamos bien?</h3><p>Cuéntanos en 5 minutos qué reglas te hacen sentido, cuáles no y qué falta. Se genera un archivo que puedes enviarnos.</p></div>
+    <a class="btn pri" href="ARGOS_CONTROL_AIX_BRIEF_VALIDACION.html">✍ Responder el brief de validación</a>
+  </div>
+</main>
+<footer><div class="wrap">Generado desde <code>docs/CONTROLM_LIMPIEZA_BASURA_REGLAS_RAG.md</code> el 24-09-2026 con <code>scripts/generar_manual_control_aix.py</code>. AIWIS · ArgOS.</div></footer>
+
+<script type="text/plain" id="md-src"># Control-M — Detección, consenso y limpieza de "basura" (jobs, mallas, condiciones, recursos)
+
+> **Base de conocimiento para ArgOS** — reglas, umbrales, comandos API/CLI, queries SQL,
+> código de remediación y hoja de ruta para pasar el módulo de Limpieza de *simulado* a *real*.
+>
+> Versión 1.0 — 2026-09-24. Autor: Claude Opus 5.5 para Armin Salazar (AIWIS / ArgOS).
+> Pensado para ser *chunkeado* como RAG: cada regla tiene un ID estable (`R-XXX-NN`),
+> y cada sección se puede leer sola.
+
+---
+
+## 0. Cómo leer este documento (y qué tan confiable es cada dato)
+
+| Marca | Significado |
+|---|---|
+| ✅ **API** | Endpoint verificado contra el **Swagger oficial de Control-M Automation API v9.22.125** (copiado en `docs/referencia_controlm_api/controlm_swagger_9.22.125.json`, 300 endpoints). Es la fuente más confiable de este documento. |
+| 🟡 **SQL** | Tablas y columnas documentadas por BMC y comunidad (DEF_JOB, DEF_LNKI_P, DEF_LNKO_P, CMS_JOBDEF, CMR_RUNINF, CMR_AJF, CMR_IOALOG). **Validar contra el Physical Data Model de la versión instalada en BCI** antes de correr en producción: los nombres de columna cambian entre versiones. |
+| 🟠 **UTIL** | Utilitarios de línea de comando (ctmpsm, ctmcontb, emdef, IOA/z/OS). Existen y se usan así habitualmente, pero la sintaxis exacta depende de la versión: validar con `-h` o con el manual de la versión antes de automatizarlos. |
+| 🔵 **CRITERIO** | Umbral o práctica de gobierno propuesta por AIWIS. No es un estándar de BMC; es la política que ArgOS propone y que BCI debe aprobar. |
+
+**Regla de oro del documento:** *ningún job se elimina porque una sola señal lo diga*. La
+basura se declara por **consenso de evidencias** (sección 3), y la IA **propone pero nunca
+decide ni ejecuta** la eliminación.
+
+Contexto de negocio: en la llamada de preventa (ver
+`docs/ANALISIS MEET BCI-AIWIS PROYECTO ARGOS/PABLO_SANDOVAL_LLAMADA1_ARGOS_PREVENTA_TRANSCRIPCION.md`)
+el pedido fue: *"quiero saber cómo lo hacen a mano, qué comandos corren (…) con esto logré
+determinar que sí, candidatos a eliminar (…) pido la autorización, luego ya se elimina"*.
+Este documento reconstruye justamente ese proceso manual para que ArgOS lo haga con IA.
+
+---
+
+## 1. Qué es "basura" en Control-M: taxonomía completa
+
+Hay 9 familias. Cada regla trae: **qué es**, **cómo se detecta** (fuente), **peso** en el
+puntaje (sección 2) y **falsos positivos típicos** (lo que NO hay que borrar aunque lo parezca).
+
+### Familia A — Definiciones de jobs muertas (lo principal)
+
+| ID | Basura | Cómo se detecta | Peso | Falsos positivos |
+|---|---|---|---|---|
+| **R-DEF-01** | **Job sin ejecución en N días** (N=90 alerta, 400 fuerte) | Última corrida en `CMR_RUNINF`/Archive/`/archive/search` vs. definición en `/deploy/jobs` | 25 | Jobs anuales, cierre fiscal, contingencia/DR, on-demand |
+| **R-DEF-02** | **Job que nunca se ha ejecutado** desde que se creó | Sin registros en `CMR_RUNINF` ni en Archive + `CREATIONDATETIME` antigua (> 180 días) | 30 | Job recién creado para un proyecto que aún no sale a producción |
+| **R-DEF-03** | **Job cuyo calendario nunca lo va a programar** en los próximos 24 meses | ✅ `GET /run/forecast/timeline` (rango −24..+24 meses) devuelve vacío | 30 | Jobs que se ordenan a mano (`ctmorder`, `/run/order`) o por `DO FORCEJOB` desde otro job |
+| **R-DEF-04** | **Job con fecha de vigencia vencida** (Active From/Until, `ActiveRetentionPolicy`, `Until`) | Campo de vigencia en la definición < hoy | 35 | Ninguno relevante: si venció, ya no corre |
+| **R-DEF-05** | **Job huérfano de script/JCL**: el `MEMNAME`/`FileName`/`Command` apunta a algo que no existe | z/OS: el miembro no está en `EXPOD.SPC20.JCLLIB`. Distribuido: el script no existe en el agente | 30 | Miembro generado dinámicamente, librería con concatenación (`MEMLIB` alternativo) |
+| **R-DEF-06** | **Job apuntando a agente/host inexistente o deshabilitado** | `Host`/`NODEID` de la definición ∉ ✅ `GET /config/server/{server}/agents` o agente en estado `Disabled`/`Unavailable` | 25 | Agente caído temporalmente; hostgroup que se resuelve en tiempo de ejecución |
+| **R-DEF-07** | **Run-as user inexistente** | `RunAs` ∉ ✅ `GET /config/server/{server}/runasusers` (o usuario dado de baja en el SO/RACF) | 15 | Usuarios con alias o resueltos por LDAP |
+| **R-DEF-08** | **Duplicados**: 2+ jobs que ejecutan lo mismo (mismo `Command`/`MEMNAME`+`MEMLIB`+host, mismos parámetros) con distinto nombre | Hash de (tipo, command/memname, host, runAs, parámetros) agrupando en `/deploy/jobs` | 20 | Mismo programa con parámetros o calendarios distintos a propósito (p. ej. diario vs. mensual) |
+| **R-DEF-09** | **Jobs de prueba en producción** (`TEST`, `PRUEBA`, `_OLD`, `_BKP`, `COPIA`, `_TMP`, `XX`, `ZZ`, iniciales de persona) | Regex sobre nombre/descripción/folder | 15 | Jobs productivos con nombre heredado mal puesto (confirmar con dueño) |
+| **R-DEF-10** | **Dummy sin propósito**: job tipo Dummy sin in-conditions, sin out-conditions, sin `DO` actions | Tipo `Job:Dummy` + listas vacías | 20 | Dummy usado como "hito" en un servicio BIM/SLA |
+| **R-DEF-11** | **Nomenclatura inválida** (dominio TDC: `TDCO` + `D/E/M` + 3 caracteres = 8 fijos) | Regex `^TDCO[DEM][A-Z0-9]{3}$` sobre el `MEMNAME`/`JobName` de la aplicación TDC | 5 | Jobs de otra aplicación dentro del mismo folder. **Solo señal de gobierno, no de basura por sí sola** |
+| **R-DEF-12** | **Sin dueño**: `Application`/`SubApplication` que ya no existe en el inventario, `CreatedBy` dado de baja, descripción vacía | Cruce con el inventario de aplicaciones/CMDB de BCI | 10 | Sistemas vivos con documentación mala |
+| **R-DEF-13** | **Job "siempre OK en ~0 s"**: termina OK en < 2 s en el 100% de las corridas y con output vacío | ✅ `GET /run/job/{jobId}/statistics` + `/archive/search?outputContains=` / `CMR_RUNINF.ELAPTIME` | 15 | Jobs de *touch*/marca, jobs de validación rápida legítimos |
+| **R-DEF-14** | **Job forzado a mano de forma sistemática** (`Set To OK`, `Bypass`, `Force OK`) en la mayoría de sus corridas | `CMR_IOALOG` / Audit / log de operación | 20 | Jobs con bug conocido en espera de corrección (eso es deuda, no basura: se clasifica aparte) |
+
+### Familia B — Folders / mallas / sub-folders
+
+| ID | Basura | Cómo se detecta | Peso |
+|---|---|---|---|
+| **R-FLD-01** | **Folder vacío** (0 jobs) | ✅ `GET /deploy/folders` vs. `GET /deploy/jobs?folder=` | 40 |
+| **R-FLD-02** | **Sub-folder vacío** | idem, en SMART folders | 35 |
+| **R-FLD-03** | **Folder cuyo 100 % de jobs ya es basura** (malla muerta completa) | Agregación de puntajes: todos los jobs ≥ 60 | 40 |
+| **R-FLD-04** | **Folder que nunca se ordena** (SMART folder sin reglas de scheduling válidas / User Daily inexistente) | ✅ `/run/forecast/timeline?folder=` vacío; ✅ `/run/userDaily/{userDaily}/missing/list` | 30 |
+| **R-FLD-05** | **Versiones viejas** de la definición acumuladas en el EM (`DEF_VER_*`) | 🟡 historial de versiones en tablas `DEF_VER_*` | 5 (higiene de BD) |
+| **R-FLD-06** | **Folder de proyecto cerrado** (nombre con código de proyecto/ticket ya finalizado) | Cruce con el portafolio de proyectos | 15 |
+
+### Familia C — Condiciones (la basura más peligrosa: es la que rompe o cuelga mallas)
+
+| ID | Basura | Cómo se detecta | Peso |
+|---|---|---|---|
+| **R-CND-01** | **Out-condition huérfana**: un job la agrega (+) y **ningún** job la espera | 🟡 `DEF_LNKO_P` (SIGN='+') sin match en `DEF_LNKI_P` | 10 (higiene) |
+| **R-CND-02** | **In-condition imposible**: un job espera una condición que **ningún** job produce → el job queda en *Wait Condition* para siempre | 🟡 `DEF_LNKI_P` sin match en `DEF_LNKO_P`; ✅ `/run/jobs/status?status=Wait Condition` | 35 |
+| **R-CND-03** | **Condiciones antiguas acumuladas** en la tabla de condiciones (ODATE vieja, nunca borradas) | 🟠 `ctmcontb -LIST` (distribuido) / IOACND (z/OS); ✅ `GET /run/events` | 10 |
+| **R-CND-04** | **Condiciones hacia/desde jobs eliminados** (quedaron colgando tras un borrado anterior) | Cruce de nombres de condición contra jobs vivos | 25 |
+| **R-CND-05** | **Ciclos de condiciones** (A espera B, B espera A) | Grafo de dependencias (ArgOS ya tiene `dependency_graph.py`) — detección de ciclos | 30 |
+
+### Familia D — Calendarios
+
+| ID | Basura | Cómo se detecta | Peso |
+|---|---|---|---|
+| **R-CAL-01** | **Calendario no referenciado** por ningún job ni folder | ✅ `GET /deploy/calendars` vs. referencias en `/deploy/jobs` | 30 |
+| **R-CAL-02** | **Calendario vencido** (sin días marcados para el año en curso ni el siguiente) | Contenido del calendario | 25 |
+| **R-CAL-03** | **Rule-Based Calendar (RBC) sin uso** | ✅ `/deploy/jobs` + `/run/forecast/timeline?rbc=` | 25 |
+
+### Familia E — Recursos, variables y eventos
+
+| ID | Basura | Cómo se detecta | Peso |
+|---|---|---|---|
+| **R-RES-01** | **Recurso cuantitativo (pool) sin jobs que lo usen** | ✅ `GET /run/resources` vs. `Resources` en `/deploy/jobs` | 25 |
+| **R-RES-02** | **Control resource (mutex/semáforo) sin uso** | idem (`resourceMutex`, `resourceSemaphore` en `/run/jobs/status`) | 25 |
+| **R-RES-03** | **Variable global/pool no referenciada** (`%%VAR` que nadie lee) | ✅ `GET /run/variables` vs. texto de definiciones | 15 |
+| **R-RES-04** | **Workload Policy inactiva o sin jobs** | ✅ `GET /run/workloadpolicies/detailed` | 20 |
+
+### Familia F — Infraestructura
+
+| ID | Basura | Cómo se detecta | Peso |
+|---|---|---|---|
+| **R-INF-01** | **Agente sin jobs asignados** | ✅ `/config/server/{server}/agents` vs. hosts en `/deploy/jobs` | 20 |
+| **R-INF-02** | **Agente deshabilitado/desconectado con jobs** (los jobs no pueden correr) | ✅ `/config/server/{server}/agents` (estado) + ✅ `POST .../agent/{agent}/ping` | 30 |
+| **R-INF-03** | **Hostgroup vacío o sin uso** | ✅ `GET /config/server/{server}/hostgroups` + `.../hostgroup/{hg}/agents` | 20 |
+| **R-INF-04** | **Connection profile sin uso** (DB, FTP, SAP, Databricks…) | ✅ `GET /deploy/connectionprofiles/centralized` y `/local` vs. `ConnectionProfile` en jobs | 20 |
+| **R-INF-05** | **Run-as user sin uso** | ✅ `GET /config/server/{server}/runasusers` vs. `RunAs` en jobs | 15 |
+| **R-INF-06** | **Remote host / agentless host sin uso** | ✅ `/config/server/{server}/remotehosts`, `/agentlesshosts` | 15 |
+
+### Familia G — Estado en ejecución (Active Jobs File / AJF — "lo que cuelga hoy")
+
+| ID | Basura | Cómo se detecta | Peso |
+|---|---|---|---|
+| **R-RUN-01** | **Job en Wait eterno**: ODATE vieja (> 3 días) y sigue esperando condición/usuario/recurso | ✅ `GET /run/jobs/status?status=Wait Condition&orderDateTo=<hoy-3>` | 20 |
+| **R-RUN-02** | **Job en HOLD por más de N días** (N=15) | ✅ `/run/jobs/status?held=true` + fecha de orden | 20 |
+| **R-RUN-03** | **Ended Not OK abandonado**: falló y nadie lo reejecutó ni lo cerró en N días | ✅ `/run/jobs/status?status=Ended Not OK` + ODATE | 20 |
+| **R-RUN-04** | **Job cíclico improductivo**: corre cada X minutos y siempre termina en segundos sin hacer nada | ✅ `cyclic=true` + estadísticas | 15 |
+| **R-RUN-05** | **Jobs marcados "deleted" que siguen en el AJF** | ✅ `/run/jobs/status?deleted=true` | 10 |
+| **R-RUN-06** | **Confirm pendiente** (Wait User) que nadie confirma | ✅ `status=Wait User` + ODATE vieja | 20 |
+
+> Importante: la Familia G es **basura operacional** (se limpia sacando el job del día con
+> `delete`/`setToOk`), no necesariamente basura de **definición**. Pero si el mismo job cae
+> en G varios días seguidos, eso **suma evidencia** a las reglas A.
+
+### Familia H — Históricos y datos (higiene de base de datos)
+
+| ID | Basura | Cómo se detecta | Acción |
+|---|---|---|---|
+| **R-HIS-01** | Archive (Workload Archiving) con retención excedida | ✅ `GET /config/archive/statistics`, `/config/archive/rules` | ✅ `DELETE /config/archive/cleanup` con filtros y excepciones |
+| **R-HIS-02** | `CMR_IOALOG` y logs crecidos sin purgar | 🟡 tamaño de tabla / 🟠 parámetros de retención (`ctm_menu`, `ctmdiskspace`) | Ajustar retención, no borrar a mano |
+| **R-HIS-03** | Sysouts/outputs de jobs antiguos en los agentes | Filesystem de los agentes (`proclog`, `sysout`) | Purga por política |
+| **R-HIS-04** | Reportes/netreports viejos | Directorios de reportes del EM | Purga por política |
+
+### Familia I — Mainframe z/OS (específico dominio TDC de BCI)
+
+| ID | Basura | Cómo se detecta | Peso |
+|---|---|---|---|
+| **R-ZOS-01** | **Miembro JCL huérfano**: existe en `EXPOD.SPC20.JCLLIB` pero **ningún** job de Control-M lo referencia en `MEMNAME` | Listado de miembros de la librería (ISPF 3.4 / `LISTDS ... MEMBERS`, extractor py3270 de ArgOS) vs. `MEMNAME` de todas las definiciones | 30 |
+| **R-ZOS-02** | **Programa COBOL huérfano** (`CCTSF.PASO`): ningún JCL hace `EXEC PGM=` sobre él | Parser JCL de ArgOS (`malla_catalog._agregar_steps_jcl`) sobre todos los JCL vivos | 25 |
+| **R-ZOS-03** | **Tarjeta SORT huérfana** en `EXPOD.SORTLIB` (ningún `SYSIN DD DSN=EXPOD.SORTLIB(xxx)`) | Parser JCL | 20 |
+| **R-ZOS-04** | **Dataset que se escribe y nadie lee** (DSN solo con `DISP=(NEW,CATLG)` y sin lectores en ningún JCL) | Grafo DSN productor→consumidor (ArgOS ya arma aristas `lee`/`escribe`) | 20 |
+| **R-ZOS-05** | **GDG con generaciones que nadie consume** | Grafo DSN + catálogo | 15 |
+| **R-ZOS-06** | **Tablas Datacom sin acceso** (el dominio TDC usa Datacom, no DB2) | Cruce programas COBOL ↔ tablas Datacom vs. programas vivos | 15 |
+
+> La Familia I es donde ArgOS tiene **ventaja real frente a las herramientas de BMC**:
+> Control-M no sabe si el JCL o el COBOL al que apunta está vivo o si su dataset de salida
+> lo lee alguien; ArgOS sí, porque parsea JCL y COBOL. Es el argumento comercial más fuerte.
+
+---
+
+## 2. Puntaje de basura (Índice de Basura 0–100) 🔵 CRITERIO
+
+### 2.1 Fórmula
+
+```
+score_bruto(job) = Σ peso(regla) para cada regla que dispara
+score(job)       = min(100, score_bruto × factor_confianza × factor_exclusion)
+
+factor_confianza = 1.0  si la historia de ejecución cubre ≥ 13 meses
+                   0.6  si cubre entre 3 y 13 meses
+                   0.3  si cubre < 3 meses   (no se puede opinar sobre jobs anuales)
+
+factor_exclusion = 0    si el job está en la LISTA DE PROTECCIÓN (2.3)
+                   1    en otro caso
+```
+
+**¿Por qué 13 meses?** Porque existen jobs **anuales** (cierre contable, cierre fiscal, informes
+regulatorios CMF de fin de año, recálculo anual de tasas/cupos de tarjeta). Con menos de un año
+de historia, un job anual es indistinguible de uno muerto. Este es el falso positivo número uno
+en limpiezas de Control-M.
+
+### 2.2 Bandas → estados de ArgOS (ya existen en `malla_catalog.ESTADOS_LIMPIEZA`)
+
+| Score | Estado ArgOS | Qué significa | Qué se hace |
+|---|---|---|---|
+| 0–29 | `activa` | Sin hallazgos relevantes | Nada |
+| 30–59 | `en_observacion` | Hay señales, pero no alcanzan | Se revisa en el siguiente ciclo; se puede pedir info al dueño |
+| 60–79 | `candidata_limpieza` | Evidencia suficiente para proponer | Entra al flujo de consenso (sección 3) |
+| 80–100 | `candidata_limpieza` + prioridad alta | Evidencia fuerte y de varias fuentes | Idem, primero en la cola |
+| — | `suspendida` | En cuarentena, reversible | Sección 3, paso 6 |
+| — | `en_limpieza` | Respaldada, a la espera de la eliminación final | Sección 3, paso 7 |
+| — | `limpiada` | Eliminada de Control-M, con respaldo y bitácora | Fin |
+
+### 2.3 Lista de protección (nunca se proponen, aunque el puntaje dé 100)
+
+1. Jobs marcados como **contingencia / DR / recuperación** (por folder, prefijo o etiqueta acordada con BCI).
+2. Jobs **regulatorios** (CMF, SII, UAF, Banco Central) aunque corran una vez al año.
+3. Jobs **on-demand** documentados (los ordena otro sistema, un operador o `DO FORCEJOB`).
+4. Jobs que son **destino de `DO FORCEJOB`/`Run Job`** de otro job vivo.
+5. Jobs con **ventana de congelamiento** (freeze de fin de año, cambios en curso).
+6. Jobs creados hace **< 180 días** (proyecto en implantación).
+7. Todo lo que el dueño de la aplicación haya marcado como "no tocar" en una revisión anterior (esa respuesta queda guardada y se respeta en los ciclos siguientes, con fecha de vencimiento).
+
+### 2.4 Regla de las dos fuentes
+
+Una propuesta de limpieza **exige al menos 2 fuentes independientes** que coincidan. Por ejemplo:
+
+- *Definición* (`/deploy/jobs`) **+** *historia* (`CMR_RUNINF`/Archive) **+** *forecast* (`/run/forecast/timeline`), o
+- *Definición* **+** *z/OS* (JCL inexistente en la librería).
+
+Una sola fuente (p. ej. "no corrió en 90 días") deja el job como máximo en `en_observacion`.
+
+---
+
+## 3. Proceso de consenso: cómo se llega a "esto es basura y se elimina"
+
+Es el proceso manual que describió BCI, formalizado. Cada paso deja registro (ArgOS ya lo hace
+en `historial_limpieza` y `bitacora_limpieza.json`: *nunca una baja silenciosa*).
+
+```
+ 1. EXTRAER       →  2. DETECTAR     →  3. PUNTUAR      →  4. DICTAMEN IA
+ (API/SQL/z/OS,       (reglas R-*,        (índice 0-100,     (explica la evidencia,
+  solo lectura)        deterministas)      protección)        no decide)
+        ↓
+ 5. REVISIÓN DUEÑO  →  6. CUARENTENA   →  7. RESPALDO +    →  8. VERIFICACIÓN
+ (dueño de aplicación   (30-90 días,        ELIMINACIÓN        (nada se rompió,
+  + control batch)       reversible)         (orden de cambio)  bitácora cerrada)
+```
+
+### Paso 1 — Extraer (solo lectura)
+Usuario de servicio **de solo lectura** en Control-M (perfil de consulta, sin permisos de
+deploy ni delete). Se extrae: definiciones completas (`/deploy/jobs?format=json&useArrayFormat=true`),
+folders, calendarios, recursos, agentes, estado activo, historia (Archive/CMR_RUNINF), forecast
+y, en z/OS, los miembros de las librerías.
+
+### Paso 2 — Detectar
+Reglas deterministas de la sección 1 (código, no IA). Salida: lista de hallazgos
+`{job, regla, evidencia, fuente, fecha}`.
+
+### Paso 3 — Puntuar
+Fórmula de la sección 2 + lista de protección + regla de las dos fuentes.
+
+### Paso 4 — Dictamen IA (RAG)
+El LLM recibe los hallazgos, la definición del job, su vecindario en el grafo (quién lo
+dispara, a quién dispara) y este documento como contexto recuperado. Produce un **dictamen
+explicado** en lenguaje de negocio: *"TDCOD123 no se ejecuta desde el 2025-03-02; su JCL no
+existe en EXPOD.SPC20.JCLLIB; la condición TDCOD123-OK no la espera nadie; forecast vacío 24
+meses. Riesgo de eliminar: bajo. Impacto aguas abajo: ninguno."* **El LLM no cambia el
+puntaje ni el estado.** Si el LLM contradice las reglas, se marca para revisión humana.
+
+### Paso 5 — Revisión del dueño
+ArgOS genera el correo/ticket al **dueño de la aplicación** (ya existe
+`solicitudes_malla.borrador_correo` como patrón). Respuestas posibles:
+`aprobar` / `rechazar (proteger)` / `necesita más info`. El rechazo alimenta la lista de
+protección 2.3 (punto 7).
+
+### Paso 6 — Cuarentena (reversible) — **nunca borrar directo**
+Opciones, de menos a más invasiva:
+
+| Opción | Cómo | Reversión |
+|---|---|---|
+| a) Sacar del scheduling | Redeploy del job con `"When": {"Schedule": "Never"}` 🟠 (validar el valor soportado en la versión de BCI con `ctm build`) o calendario vacío | Redeploy de la definición respaldada |
+| b) Mover a folder de cuarentena | Folder `ZZ_CUARENTENA_<AAAAMM>` sin reglas de orden | Mover de vuelta |
+| c) Hold del job ordenado | ✅ `POST /run/job/{jobId}/hold` | ✅ `POST /run/job/{jobId}/free` |
+
+Duración recomendada: **30 días** para diarios/semanales, **1 ciclo completo** (hasta 13 meses)
+si hay duda de que sea mensual/anual. Si nadie reclama en la cuarentena, pasa al paso 7.
+
+### Paso 7 — Respaldo + eliminación (con orden de cambio)
+1. Respaldo **obligatorio**: ✅ `GET /deploy/jobs?folder=<f>&format=json` y `format=xml` → se guarda
+   en `data/<entorno>/respaldos_limpieza/<fecha>/<folder>.json|.xml` + commit git.
+2. Eliminación: ✅ `DELETE /deploy/job/{jobPath}?server=<ctm>` (job) o
+   ✅ `DELETE /deploy/folder/{server}/{folderName}` (folder completo) o
+   ✅ `DELETE /deploy/subfolder/{subFolderPath}?server=`.
+3. Limpieza asociada: calendarios (✅ `DELETE /deploy/calendar/{name}`), recursos
+   (✅ `DELETE /run/resource/{server}/{name}`), variables (✅ `DELETE /run/variables/{server}`),
+   eventos/condiciones (✅ `DELETE /run/event/{server}/{name}/{date}`), connection profiles
+   (✅ `DELETE /deploy/connectionprofile/...`).
+4. z/OS: mover el miembro JCL a una librería de retirados (`EXPOD.SPC20.JCLLIB.RETIRADOS`),
+   no borrarlo. Lo ejecuta el equipo de BCI con su proceso de cambio.
+
+### Paso 8 — Verificación
+- Al día siguiente del New Day: ✅ `/run/jobs/status?status=Wait Condition` no debe mostrar jobs
+  nuevos esperando condiciones que producía algo eliminado.
+- ✅ `GET /usage/jobs` antes/después → **métrica de valor** para el informe (jobs eliminados,
+  % de reducción, licencias liberadas si BCI paga por job).
+- Bitácora cerrada con: quién aprobó, número de orden de cambio, respaldo, resultado.
+
+### RACI mínimo 🔵
+
+| Actividad | ArgOS (IA) | Analista AIWIS | Dueño aplicación BCI | Control Batch / Operación BCI | Gestión de cambios BCI |
+|---|---|---|---|---|---|
+| Detectar y puntuar | **R** | A | I | I | — |
+| Dictamen | **R** | A | I | C | — |
+| Aprobar eliminación | — | C | **A/R** | C | I |
+| Cuarentena | C | R | I | **A** | I |
+| Eliminar en producción | — | C | I | **R** | **A** |
+| Verificar | **R** | A | I | C | I |
+
+---
+
+## 4. Comandos: Control-M Automation API (REST + CLI `ctm`)
+
+### 4.1 Autenticación ✅
+
+```bash
+# Opción A — API Key (recomendada para servicios; Control-M 9.0.21+ / SaaS)
+curl -H "x-api-key: $CTM_API_KEY" "$CTM_ENDPOINT/automation-api/deploy/folders?server=*&folder=*"
+
+# Opción B — sesión con usuario/clave → token Bearer
+TOKEN=$(curl -s -k -X POST "$CTM_ENDPOINT/automation-api/session/login" \
+  -H "Content-Type: application/json" \
+  -d "{\"username\":\"$CTM_USER\",\"password\":\"$CTM_PASSWORD\"}" | jq -r .token)
+curl -k -H "Authorization: Bearer $TOKEN" "$CTM_ENDPOINT/automation-api/..."
+curl -k -X POST -H "Authorization: Bearer $TOKEN" "$CTM_ENDPOINT/automation-api/session/logout"
+
+# CLI ctm (mismo backend REST)
+ctm environment add bci_ro "$CTM_ENDPOINT/automation-api" "$CTM_USER" "$CTM_PASSWORD"
+ctm environment set bci_ro
+ctm session login
+```
+
+`$CTM_ENDPOINT` típico: `https://<host-em>:8443`. **Nunca** hardcodear: van en `.env`
+(regla de CLAUDE.md).
+
+### 4.2 Extracción (lectura) — mapa regla → endpoint ✅
+
+| Para qué | REST | CLI `ctm` |
+|---|---|---|
+| Todas las definiciones (JSON) | `GET /deploy/jobs?ctm=*&folder=*&format=json&useArrayFormat=true` | `ctm deploy jobs::get -s "ctm=*&folder=*"` |
+| Definiciones en XML (respaldo) | `GET /deploy/jobs?...&format=xml` | `ctm deploy jobs::get xml -s "..."` |
+| Folders por aplicación | `GET /deploy/folders?server=*&folder=*&application=TDC*` | `ctm deploy folders::get -s "..."` |
+| z/OS: filtrar por librería | parámetro `library=` en `/deploy/jobs` y `/deploy/folders` | idem |
+| Calendarios | `GET /deploy/calendars?server=*&name=*` | `ctm deploy calendars::get -s "..."` |
+| Estado del día (AJF) | `GET /run/jobs/status?limit=10000&folder=...&status=...&held=...&deleted=...&cyclic=...&orderDateFrom=...&orderDateTo=...` | `ctm run jobs:status::get -s "..."` |
+| Log / output de un job | `GET /run/job/{jobId}/log`, `/output` | `ctm run job:log::get <jobId>` |
+| Estadísticas de un job | `GET /run/job/{jobId}/statistics` | `ctm run job:statistics::get <jobId>` |
+| Por qué espera | `GET /run/job/{jobId}/waitingInfo` | `ctm run job:waitingInfo::get <jobId>` |
+| **Historia larga (Archive)** | `GET /archive/search?jobname=&folder=&fromTime=YYYY-MM-DD&toTime=&status=&numberOfRuns=&limit=` | `ctm archive jobs::get -s "..."` |
+| **Forecast 24 meses** (R-DEF-03) | `GET /run/forecast/timeline?ctm=&folder=&jobs=*&filterType=relativeMonths&from=-24&to=24` → `pollId` → `GET /run/forecast/timeline/poll/{poll}` | 🟠 `ctm run forecast...` (validar nombre del subcomando) |
+| Jobs no ordenados de un User Daily | `GET /run/userDaily/{userDaily}/missing/list?server=` | 🟠 |
+| Recursos | `GET /run/resources?ctm=*&name=*` | `ctm run resources::get -s "..."` |
+| Eventos/condiciones | `GET /run/events?ctm=*&name=*&date=*&limit=` | `ctm run events::get -s "..."` |
+| Variables | `GET /run/variables?server=&pool=&variable=` | 🟠 |
+| Servidores | `GET /config/servers` | `ctm config servers::get` |
+| Agentes | `GET /config/server/{server}/agents` | `ctm config server:agents::get <server>` |
+| Hostgroups | `GET /config/server/{server}/hostgroups` | `ctm config server:hostgroups::get <server>` |
+| Run-as users | `GET /config/server/{server}/runasusers` | `ctm config server:runasusers::get <server>` |
+| Connection profiles | `GET /deploy/connectionprofiles/centralized?type=*&name=*`, `/deploy/connectionprofiles/local` | `ctm deploy connectionprofiles:centralized::get -t "*"` |
+| Workload policies | `GET /run/workloadpolicies/detailed` | `ctm run workloadpolicies::get` |
+| Conteo de jobs (métrica de valor) | `GET /usage/jobs` | 🟠 |
+| Reportes del EM (CSV) | `POST /reporting/report` body `{"name":"<reporte>","format":"CSV"}` → `GET /reporting/status/{reportId}` → `GET /reporting/download?...` | `ctm reporting report::get "<reporte>" -o CSV` |
+| Estadísticas del Archive | `GET /config/archive/statistics` | 🟠 |
+
+> Tip: crear en el EM un reporte compartido "ArgOS_JobDef_Completo" (tipo *Job Definition*
+> con todas las columnas) y bajarlo por `POST /reporting/report` con `"name":"shared:ArgOS_JobDef_Completo"`.
+> Es la forma más barata de sacar TODO el inventario de una vez sin tocar la base de datos.
+
+### 4.3 Acciones (escritura) — solo en pasos 6 y 7, con aprobación ✅
+
+| Acción | REST | CLI |
+|---|---|---|
+| Validar un JSON sin desplegar | `POST /build` (multipart `definitionsFile`) | `ctm build <archivo.json>` |
+| Transformar con Deploy Descriptor | `POST /deploy/transform` (`definitionsFile` + `deployDescriptorFile`) | `ctm deploy transform <def.json> <descriptor.json>` |
+| Desplegar (reprogramar) | `POST /deploy` (`definitionsFile` JSON/XML/zip + `deployDescriptorFile` opcional) | `ctm deploy <def.json> [descriptor.json]` |
+| Hold / Free | `POST /run/job/{jobId}/hold` / `/free` | `ctm run job::hold <jobId>` / `job::free` |
+| Borrar job del día (AJF) | `POST /run/job/{jobId}/delete` / `/undelete` | `ctm run job::delete <jobId>` |
+| Set to OK / Rerun / Kill | `POST /run/job/{jobId}/setToOk` / `/rerun` / `/kill` | `ctm run job::setToOk <jobId>` |
+| Ordenar un folder | `POST /run/order` body `{"ctm":"","folder":"","jobs":""}` | `ctm run order <ctm> <folder> [jobs]` |
+| **Eliminar job (definición)** | `DELETE /deploy/job/{jobPath}?server=<ctm>` | 🟠 `ctm deploy job::delete ...` |
+| **Eliminar folder** | `DELETE /deploy/folder/{server}/{folderName}` | `ctm deploy folder::delete <server> <folder>` |
+| Eliminar sub-folder | `DELETE /deploy/subfolder/{subFolderPath}?server=` | 🟠 |
+| Eliminar calendario | `DELETE /deploy/calendar/{calendarName}?server=&type=` | 🟠 |
+| Eliminar recurso | `DELETE /run/resource/{server}/{name}` | `ctm run resource::delete <server> <name>` |
+| Eliminar evento/condición | `DELETE /run/event/{server}/{name}/{date}` | `ctm run event::delete <server> <name> <date>` |
+| Eliminar variables | `DELETE /run/variables/{server}` | 🟠 |
+| Eliminar connection profile | `DELETE /deploy/connectionprofile/centralized/{type}/{name}` | 🟠 |
+| Deshabilitar / eliminar agente | `POST /config/server/{server}/agent/{agent}/disable` / `DELETE .../agent/{agent}` | `ctm config server:agent::disable ...` |
+| Purgar Archive | `DELETE /config/archive/cleanup?folder=&jobname=&jobStatus=&...Exceptions=` | 🟠 |
+
+### 4.4 Ejemplos curl listos (lectura)
+
+```bash
+H="x-api-key: $CTM_API_KEY"; B="$CTM_ENDPOINT/automation-api"
+
+# Inventario completo TDC en JSON (arrays siempre)
+curl -sk -H "$H" "$B/deploy/jobs?ctm=*&folder=TDC*&format=json&useArrayFormat=true" > defs_tdc.json
+
+# Jobs esperando condición desde hace más de 3 días
+curl -sk -H "$H" "$B/run/jobs/status?limit=10000&status=Wait%20Condition&orderDateTo=$(date -d '-3 day' +%y%m%d)"
+
+# Jobs en HOLD
+curl -sk -H "$H" "$B/run/jobs/status?limit=10000&held=true"
+
+# Historia de un job en el Archive (últimos 13 meses)
+curl -sk -H "$H" "$B/archive/search?jobname=TDCOD123&fromTime=$(date -d '-13 month' +%F)&toTime=$(date +%F)&limit=500"
+
+# Forecast 24 meses de un folder (asíncrono)
+POLL=$(curl -sk -H "$H" "$B/run/forecast/timeline?ctm=CTMPROD&folder=TDC_DIARIO&jobs=*&filterType=relativeMonths&from=-24&to=24" | jq -r '.pollId // .poll')
+curl -sk -H "$H" "$B/run/forecast/timeline/poll/$POLL"
+
+# Agentes y su estado
+curl -sk -H "$H" "$B/config/server/CTMPROD/agents"
+```
+
+> Formato de `orderDateFrom/To` y de estados (`Ended OK`, `Ended Not OK`, `Wait Condition`,
+> `Wait User`, `Wait Resource`, `Wait Host`, `Executing`…): validar contra la instalación de BCI
+> con un par de llamadas de prueba; la documentación de BMC los describe, pero el Swagger no
+> los enumera.
+
+---
+
+## 5. Utilitarios de línea de comando (cuando no hay API o para validar) 🟠
+
+### 5.1 Control-M/Server distribuido (Unix/Windows)
+
+| Utilitario | Uso en limpieza |
+|---|---|
+| `ctmpsm` | Menú/listados del Active Jobs File (jobs del día, estado, hold). Útil para R-RUN-* |
+| `ctmcontb -LIST "*" "*"` / `-DELETE <cond> <odate>` / `-DELETEALL`(con filtros) | Listar y borrar condiciones (R-CND-03) |
+| `ctmruninf -list <from> <to> -JOBNAME <j>` | Historia de ejecuciones (lee `CMR_RUNINF`) → R-DEF-01/02/13 |
+| `ctmjsa` | Acumulación de estadísticas de jobs |
+| `ctmlog listjob ...` / `ctmlog list ...` | Log del servidor (quién forzó OK, reruns) → R-DEF-14 |
+| `ctmvar -action list` | Variables → R-RES-03 |
+| `ctmloadset`, `ctmldnrs` | Recursos cuantitativos y condiciones en lote |
+| `ctmudly`, `ctmorder` | Ordenamiento manual (útil para probar cuarentena) |
+| `ctmwhy <orderno>` | Por qué un job no arranca → R-RUN-01 |
+| `ctmdefine` / `ctmcpt` | Definir/copiar tablas (reprogramación rápida) |
+| `ctm_menu` → Database Maintenance | Purga de históricos y logs (Familia H) |
+
+### 5.2 Control-M/Enterprise Manager
+
+| Utilitario | Uso |
+|---|---|
+| `emdef exportdeffolder -u <u> -p <p> -s <em> -arg <args.xml> -out <out.xml>` | Respaldo XML de folders (paso 7) |
+| `emdef exportdefjob ...` | Respaldo/extracción de jobs por filtro |
+| `emdef deldefjob ...` | Borrado de definiciones por filtro (alternativa a la API) |
+| `emdef deffolder ... -src <xml>` | Re-importar (rollback) |
+| `emdef updatedef ...` | Cambios masivos de atributos (reprogramar calendarios, hosts) |
+| `emdef duplicatedefjob ...` | Duplicar para pruebas |
+| `emreportcli` | Generar reportes del EM por línea de comando |
+
+### 5.3 Control-M for z/OS (IOA) — dominio TDC
+
+| Utilitario | Uso |
+|---|---|
+| `CTMRPLN` | Plan de jobs por calendario (qué días corre cada job) → R-DEF-03 en mainframe |
+| `CTMRFLW` | Reporte de flujo de dependencias (condiciones in/out) → Familia C |
+| `CTMRNSC` | Reporte del night schedule |
+| `CTMRAFL` | Flujo del Active Jobs File |
+| `CTMJSA` | Estadísticas de ejecución |
+| `IOACND` | Listar/agregar/borrar condiciones IOA → R-CND-03 |
+| `CTMTBUPD` / `CTMBLT` | Actualizar/crear tablas por lote (reprogramar) |
+| IOA Log (pantalla 5) / `IOALOG` | Quién forzó, holdeó, borró → R-DEF-14 |
+| ISPF 3.4 / TSO `LISTDS 'EXPOD.SPC20.JCLLIB' MEMBERS` | Inventario de miembros JCL → R-ZOS-01 |
+| SuperC (ISRSUPC) search-for `EXEC PGM=` | Programas referenciados → R-ZOS-02 |
+
+> En BCI el extractor de ArgOS (Capa 3, py3270) debería automatizar justamente estas pantallas
+> y reportes IOA cuando no haya Automation API disponible para el Control-M de z/OS.
+
+---
+
+## 6. Queries SQL de limpieza 🟡
+
+Escritas para **Oracle** (la base del Control-M de BCI, según `src/backend/db_motor.py`).
+Corren con un **usuario de solo lectura**. **Antes de usarlas:** validar nombres de tablas y
+columnas contra el *Physical Data Model* de la versión instalada (BMC lo publica por versión).
+Las marcadas `DEF_*` son del **EM**; las `CMS_*`/`CMR_*` son del **Control-M/Server**.
+
+### 6.1 Control-M/Server
+
+```sql
+-- Q-01 · R-DEF-01/02 · Jobs definidos y su última ejecución exitosa conocida
+-- OJO: CMR_RUNINF guarda solo las últimas ~20 corridas EXITOSAS por job.
+--      Ausencia de filas = nunca terminó OK *o* la historia se purgó. Cruzar con Archive.
+SELECT d.SCHEDTAB            AS folder,
+       d.JOBNAME,
+       d.MEMNAME,
+       d.NODEID              AS host,
+       d.CREATIONDATETIME,
+       d.CHANGEDATETIME,
+       MAX(r.TIMESTMP)       AS ultima_corrida_ok,
+       COUNT(r.JOBNAME)      AS corridas_registradas
+FROM   CMS_JOBDEF d
+LEFT JOIN CMR_RUNINF r
+       ON r.JOBNAME = d.JOBNAME AND r.MEMNAME = d.MEMNAME AND r.NODEID = d.NODEID
+GROUP BY d.SCHEDTAB, d.JOBNAME, d.MEMNAME, d.NODEID, d.CREATIONDATETIME, d.CHANGEDATETIME
+HAVING MAX(r.TIMESTMP) IS NULL
+    OR MAX(r.TIMESTMP) < TO_CHAR(SYSDATE - 90, 'YYYYMMDDHH24MISS')
+ORDER BY ultima_corrida_ok NULLS FIRST;
+```
+
+```sql
+-- Q-02 · R-DEF-13 · Jobs que siempre terminan en menos de 2 segundos
+SELECT JOBNAME, MEMNAME, NODEID,
+       COUNT(*)              AS corridas,
+       MAX(ELAPTIME)         AS max_elapsed,
+       AVG(ELAPTIME)         AS avg_elapsed
+FROM   CMR_RUNINF
+GROUP BY JOBNAME, MEMNAME, NODEID
+HAVING COUNT(*) >= 5 AND MAX(ELAPTIME) < 200     -- ELAPTIME en centésimas: validar unidad
+ORDER BY corridas DESC;
+```
+
+```sql
+-- Q-03 · R-RUN-01/02/03 · Jobs del AJF colgados (ODATE vieja)
+-- STATE/STATUS/HOLDFLAG determinan el estado: mapear códigos con la doc de la versión.
+SELECT ODATE, ORDERNO, JOBNAME, MEMNAME, STATE, STATUS, HOLDFLAG, STARTRUN, ENDRUN, OSCOMPMSG
+FROM   CMR_AJF
+WHERE  ODATE < TO_CHAR(SYSDATE - 3, 'YYYYMMDD')
+ORDER BY ODATE;
+```
+
+```sql
+-- Q-04 · R-DEF-14 · Jobs forzados a mano (IOA log)
+-- Identificar primero los MSGID de "force OK / set to OK / bypass" en la versión instalada
+-- (5133 = ended OK, 5134 = ended not OK son los más citados).
+SELECT JOBNAME, COUNT(*) AS veces
+FROM   CMR_IOALOG
+WHERE  MSGID IN (:msgid_force_ok, :msgid_bypass)
+  AND  LOGDATE >= TO_CHAR(SYSDATE - 365, 'YYYYMMDD')
+GROUP BY JOBNAME
+ORDER BY veces DESC;
+```
+
+```sql
+-- Q-05 · Auditoría: quién creó / cambió por última vez (para encontrar al dueño, R-DEF-12)
+SELECT JOBNAME, CREATIONUSERID, CREATIONDATETIME, CHANGEUSERID, CHANGEDATETIME
+FROM   CMS_JOBDEF
+ORDER BY CHANGEDATETIME;
+```
+
+### 6.2 Enterprise Manager (definiciones y condiciones)
+
+```sql
+-- Q-10 · R-CND-02 · IN-conditions que ningún job produce (espera eterna)
+SELECT t.TABLE_NAME AS folder, j.JOB_NAME, i.CONDITION
+FROM   DEF_LNKI_P i
+JOIN   DEF_JOB    j ON j.TABLE_ID = i.TABLE_ID AND j.JOB_ID = i.JOB_ID
+JOIN   DEF_TABLES t ON t.TABLE_ID = j.TABLE_ID
+WHERE  NOT EXISTS (
+         SELECT 1 FROM DEF_LNKO_P o
+         WHERE  o.CONDITION = i.CONDITION
+           AND  o.SIGN = '+')                 -- '+' agrega, '-' borra
+ORDER BY folder, j.JOB_NAME;
+```
+
+```sql
+-- Q-11 · R-CND-01 · OUT-conditions que nadie espera (huérfanas)
+SELECT t.TABLE_NAME AS folder, j.JOB_NAME, o.CONDITION
+FROM   DEF_LNKO_P o
+JOIN   DEF_JOB    j ON j.TABLE_ID = o.TABLE_ID AND j.JOB_ID = o.JOB_ID
+JOIN   DEF_TABLES t ON t.TABLE_ID = j.TABLE_ID
+WHERE  o.SIGN = '+'
+  AND  NOT EXISTS (SELECT 1 FROM DEF_LNKI_P i WHERE i.CONDITION = o.CONDITION)
+ORDER BY folder, j.JOB_NAME;
+```
+
+```sql
+-- Q-12 · R-FLD-01 · Folders sin jobs
+SELECT t.TABLE_NAME, t.DATA_CENTER
+FROM   DEF_TABLES t
+WHERE  NOT EXISTS (SELECT 1 FROM DEF_JOB j WHERE j.TABLE_ID = t.TABLE_ID);
+```
+
+```sql
+-- Q-13 · R-DEF-08 · Duplicados (mismo miembro + librería + host)
+SELECT j.MEM_NAME, j.MEM_LIB, j.NODE_ID, COUNT(*) AS copias,
+       LISTAGG(t.TABLE_NAME || '/' || j.JOB_NAME, ', ') WITHIN GROUP (ORDER BY j.JOB_NAME) AS jobs
+FROM   DEF_JOB j JOIN DEF_TABLES t ON t.TABLE_ID = j.TABLE_ID
+GROUP BY j.MEM_NAME, j.MEM_LIB, j.NODE_ID
+HAVING COUNT(*) > 1
+ORDER BY copias DESC;
+```
+
+```sql
+-- Q-14 · R-DEF-09 · Nombres de prueba/obsoletos en producción
+SELECT t.TABLE_NAME, j.JOB_NAME, j.DESCRIPTION
+FROM   DEF_JOB j JOIN DEF_TABLES t ON t.TABLE_ID = j.TABLE_ID
+WHERE  REGEXP_LIKE(j.JOB_NAME || ' ' || NVL(j.DESCRIPTION,''),
+                   '(TEST|PRUEBA|_OLD|_BKP|BACKUP|COPIA|_TMP|TEMP|OBSOLET|NO USAR|BORRAR)', 'i');
+```
+
+```sql
+-- Q-15 · R-DEF-11 · Nomenclatura TDC inválida (8 caracteres: TDCO + D/E/M + 3)
+SELECT t.TABLE_NAME, j.JOB_NAME, j.MEM_NAME
+FROM   DEF_JOB j JOIN DEF_TABLES t ON t.TABLE_ID = j.TABLE_ID
+WHERE  j.APPLICATION LIKE 'TDC%'
+  AND  NOT REGEXP_LIKE(j.MEM_NAME, '^TDCO[DEM][A-Z0-9]{3}$');
+```
+
+```sql
+-- Q-16 · R-CAL-01 · Calendarios no referenciados
+-- (la tabla de calendarios y las columnas de calendario en DEF_JOB — DAYS_CAL, WEEKS_CAL,
+--  CONF_CAL — varían por versión; validar)
+SELECT c.CALENDAR
+FROM   DF_CALENDARS c        -- nombre a validar según versión
+WHERE  NOT EXISTS (SELECT 1 FROM DEF_JOB j
+                   WHERE c.CALENDAR IN (j.DAYS_CAL, j.WEEKS_CAL, j.CONF_CAL));
+```
+
+> Recomendación fuerte: **preferir la API sobre el SQL** siempre que se pueda. La API es un
+> contrato estable y soportado por BMC; el esquema de la base no lo es, y a un banco le
+> cuesta mucho más aprobar acceso directo a la base de Control-M que un usuario de API
+> de solo lectura. El SQL queda como plan B y para validar.
+
+---
+
+## 7. Reprogramación de mallas (código real, Jobs-as-Code)
+
+### 7.1 Poner un job en cuarentena (sacarlo del scheduling sin borrarlo)
+
+```json
+{
+  "TDC_DIARIO": {
+    "Type": "Folder",
+    "ControlmServer": "CTMPROD",
+    "TDCOD123": {
+      "Type": "Job:Command",
+      "Description": "[ARGOS-CUARENTENA 2026-09-24 hasta 2026-10-24] candidato R-DEF-01,R-DEF-05 score 85",
+      "When": { "Schedule": "Never" }
+    }
+  }
+}
+```
+
+> Se despliega con `ctm build` → `ctm deploy`. **Validar** que `"Schedule": "Never"` exista en la
+> versión de BCI; si no, usar un calendario vacío `ARGOS_NUNCA` o mover el job al folder
+> `ZZ_CUARENTENA_202609`.
+> Ojo: el deploy de un folder **reemplaza el folder completo**. Siempre partir del JSON
+> extraído con `GET /deploy/jobs` y modificar solo el job, nunca armar el folder a mano.
+
+### 7.2 Deploy Descriptor: cambios masivos sin tocar el JSON original
+
+Repuntar todos los jobs de un agente retirado a uno nuevo (R-DEF-06/R-INF-02) y marcar la
+descripción:
+
+```json
+{
+  "DeployDescriptor": [
+    {
+      "ApplyOn": { "@": "TDC_*", "Type": "Job:*" },
+      "Property": "Host",
+      "Replace": [ { "srvtdc01old": "srvtdc05" } ]
+    },
+    {
+      "ApplyOn": { "@": "TDC_*" },
+      "Property": "Description",
+      "Replace": [ { "^(.*)$": "$1 [ARGOS: host migrado 2026-09]" } ]
+    }
+  ]
+}
+```
+
+```bash
+ctm deploy transform defs_tdc.json descriptor_host.json > defs_tdc_nuevo.json   # ver el resultado
+ctm build  defs_tdc_nuevo.json                                                  # validar
+ctm deploy defs_tdc.json descriptor_host.json                                   # aplicar
+```
+
+### 7.3 Consolidar duplicados (R-DEF-08)
+
+1. Elegir el job "sobreviviente" (el que tiene más consumidores de sus out-conditions).
+2. Redirigir las in-conditions de los consumidores del duplicado hacia las out-conditions del
+   sobreviviente (edición del JSON extraído).
+3. Duplicado → cuarentena (7.1) → eliminación en el paso 7.
+
+### 7.4 Reparar una in-condition imposible (R-CND-02) en vez de borrar
+
+Si el dueño confirma que el job **sí** debe correr: cambiar la condición esperada por la que
+produce el predecesor real (o quitar la condición si el predecesor ya no existe):
+
+```json
+"TDCOD200": {
+  "Type": "Job:Command",
+  "WaitForEvents": [ { "Event": "TDCOD123-ENDED-OK" } ]
+}
+```
+
+### 7.5 Rollback
+
+```bash
+# El respaldo del paso 7 es el mismo JSON/XML que devolvió GET /deploy/jobs
+ctm deploy data/real/respaldos_limpieza/2026-09-24/TDC_DIARIO.json
+# o con emdef:
+emdef deffolder -u $U -p $P -s $EM -src TDC_DIARIO.xml
+```
+
+---
+
+## 8. Código Python de referencia (adaptador real + motor de reglas)
+
+Encaja en ArgOS respetando el ADR 002: **misma interfaz** que `db_motor.py` (simulado),
+seleccionada por `config.es_real()`. Credenciales solo desde `.env`.
+
+### 8.1 Adaptador real — `src/backend/controlm_real.py` (propuesta)
+
+```python
+"""
+ArgOS — Adaptador REAL de Control-M (Automation API).
+
+Contraparte de db_motor.py (simulado). Solo se instancia si config.es_real().
+Credenciales: CTM_ENDPOINT, CTM_API_KEY (o CTM_USER/CTM_PASSWORD) desde .env.
+Por defecto SOLO LECTURA: los métodos de escritura exigen allow_write=True y una
+orden de cambio aprobada.
+"""
+from __future__ import annotations
+
+import os
+import time
+import requests
+
+class ControlMRealAdapter:
+    def __init__(self, allow_write: bool = False, timeout: int = 60):
+        self.base = os.environ["CTM_ENDPOINT"].rstrip("/") + "/automation-api"
+        self.allow_write = allow_write
+        self.timeout = timeout
+        self.s = requests.Session()
+        self.s.verify = os.getenv("CTM_CA_BUNDLE", True)   # nunca verify=False en producción
+        if os.getenv("CTM_API_KEY"):
+            self.s.headers["x-api-key"] = os.environ["CTM_API_KEY"]
+        else:
+            r = self.s.post(f"{self.base}/session/login", json={
+                "username": os.environ["CTM_USER"], "password": os.environ["CTM_PASSWORD"]},
+                timeout=self.timeout)
+            r.raise_for_status()
+            self.s.headers["Authorization"] = f"Bearer {r.json()['token']}"
+
+    # ---------------- lectura ----------------
+    def _get(self, path: str, **params):
+        r = self.s.get(f"{self.base}{path}", params=params, timeout=self.timeout)
+        r.raise_for_status()
+        return r.json()
+
+    def job_definitions(self, ctm="*", folder="*"):
+        return self._get("/deploy/jobs", ctm=ctm, folder=folder, format="json", useArrayFormat="true")
+
+    def folders(self, server="*", folder="*", application=None):
+        return self._get("/deploy/folders", server=server, folder=folder, application=application)
+
+    def active_jobs(self, **filters):
+        return self._get("/run/jobs/status", limit=filters.pop("limit", 10000), **filters)
+
+    def archive_runs(self, jobname: str, from_date: str, to_date: str, limit=500):
+        return self._get("/archive/search", jobname=jobname, fromTime=from_date, toTime=to_date, limit=limit)
+
+    def forecast(self, ctm: str, folder: str, jobs="*", months_back=-24, months_fwd=24, wait_s=120):
+        start = self._get("/run/forecast/timeline", ctm=ctm, folder=folder, jobs=jobs,
+                          filterType="relativeMonths", **{"from": months_back, "to": months_fwd})
+        poll = start.get("pollId") or start.get("poll")
+        deadline = time.time() + wait_s
+        while time.time() < deadline:
+            res = self._get(f"/run/forecast/timeline/poll/{poll}")
+            if res.get("status", "").lower() in ("completed", "done", "") and "jobs" in res:
+                return res
+            time.sleep(3)
+        raise TimeoutError(f"forecast {folder} no terminó en {wait_s}s")
+
+    def agents(self, server: str):
+        return self._get(f"/config/server/{server}/agents")
+
+    def calendars(self, server="*"):
+        return self._get("/deploy/calendars", server=server, name="*")
+
+    def resources(self, ctm="*"):
+        return self._get("/run/resources", ctm=ctm, name="*")
+
+    def usage(self):
+        return self._get("/usage/jobs")
+
+    # ---------------- escritura (paso 6/7, con aprobación) ----------------
+    def _guard(self, change_order: str | None):
+        if not self.allow_write or not change_order:
+            raise PermissionError("Escritura bloqueada: requiere allow_write=True y orden de cambio aprobada.")
+
+    def hold(self, job_id: str, change_order: str):
+        self._guard(change_order)
+        return self.s.post(f"{self.base}/run/job/{job_id}/hold", timeout=self.timeout).json()
+
+    def backup_folder(self, server: str, folder: str) -> dict:
+        return {"json": self.job_definitions(ctm=server, folder=folder),
+                "xml": self.s.get(f"{self.base}/deploy/jobs",
+                                  params={"ctm": server, "folder": folder, "format": "xml"},
+                                  timeout=self.timeout).text}
+
+    def delete_folder(self, server: str, folder: str, change_order: str):
+        self._guard(change_order)
+        r = self.s.delete(f"{self.base}/deploy/folder/{server}/{folder}", timeout=self.timeout)
+        r.raise_for_status()
+        return r.json()
+
+    def delete_job(self, job_path: str, server: str, change_order: str):
+        self._guard(change_order)
+        r = self.s.delete(f"{self.base}/deploy/job/{requests.utils.quote(job_path, safe='')}",
+                          params={"server": server}, timeout=self.timeout)
+        r.raise_for_status()
+        return r.json()
+```
+
+> Alternativa oficial: **Control-M Python Client** (`ctm-python-client`, BMC, open source)
+> — sirve para construir y desplegar definiciones como código Python. Para lectura/limpieza
+> el adaptador REST directo es más simple y controlable.
+
+### 8.2 Motor de reglas — `src/backend/limpieza_reglas.py` (propuesta)
+
+Reglas como **datos** (YAML/JSON) + funciones puras. Así la misma regla corre sobre el
+adaptador simulado y el real (ADR 002), y el RAG indexa el mismo archivo que ejecuta el motor.
+
+```yaml
+# data/reglas_limpieza/reglas.yaml
+- id: R-DEF-01
+  familia: definicion
+  nombre: Job sin ejecución en N días
+  peso: 25
+  parametros: { dias_alerta: 90, dias_fuerte: 400 }
+  fuentes: [definiciones, historia]
+  falsos_positivos: [anual, contingencia, on_demand]
+  accion_sugerida: cuarentena
+- id: R-CND-02
+  familia: condiciones
+  nombre: In-condition que nadie produce
+  peso: 35
+  fuentes: [definiciones]
+  accion_sugerida: reparar_o_eliminar
+```
+
+```python
+from dataclasses import dataclass, field
+
+@dataclass
+class Finding:
+    rule_id: str
+    job: str
+    folder: str
+    weight: int
+    source: str
+    evidence: dict = field(default_factory=dict)
+
+def rule_no_runs(job, last_run_days: int | None, params) -> Finding | None:
+    if last_run_days is None or last_run_days > params["dias_alerta"]:
+        w = 25 if (last_run_days or 10**6) > params["dias_fuerte"] else 15
+        return Finding("R-DEF-01", job["name"], job["folder"], w, "historia",
+                       {"dias_sin_ejecutar": last_run_days})
+
+def rule_impossible_in_condition(job, produced_events: set[str]) -> Finding | None:
+    missing = [e for e in job.get("wait_for_events", []) if e not in produced_events]
+    if missing:
+        return Finding("R-CND-02", job["name"], job["folder"], 35, "definiciones",
+                       {"condiciones_sin_productor": missing})
+
+def score(findings: list[Finding], history_months: float, protected: bool) -> int:
+    if protected:
+        return 0
+    conf = 1.0 if history_months >= 13 else 0.6 if history_months >= 3 else 0.3
+    distinct_sources = {f.source for f in findings}
+    raw = sum(f.weight for f in findings)
+    s = min(100, round(raw * conf))
+    return s if len(distinct_sources) >= 2 else min(s, 59)   # regla de las dos fuentes
+```
+
+---
+
+## 9. Diseño del RAG en ArgOS
+
+### 9.1 Qué se indexa (corpus)
+1. **Este documento**, partido por regla (`R-XXX-NN`) y por sección → cada chunk con metadatos
+   `{rule_id, familia, fuente, peso, confianza: API|SQL|UTIL|CRITERIO}`.
+2. **`reglas.yaml`** (8.2): la versión ejecutable de las reglas.
+3. **Swagger oficial** (`docs/referencia_controlm_api/controlm_swagger_9.22.125.json`): un
+   chunk por endpoint (`método + path + parámetros + descripción`) → el agente arma llamadas
+   correctas sin inventar endpoints.
+4. **Decisiones pasadas**: cada dictamen aprobado/rechazado por un dueño (con el motivo) →
+   el RAG aprende las excepciones propias de BCI ("TDCOA01 es anual, no tocar").
+5. **Nomenclatura TDC y catálogo de aplicaciones/dueños** de BCI.
+6. **Manuales BMC** que BCI entregue (Physical Data Model, utilitarios de su versión).
+
+### 9.2 Cómo se usa (patrón Planner/Coder/Validator/Documenter de la Capa 5)
+
+| Agente | Hace | No hace |
+|---|---|---|
+| **Planner** | Decide qué extraer y qué reglas aplicar a una malla/folder | No toca Control-M |
+| **Coder** | Genera las consultas (API/SQL) y los JSON de reprogramación/cuarentena | No despliega |
+| **Validator** | Corre `ctm build` / `POST /build`, verifica regla de dos fuentes y lista de protección, compara el forecast antes/después | No aprueba |
+| **Documenter** | Escribe el dictamen de negocio, el correo al dueño y la entrada de bitácora | No decide |
+
+**Guardrails no negociables:**
+- El puntaje lo calculan **reglas deterministas**; el LLM solo explica y prioriza.
+- El LLM **no tiene credenciales de escritura**. Las acciones de escritura las ejecuta un
+  humano de BCI, o ArgOS con `allow_write=True` + orden de cambio aprobada.
+- Toda afirmación del dictamen debe **citar la evidencia** (regla + fuente + valor). Si no
+  puede citarla, la omite.
+- Prompt base del dictamen: *"Eres analista de Control Batch. Con los hallazgos adjuntos
+  (JSON) y el contexto recuperado, redacta un dictamen de ≤ 120 palabras: qué es el job, por
+  qué parece basura, qué se rompería si se elimina (vecinos en el grafo), nivel de riesgo y
+  acción recomendada (reparar / cuarentena / eliminar / proteger). No inventes datos que no
+  estén en la evidencia."*
+
+### 9.3 Stack sugerido (simple, local, sin nube obligatoria)
+- Embeddings + índice: **SQLite + sqlite-vec** o **Chroma** en disco (`data/<entorno>/rag/`).
+- LLM: el `llm_client.py` que ya existe (Claude). Con datos de BCI, evaluar si el banco exige
+  un modelo on-premise o una región específica: **preguntar antes de mandar definiciones
+  reales a una API externa.**
+- Sin framework pesado: el volumen (miles de chunks) no lo justifica (Algoritmo AIWIS:
+  simplificar antes de automatizar).
+
+---
+
+## 10. Qué le falta a ArgOS para quedar 100 % real (hoja de ruta concreta)
+
+> **Actualización 2026-09-24:** los puntos 1–10 y 12–13 ya están implementados en
+> `src/backend/limpieza/` (ver `docs/decisiones/004-modulo-limpieza-real.md`). Lo que falta para
+> producción es conectarse al Control-M de BCI (credenciales, Workbench, fechas de creación, JCLLIB, dueños reales).
+> La tabla de abajo queda como registro del diagnóstico previo.
+
+Estado actual verificado en el código (2026-09-24):
+- `src/backend/db_motor.py` es **100 % simulado**: genera filas aleatorias
+  (`generar_tabla`), y `limpiar()` solo marca `origen: "limpiada"` en un JSON.
+- Filtro "no corren" = `estado_job ∈ {WAIT, HELD, NOTOK, ENDED_NOT_OK}` **o** `dias_sin_ejecutar > 3`.
+  Es una sola señal y con umbral de 3 días: **generaría muchos falsos positivos en la realidad**
+  (cualquier job mensual o semanal cae).
+- `malla_catalog.ESTADOS_LIMPIEZA` ya tiene los estados correctos (activa → en_observacion →
+  candidata_limpieza → en_limpieza → limpiada / suspendida) con historial. **Esto se mantiene.**
+- `solicitudes_malla.buscar_en_control_m()` busca en el catálogo local, no en Control-M.
+- No existe RAG ni embeddings en el backend. `requirements.txt` no tiene `requests`/`httpx`.
+- `config.py` ya tiene el switch `es_real()` — es el punto de enganche.
+
+### 10.1 Mejoras priorizadas
+
+| # | Mejora | Archivos | Por qué |
+|---|---|---|---|
+| 1 | **Definir la interfaz `ControlMSource`** (`job_definitions`, `active_jobs`, `run_history`, `forecast`, `agents`, `calendars`, `resources`, `backup_folder`, `delete_*`) y hacer que `db_motor.py` la implemente como adaptador simulado | `db_motor.py`, nuevo `controlm_source.py` | ADR 002: dos adaptadores detrás de una interfaz |
+| 2 | **Adaptador real** (sección 8.1) seleccionado por `config.es_real()` | nuevo `controlm_real.py`, `requirements.txt` (+`requests`) | Sin esto nada es real |
+| 3 | **Enriquecer el modelo simulado** con los campos que el real sí tiene: `host`, `run_as`, `mem_name/mem_lib`, `wait_for_events`, `add_events`, `calendario`, `creado_en/por`, `historia_corridas[]`, `forecast_proximos_24m` | `db_motor.py` | Las reglas se prueban en simulado con la misma forma de datos que tendrá el real |
+| 4 | **Motor de reglas** con `reglas.yaml` + scoring con las dos fuentes, confianza de 13 meses y lista de protección | nuevo `limpieza_reglas.py`, `data/reglas_limpieza/` | Reemplaza el filtro de una sola señal |
+| 5 | **Flujo de consenso** conectado a los estados existentes + aprobación del dueño (reusar el patrón de `solicitudes_malla`: historial + borrador de correo) | `malla_catalog.py`, nuevo `limpieza_flujo.py` + API | Pasos 5–8 de la sección 3 |
+| 6 | **Respaldo automático antes de cualquier baja** en `data/<entorno>/respaldos_limpieza/` + commit | adaptador + flujo | Rollback garantizado |
+| 7 | **Escritura bloqueada por defecto** (`allow_write` + número de orden de cambio + usuario aprobador en bitácora) | adaptador real | Un banco no aceptará otra cosa |
+| 8 | **Probar contra un Control-M de verdad sin esperar a BCI: Control-M Workbench** (imagen Docker gratuita de BMC con Automation API) | `scripts/`, `tests/` | Permite pasar de "simulado" a "real" en tu máquina **ya**, con endpoints reales |
+| 9 | **Tests de contrato**: la misma suite corre contra el simulado y contra Workbench | `tests/test_controlm_source.py` | Garantiza que los dos adaptadores no se desalineen |
+| 10 | **RAG** (sección 9): indexar este doc + `reglas.yaml` + Swagger + decisiones | nuevo `rag/` | Dictámenes explicados y citables |
+| 11 | **Extractor z/OS** (Capa 3, py3270) para R-ZOS-*: listar miembros JCL y cruzarlos con `MEMNAME` | `src/extraction/` | Ventaja diferencial vs. BMC |
+| 12 | **Métrica de valor**: `GET /usage/jobs` antes/después + horas-hombre ahorradas → alimenta el informe comercial (5.000 UF piloto) | reportes | Justifica el precio |
+| 13 | **Cambiar el umbral de 3 días** en `db_motor.consultar/estadisticas` por el scoring real (o como mínimo por frecuencia: diario > 3 días, mensual > 35, anual > 400) | `db_motor.py` | Evita que la demo muestre números que la realidad desmiente |
+
+### 10.2 Preguntas para BCI (para validar el proceso manual actual)
+1. ¿Qué versión exacta de Control-M (EM/Server) y de Control-M for z/OS usan? ¿Automation API habilitada? ¿Workload Archiving licenciado?
+2. ¿Pueden darnos un **usuario de API de solo lectura** (o API key) en certificación primero?
+3. ¿Cuántos meses de historia guardan (Archive, `CMR_RUNINF`, IOA Log)? → define el `factor_confianza`.
+4. ¿Cómo marcan hoy los jobs de contingencia, regulatorios y on-demand? (lista de protección)
+5. ¿Qué comandos/reportes usa hoy el equipo cuando "limpia a mano"? (CTMRPLN, reportes del EM, SQL…) → se replican 1:1 en ArgOS.
+6. ¿Quién aprueba una baja? ¿Qué sistema de órdenes de cambio usan (Helix)? ¿Cuánto dura una cuarentena?
+7. ¿Se puede mandar metadata de definiciones (no datos de clientes) a un LLM externo, o debe ser on-premise?
+8. ¿Cobran por job (licencia por tarea)? → la reducción de jobs se traduce directo en ahorro.
+
+---
+
+## 11. Checklist operativo (una página)
+
+- [ ] Usuario/API key de **solo lectura** configurado en `.env` (`CTM_ENDPOINT`, `CTM_API_KEY`).
+- [ ] Extracción completa: definiciones (JSON+XML), folders, calendarios, recursos, agentes, AJF, Archive ≥ 13 meses, forecast 24 meses, miembros JCL z/OS.
+- [ ] Reglas R-* corridas; hallazgos con fuente y evidencia.
+- [ ] Puntaje con factor de confianza, lista de protección y regla de dos fuentes.
+- [ ] Dictamen IA con citas; contradicciones → revisión humana.
+- [ ] Correo/ticket al dueño; respuesta registrada.
+- [ ] Cuarentena aplicada (Schedule Never / folder ZZ / hold) y fecha de fin.
+- [ ] Respaldo JSON+XML versionado en git.
+- [ ] Eliminación con orden de cambio aprobada (API `DELETE` o `emdef`).
+- [ ] Verificación post New Day (sin Wait Condition nuevos) + métrica `/usage/jobs`.
+- [ ] Bitácora cerrada (quién, cuándo, orden de cambio, respaldo, resultado).
+
+---
+
+## 12. Fuentes
+
+- **Swagger oficial Control-M Automation API v9.22.125** — <http://aapi-swagger-doc.s3-website-us-west-2.amazonaws.com/> (copia local: `docs/referencia_controlm_api/controlm_swagger_9.22.125.json`)
+- Control-M Automation API — portal: <https://controlm.github.io/>
+- Ejemplos oficiales: <https://github.com/controlm/automation-api-quickstart>
+- Control-M Python Client: <https://controlm.github.io/ctm-python-client>
+- Documentación Automation API (servicios deploy/run): <https://docs.bmc.com/docs/automation-api/monthly/services-1116950323.html>, <https://docs.bmc.com/docs/automation-api/920/deploy-service-887941140.html>
+- Tablas DEF_JOB / DEF_LNKI_P / DEF_LNKO_P (condiciones en definiciones): <https://scheduler-usage.com/forum/viewtopic.php?t=1224>, <http://www.ctmguru.com/2012/02/prerequisite-conditions.html>
+- CMR_RUNINF (últimas ~20 corridas exitosas por job): <https://scheduler-usage.com/forum/viewtopic.php?t=2084>, <https://community.bmc.com/s/question/0D53n00007aDgvJCAS/info-required-from-table-cmrruninf>
+- Queries sobre CMS_JOBDEF / CMR_AJF / CMR_IOALOG: <http://ithowtoit.blogspot.com/2012/10/useful-sql-request-for-control-m.html>
+- Esquema de base Control-M/Server 9: <https://www.scribd.com/document/839651161/471972-BMC-Control-M-Server-9>
+- Utilitario `em database` / estadísticas: <https://controlm.uconn.edu/help/CTMHelp/en-US/Documentation/Utilities/em_database_menu.htm>, <https://controlm.uconn.edu/help/CTMHelp/en-US/Documentation/Utilities/Statistics_and_reporting.htm>
+</script>
+<script>
+let FAM = "*";
+function filtrar() {
+  const q = document.getElementById("q").value.toLowerCase().trim();
+  let visibles = 0;
+  document.querySelectorAll(".familia").forEach(f => {
+    let n = 0;
+    f.querySelectorAll(".regla").forEach(r => {
+      const ok = (FAM === "*" || f.dataset.fam === FAM) && (!q || r.dataset.buscar.includes(q));
+      r.classList.toggle("oculto", !ok); if (ok) n++;
+    });
+    f.classList.toggle("oculto", n === 0); visibles += n;
+  });
+  document.getElementById("sin").classList.toggle("oculto", visibles > 0);
+}
+document.querySelectorAll(".chip").forEach(c => c.addEventListener("click", () => {
+  FAM = c.dataset.fam; document.querySelectorAll(".chip").forEach(x => x.classList.toggle("on", x === c)); filtrar();
+}));
+function descargarMd() {
+  const txt = document.getElementById("md-src").textContent.replace(/<\\\/script/g, "</script");
+  const a = Object.assign(document.createElement("a"), {
+    href: URL.createObjectURL(new Blob([txt], {type: "text/markdown;charset=utf-8"})),
+    download: "CONTROLM_LIMPIEZA_BASURA_REGLAS_RAG.md"});
+  document.body.appendChild(a); a.click(); a.remove();
+}
+function tema() {
+  const r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  r.dataset.theme = dark ? "light" : "dark"; try { localStorage.setItem("argos-tema", r.dataset.theme) } catch (e) {}
+}
+try { const t = localStorage.getItem("argos-tema"); if (t) document.documentElement.dataset.theme = t } catch (e) {}
+if (location.hash && document.querySelector(location.hash)?.tagName === "DETAILS") document.querySelector(location.hash).open = true;
+if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+addEventListener("load", () => { if (!location.hash) window.scrollTo(0, 0); });
+</script>
+</body>
+</html>

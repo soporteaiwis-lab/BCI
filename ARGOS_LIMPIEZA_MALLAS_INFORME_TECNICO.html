@@ -2,7 +2,12 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#b5651d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23b5651d'/%3E%3Ctext x='32' y='44' font-size='32' text-anchor='middle' fill='white' font-family='Georgia'%3EA%3C/text%3E%3C/svg%3E">
 <title>ArgOS · Limpieza de Mallas — Informe técnico</title>
 <style>
 :root{
@@ -22,6 +27,11 @@
   --acc:#e0a86a; --acc-soft:#3a2c1d; --ok:#5cc79a; --ok-soft:#1b3328; --warn:#e2b84f; --warn-soft:#3a3016;
   --bad:#ef8a83; --bad-soft:#3d2120; --info:#86aee8; --info-soft:#1d2a3d; }
 *{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+img,svg{max-width:100%}
+code{overflow-wrap:anywhere;word-break:break-word}
+a{overflow-wrap:anywhere}
+input,select,textarea{font-size:16px!important}
 html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 var(--sans)}
 a{color:var(--acc)}
@@ -53,7 +63,32 @@ h3{font-size:1.02rem;margin:26px 0 8px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:14px 0}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-@media(max-width:1000px){.layout{grid-template-columns:1fr}nav.toc{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line)}.grid2,.grid3{grid-template-columns:1fr}main{padding:24px 16px 80px}}
+.toc-btn{display:none}
+@media(max-width:1000px){
+ .layout{grid-template-columns:1fr}
+ nav.toc{position:sticky;top:0;z-index:20;height:auto;max-height:100vh;border-right:0;border-bottom:1px solid var(--line);background:var(--bg);padding:calc(8px + env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 8px max(16px,env(safe-area-inset-left))}
+ nav.toc .brand{font-size:.95rem;margin:0;display:flex;justify-content:space-between;align-items:center;gap:10px}
+ nav.toc .brand small{display:none}
+ .toc-btn{display:inline-flex;align-items:center;gap:6px;min-height:40px}
+ nav.toc ol,nav.toc .theme{display:none}
+ nav.toc.abierto{max-height:100vh;overflow:auto}
+ nav.toc.abierto ol,nav.toc.abierto .theme{display:block}
+ nav.toc a{padding:10px 8px;font-size:15px}
+ .grid2,.grid3{grid-template-columns:1fr}
+ main{padding:20px max(16px,env(safe-area-inset-right)) 80px max(16px,env(safe-area-inset-left))}
+ section{scroll-margin-top:64px}
+ header.hero h1{font-size:1.6rem} header.hero p.lead{font-size:1rem}
+ h2{font-size:1.3rem}
+ .kpis{grid-template-columns:repeat(2,1fr)}
+ .steps>li{padding:14px 14px 14px 56px} .steps>li::before{left:12px}
+ .steps .where{grid-template-columns:1fr} .steps .where dt{margin-top:6px;font-weight:600}
+ figure{padding:10px} figure svg{min-width:760px}
+ figure::after{content:"← desliza para ver completo →";display:block;text-align:center;font-size:11.5px;color:var(--muted);margin-top:6px}
+ .tbl table{min-width:560px}
+ .card{padding:16px}
+ details.inv td:first-child{white-space:normal;word-break:break-word;width:38%}
+ details.inv table{table-layout:fixed}
+}
 .callout{border:1px solid var(--line);background:var(--panel2);border-radius:10px;padding:14px 18px;margin:14px 0}
 .callout.acc{background:var(--acc-soft);border-color:transparent}
 .callout.ok{background:var(--ok-soft);border-color:transparent}
@@ -66,7 +101,7 @@ table{width:100%;border-collapse:collapse;font-size:13.5px}
 th{text-align:left;font:600 11px var(--sans);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--line);background:var(--panel2)}
 td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
 tr:last-child td{border-bottom:0}
-.tbl{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:12px 0}
+.tbl{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:12px 0}
 .st{display:inline-block;font:700 11px var(--sans);padding:2px 9px;border-radius:10px;white-space:nowrap}
 .st.ok{background:var(--ok-soft);color:var(--ok)} .st.par{background:var(--warn-soft);color:var(--warn)} .st.pen{background:var(--bad-soft);color:var(--bad)}
 .steps{counter-reset:p;margin:10px 0 0;padding:0;list-style:none}
@@ -91,7 +126,7 @@ details.inv td:first-child{font-family:var(--mono);font-size:12.5px;white-space:
 <body>
 <div class="layout">
 <nav class="toc" aria-label="Contenido">
-  <div class="brand">ArgOS · Limpieza de Mallas<small>Informe técnico, arquitectura y diseño · v2 · 24-09-2026</small></div>
+  <div class="brand"><span>ArgOS · Limpieza de Mallas<small>Informe técnico, arquitectura y diseño · v2 · 24-09-2026</small></span><button class="toc-btn" onclick="this.closest('nav').classList.toggle('abierto')" aria-label="Contenido">☰ Contenido</button></div>
   <ol>
     <li><a href="#resumen">Qué se hizo</a></li>
     <li><a href="#glosario">Glosario en simple</a></li>
@@ -108,7 +143,7 @@ details.inv td:first-child{font-family:var(--mono);font-size:12.5px;white-space:
     <li><a href="#siguiente">Siguiente nivel (banca)</a></li>
     <li><a href="#verificacion">Verificación y límites</a></li>
   </ol>
-  <div class="theme"><button onclick="toggleTheme()">◐ Cambiar tema</button></div>
+  <div class="theme"><a href="index.html">◈ Menú CONTROL-AIX</a> · <a href="ARGOS_CONTROL_AIX_MANUAL_REGLAS.html">Manual de reglas</a><br><br><button onclick="toggleTheme()">◐ Cambiar tema</button></div>
 </nav>
 
 <main>
@@ -911,6 +946,9 @@ function filtrar(v){render(v)}
 render();
 document.getElementById("tbl-api").insertAdjacentHTML("beforeend",
   API.map(([m,r,d])=>`<tr><td><span class="pill">${m}</span></td><td><code>/api/limpieza${esc(r)}</code></td><td>${esc(d)}</td></tr>`).join(""));
+if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+addEventListener("load", () => { if (!location.hash) window.scrollTo(0, 0); });
+document.querySelectorAll("nav.toc ol a").forEach(a => a.addEventListener("click", () => document.querySelector("nav.toc").classList.remove("abierto")));
 function toggleTheme(){
   const r=document.documentElement, dark = r.dataset.theme ? r.dataset.theme==="dark" : matchMedia("(prefers-color-scheme: dark)").matches;
   r.dataset.theme = dark ? "light" : "dark";

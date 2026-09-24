@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#b5651d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23b5651d'/%3E%3Ctext x='32' y='44' font-size='32' text-anchor='middle' fill='white' font-family='Georgia'%3EA%3C/text%3E%3C/svg%3E">
+<title>CONTROL-AIX · Brief de validación</title>
+<meta name="description" content="Brief corto para validar las reglas de limpieza de mallas Control-M de ArgOS: qué sirve, qué no, dudas y sugerencias.">
+<style>
+:root{--bg:#f6f5f1;--panel:#fff;--panel2:#f0eee8;--ink:#1d1f24;--muted:#5d636e;--line:#dcd8cf;--acc:#b5651d;--acc-soft:#f6e7d6;
+ --ok:#1f7a55;--ok-soft:#dcf1e6;--warn:#9a6a00;--warn-soft:#fbefcc;--bad:#a8322d;--bad-soft:#f8dedb;
+ --mono:"Cascadia Mono","Consolas",monospace;--sans:"Segoe UI","Inter",system-ui,sans-serif;--serif:"Georgia","Cambria",serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14161a;--panel:#1c1f25;--panel2:#23272e;--ink:#e8e6e1;--muted:#9aa1ad;--line:#333842;
+ --acc:#e0a86a;--acc-soft:#3a2c1d;--ok:#5cc79a;--ok-soft:#1b3328;--warn:#e2b84f;--warn-soft:#3a3016;--bad:#ef8a83;--bad-soft:#3d2120}}
+:root[data-theme="dark"]{--bg:#14161a;--panel:#1c1f25;--panel2:#23272e;--ink:#e8e6e1;--muted:#9aa1ad;--line:#333842;
+ --acc:#e0a86a;--acc-soft:#3a2c1d;--ok:#5cc79a;--ok-soft:#1b3328;--warn:#e2b84f;--warn-soft:#3a3016;--bad:#ef8a83;--bad-soft:#3d2120}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+img,svg{max-width:100%}
+code{overflow-wrap:anywhere;word-break:break-word}
+input,select,textarea{font-size:16px!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--sans)}
+a{color:var(--acc)}
+.wrap{max-width:820px;margin:0 auto;padding:0 18px}
+header.top{border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:5;padding-top:env(safe-area-inset-top)}
+header.top .wrap{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:10px;padding-bottom:10px}
+.marca{font:700 14px var(--sans);letter-spacing:.08em} .marca span{color:var(--acc)}
+.barra{height:4px;background:var(--panel2)} .barra i{display:block;height:100%;width:100%;background:var(--acc);transform:scaleX(0);transform-origin:left;transition:transform .25s}
+.btn{display:inline-flex;align-items:center;gap:6px;font:600 13.5px var(--sans);padding:10px 16px;border-radius:9px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;text-decoration:none}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn:disabled{opacity:.45;cursor:default}
+.hero{padding:34px 0 8px}
+.hero h1{font-family:var(--serif);font-size:2rem;line-height:1.15;margin:0 0 8px}
+.hero p{color:var(--muted);margin:0 0 6px}
+.paso{display:none;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 22px 18px;margin:18px 0}
+.paso.on{display:block}
+.paso h2{font-family:var(--serif);font-size:1.35rem;margin:0 0 4px}
+.paso .ayuda{color:var(--muted);font-size:14px;margin:0 0 16px}
+.num{font:700 12px var(--sans);color:var(--acc);letter-spacing:.06em;text-transform:uppercase}
+label.campo{display:block;font-weight:600;font-size:14px;margin:14px 0 6px}
+label.campo small{font-weight:400;color:var(--muted)}
+input[type=text],input[type=email],textarea,select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:14.5px var(--sans)}
+textarea{min-height:70px;resize:vertical}
+.opciones{display:flex;flex-wrap:wrap;gap:8px}
+.opciones label{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:8px 14px;border:1px solid var(--line);border-radius:20px;cursor:pointer;font-size:14px;background:var(--bg);user-select:none}
+.opciones input{accent-color:var(--acc);margin:0;width:18px;height:18px;flex:none}
+.opciones label:has(input:checked){border-color:var(--acc);background:var(--acc-soft)}
+.item{border-top:1px solid var(--line);padding:14px 0}
+.item:first-of-type{border-top:0}
+.item .t{font-weight:600} .item .d{color:var(--muted);font-size:13.5px;margin:2px 0 8px}
+.item details{margin-top:6px} .item summary{font-size:13px;color:var(--acc);cursor:pointer}
+.item details textarea{margin-top:6px;min-height:50px}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:18px}
+.nav .btn{min-height:46px;flex:1;justify-content:center;max-width:260px}
+.retomar{display:none;background:var(--acc-soft);border-radius:12px;padding:12px 14px;margin:14px 0;font-size:14px;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.retomar.on{display:flex}
+@media(max-width:640px){
+ .wrap{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}
+ .hero{padding-top:20px} .hero h1{font-size:1.5rem}
+ .paso{padding:18px 16px 14px;margin:12px 0;border-radius:12px} .paso h2{font-size:1.2rem}
+ .opciones label{flex:1 1 auto}
+ .escala label{flex:1 1 0;padding:8px 0}
+ .ocultar-movil{display:none}
+ main{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+ .nav{position:fixed;left:0;right:0;bottom:0;margin:0;z-index:6;background:var(--panel);border-top:1px solid var(--line);padding:10px max(14px,env(safe-area-inset-left)) calc(10px + env(safe-area-inset-bottom))}
+ .nav .btn{max-width:none}
+ #aviso{position:fixed;left:0;right:0;bottom:calc(66px + env(safe-area-inset-bottom));z-index:6;text-align:center;background:var(--bad-soft);padding:6px;margin:0}
+ #aviso:empty{display:none}
+ .acciones .btn{flex:1 1 45%;justify-content:center;min-height:46px}
+ .rep{padding:16px} .rep td:first-child{width:40%}
+}
+@media(orientation:landscape) and (max-height:500px){header.top{position:static}.hero{padding-top:12px}}
+.escala{display:flex;gap:6px}
+.escala label{flex:1;justify-content:center}
+.aviso{color:var(--bad);font-size:13px;margin-top:8px;min-height:1em}
+#resultado{display:none}
+.rep{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;margin:18px 0}
+.rep h2{font-family:var(--serif);margin:0 0 4px}
+.rep h3{font-size:1rem;margin:20px 0 6px;border-bottom:1px solid var(--line);padding-bottom:4px}
+.rep table{width:100%;border-collapse:collapse;font-size:13.5px}
+.rep td{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.rep td:first-child{width:42%;color:var(--muted)}
+.tag{font:700 11.5px var(--sans);padding:2px 8px;border-radius:10px;white-space:nowrap}
+.tag.si{background:var(--ok-soft);color:var(--ok)} .tag.aj{background:var(--warn-soft);color:var(--warn)}
+.tag.no{background:var(--bad-soft);color:var(--bad)} .tag.nd{background:var(--panel2);color:var(--muted)}
+.acciones{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+footer{color:var(--muted);font-size:12.5px;padding:26px 0 60px}
+@media print{header.top,.hero,.paso,.acciones,footer,.noprint{display:none!important}#resultado{display:block!important}.rep{border:0;padding:0}body{background:#fff;color:#000}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="marca">ARGOS · <span>CONTROL-AIX</span><span class="ocultar-movil"> · Brief</span></div>
+    <div style="display:flex;gap:8px"><a class="btn" href="index.html" aria-label="Menú">◈<span class="ocultar-movil">&nbsp;Menú</span></a><a class="btn" href="ARGOS_CONTROL_AIX_MANUAL_REGLAS.html" target="_blank" aria-label="Ver reglas">📖<span class="ocultar-movil">&nbsp;Ver reglas</span></a></div>
+  </div>
+  <div class="barra"><i id="barra"></i></div>
+</header>
+
+<main class="wrap">
+  <div class="hero" id="hero">
+    <h1>¿Vamos bien con la limpieza de mallas?</h1>
+    <p>6 pasos cortos, unos 5 minutos. Marca lo que corresponda; escribir es opcional salvo donde se indica. Tus respuestas se guardan en este navegador mientras avanzas y al final generas un archivo (HTML o PDF) para enviarnos.</p>
+    <p>¿Dudas sobre una regla? Ábrela en el <a href="ARGOS_CONTROL_AIX_MANUAL_REGLAS.html" target="_blank">manual CONTROL-AIX</a>.</p>
+  </div>
+
+  <div class="retomar" id="retomar"><span>Recuperamos las respuestas que dejaste guardadas.</span>
+    <span style="display:flex;gap:8px"><button class="btn pri" onclick="retomar()">Seguir en el paso <b id="retomar-n"></b></button><button class="btn" onclick="nuevo()">Empezar de nuevo</button></span></div>
+  <form id="f" autocomplete="on" onsubmit="return false">
+  <!-- 1 -->
+  <section class="paso on" data-paso="1">
+    <div class="num">Paso 1 de 6</div>
+    <h2>¿Quién responde?</h2>
+    <p class="ayuda">Para saber desde qué rol lees las reglas.</p>
+    <label class="campo" for="nombre">Nombre *</label><input type="text" id="nombre" name="nombre" required>
+    <label class="campo" for="cargo">Cargo *</label><input type="text" id="cargo" name="cargo" required placeholder="Ej: Jefe de Operaciones, Analista Control Técnico">
+    <label class="campo" for="area">Área o gerencia <small>(opcional)</small></label><input type="text" id="area" name="area">
+    <label class="campo" for="email">Correo <small>(opcional)</small></label><input type="email" id="email" name="email">
+    <label class="campo">Tu rol frente a las mallas *</label>
+    <div class="opciones" data-grupo="rol" data-req="1">
+      <label><input type="radio" name="rol" value="Dueño o mantenedor de aplicación"> Dueño o mantenedor de aplicación</label>
+      <label><input type="radio" name="rol" value="Control Técnico / Control Batch"> Control Técnico / Control Batch</label>
+      <label><input type="radio" name="rol" value="Operación / monitoreo"> Operación / monitoreo</label>
+      <label><input type="radio" name="rol" value="Gerencia / jefatura"> Gerencia / jefatura</label>
+      <label><input type="radio" name="rol" value="Otro"> Otro</label>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="paso" data-paso="2">
+    <div class="num">Paso 2 de 6</div>
+    <h2>¿Estas familias de basura te hacen sentido?</h2>
+    <p class="ayuda">Son los 9 grupos de reglas del manual. Para cada uno: ¿está bien considerarlo basura candidata a limpieza?</p>
+    <div id="familias"></div>
+  </section>
+
+  <!-- 3 -->
+  <section class="paso" data-paso="3">
+    <div class="num">Paso 3 de 6</div>
+    <h2>¿Estás de acuerdo con cómo se decide?</h2>
+    <p class="ayuda">Estas son las reglas del juego para llegar a un acuerdo antes de eliminar algo.</p>
+    <div id="acuerdos"></div>
+  </section>
+
+  <!-- 4 -->
+  <section class="paso" data-paso="4">
+    <div class="num">Paso 4 de 6</div>
+    <h2>¿Qué es lo más valioso para tu equipo?</h2>
+    <p class="ayuda">Elige hasta 3.</p>
+    <div class="opciones" data-grupo="prioridades" data-max="3">
+      <label><input type="checkbox" name="prioridades" value="Análisis de impacto antes de tocar (qué se rompe)"> Análisis de impacto antes de tocar</label>
+      <label><input type="checkbox" name="prioridades" value="Patrones: cancelaciones, forzados, Hold, confirmaciones recurrentes"> Patrones operacionales recurrentes</label>
+      <label><input type="checkbox" name="prioridades" value="Bajar alertas sin sentido"> Bajar alertas sin sentido</label>
+      <label><input type="checkbox" name="prioridades" value="KPIs con línea base (-10% cancelaciones, -20% obsoletos)"> KPIs con línea base para gerencia</label>
+      <label><input type="checkbox" name="prioridades" value="Lista de candidatos a limpieza con evidencia"> Lista de candidatos con evidencia</label>
+      <label><input type="checkbox" name="prioridades" value="Aviso y seguimiento automático a dueños"> Aviso y seguimiento a dueños</label>
+      <label><input type="checkbox" name="prioridades" value="Historia más allá de los 3 días del log"> Historia más allá de 3 días de log</label>
+      <label><input type="checkbox" name="prioridades" value="Autogestión de mallas por el negocio (2027)"> Autogestión de mallas (2027)</label>
+    </div>
+    <div class="aviso" id="aviso-prio"></div>
+    <label class="campo" for="prio_otro">¿Algo más que tu equipo necesite y no esté? <small>(opcional)</small></label>
+    <textarea id="prio_otro" name="prio_otro"></textarea>
+  </section>
+
+  <!-- 5 -->
+  <section class="paso" data-paso="5">
+    <div class="num">Paso 5 de 6</div>
+    <h2>¿Qué tan clara es la plataforma?</h2>
+    <p class="ayuda">Sobre el manual y las pantallas de ArgOS que hayas visto.</p>
+    <label class="campo">¿Qué tan fácil fue entender las reglas? *</label>
+    <div class="opciones escala" data-grupo="claridad" data-req="1">
+      <label><input type="radio" name="claridad" value="1 · Muy difícil"> 1</label><label><input type="radio" name="claridad" value="2 · Difícil"> 2</label>
+      <label><input type="radio" name="claridad" value="3 · Regular"> 3</label><label><input type="radio" name="claridad" value="4 · Fácil"> 4</label>
+      <label><input type="radio" name="claridad" value="5 · Muy fácil"> 5</label>
+    </div>
+    <label class="campo">¿Qué te costó más? <small>(puedes marcar varias)</small></label>
+    <div class="opciones" data-grupo="costo">
+      <label><input type="checkbox" name="costo" value="Términos técnicos"> Términos técnicos</label>
+      <label><input type="checkbox" name="costo" value="Demasiada información"> Demasiada información</label>
+      <label><input type="checkbox" name="costo" value="No sé qué tengo que decidir yo"> No sé qué tengo que decidir yo</label>
+      <label><input type="checkbox" name="costo" value="Encontrar lo que buscaba"> Encontrar lo que buscaba</label>
+      <label><input type="checkbox" name="costo" value="Nada, estuvo claro"> Nada, estuvo claro</label>
+    </div>
+    <label class="campo" for="nav">¿Qué cambiarías para que sea más simple? <small>(opcional)</small></label>
+    <textarea id="nav" name="nav"></textarea>
+  </section>
+
+  <!-- 6 -->
+  <section class="paso" data-paso="6">
+    <div class="num">Paso 6 de 6</div>
+    <h2>Lo último: lo que no sirve, tus dudas y sugerencias</h2>
+    <p class="ayuda">Todo opcional, pero es lo que más nos ayuda.</p>
+    <label class="campo" for="no_sirve">¿Qué no sirve definitivamente o sobra?</label><textarea id="no_sirve" name="no_sirve"></textarea>
+    <label class="campo" for="dudas">¿Qué no entendiste o te genera dudas?</label><textarea id="dudas" name="dudas"></textarea>
+    <label class="campo" for="sugerencias">Sugerencias u observaciones</label><textarea id="sugerencias" name="sugerencias"></textarea>
+    <label class="campo">En general, ¿vamos por buen camino? *</label>
+    <div class="opciones" data-grupo="veredicto" data-req="1">
+      <label><input type="radio" name="veredicto" value="Sí, avancemos"> Sí, avancemos</label>
+      <label><input type="radio" name="veredicto" value="Sí, con ajustes"> Sí, con ajustes</label>
+      <label><input type="radio" name="veredicto" value="Todavía no"> Todavía no</label>
+    </div>
+  </section>
+  </form>
+
+  <div class="nav noprint" id="nav-botones">
+    <button class="btn" id="atras" onclick="mover(-1)">← Atrás</button>
+    <button class="btn pri" id="sig" onclick="mover(1)">Siguiente →</button>
+  </div>
+  <div class="aviso noprint" id="aviso"></div>
+
+  <div id="resultado">
+    <div class="acciones noprint">
+      <button class="btn pri" onclick="descargarHtml()">⬇ Descargar HTML</button>
+      <button class="btn pri" onclick="window.print()">🖨 Guardar como PDF</button>
+      <button class="btn" onclick="copiarTexto()">📋 Copiar texto para correo</button>
+      <button class="btn" onclick="editar()">✎ Editar respuestas</button>
+      <button class="btn" onclick="nuevo()">↺ Nueva respuesta</button>
+    </div>
+    <div class="aviso noprint" id="aviso-res" style="color:var(--ok)"></div>
+    <div id="reporte"></div>
+  </div>
+</main>
+<footer class="wrap">ArgOS · CONTROL-AIX · AIWIS. Tus respuestas no se envían a ningún servidor: quedan en este navegador hasta que descargues el archivo.</footer>
+
+<script>
+const FAMILIAS = [
+  ["A", "Jobs muertos", "No corren hace mucho, nunca corrieron, su calendario no los vuelve a programar, vigencia vencida, apuntan a un JCL o servidor que no existe, duplicados, de prueba."],
+  ["B", "Mallas y folders", "Carpetas vacías o mallas completas donde todos los jobs están muertos."],
+  ["C", "Condiciones", "Señales que nadie espera, o que un job espera y nadie produce (quedaría colgado para siempre)."],
+  ["D", "Calendarios", "Calendarios que ningún job usa o sin fechas vigentes."],
+  ["E", "Recursos, variables y eventos", "Recursos de capacidad, variables y políticas de carga sin uso."],
+  ["F", "Infraestructura", "Agentes, grupos de hosts, conexiones y usuarios sin uso, o caídos con jobs asignados."],
+  ["G", "Lo que cuelga hoy", "Jobs esperando, en Hold o cancelados por días sin que nadie actúe."],
+  ["H", "Históricos y datos", "Históricos y logs que crecen sin control (se maneja con retención)."],
+  ["I", "Mainframe (z/OS)", "JCL, programas COBOL, tarjetas SORT y archivos que ningún job usa."],
+];
+const ACUERDOS = [
+  ["dos_fuentes", "Nunca por una sola señal", "Para proponer algo se necesitan al menos 2 evidencias de fuentes distintas (p. ej. no corre + su calendario no lo programa)."],
+  ["historia", "13 meses de historia", "Con menos de un año no se distingue un job anual de uno muerto, así que baja la confianza del puntaje."],
+  ["proteccion", "Lista de protección", "Nunca se proponen: contingencia/DR, regulatorios, on-demand documentados, jobs disparados por otro, jobs de menos de 6 meses."],
+  ["dueno", "Solo el dueño aprueba", "Control Técnico prepara la evidencia; el dueño de la aplicación decide; Control de Cambios autoriza con OC."],
+  ["impacto", "Impacto antes de tocar", "Si retirar algo deja otros jobs esperando para siempre, no se actúa sin aceptar ese impacto por escrito."],
+  ["cuarentena", "Cuarentena de 30 días", "Antes de borrar, el job sale del calendario sin eliminarse. Si nadie lo echa de menos, se elimina con respaldo."],
+  ["recordatorios", "Recordatorios y escalamiento", "Si el dueño no responde: 2 recordatorios y luego se escala a la jefatura."],
+];
+const OPC = [["si", "De acuerdo"], ["aj", "Con ajustes"], ["no", "En desacuerdo"], ["nd", "No entiendo"]];
+const OPC_FAM = [["si", "Sí"], ["aj", "Con ajustes"], ["no", "No es basura"], ["nd", "No entiendo"]];
+const CLAVE = "argos-brief-controlaix";
+const TOTAL = 6;
+let paso = 1;
+
+function radios(nombre, opciones) {
+  return `<div class="opciones" data-grupo="${nombre}">${opciones.map(([v, t]) =>
+    `<label><input type="radio" name="${nombre}" value="${v}"> ${t}</label>`).join("")}</div>`;
+}
+document.getElementById("familias").innerHTML = FAMILIAS.map(([k, n, d]) => `
+  <div class="item"><div class="t">${k} · ${n}</div><div class="d">${d}
+    <a href="ARGOS_CONTROL_AIX_MANUAL_REGLAS.html#familia-${k}" target="_blank">ver reglas</a></div>
+    ${radios("fam_" + k, OPC_FAM)}
+    <details><summary>Agregar comentario</summary><textarea name="famc_${k}" placeholder="¿Qué ajustarías o qué no es basura en tu realidad?"></textarea></details></div>`).join("");
+document.getElementById("acuerdos").innerHTML = ACUERDOS.map(([k, n, d]) => `
+  <div class="item"><div class="t">${n}</div><div class="d">${d}</div>
+    ${radios("acu_" + k, OPC)}
+    <details><summary>Agregar comentario</summary><textarea name="acuc_${k}" placeholder="¿Qué cambiarías?"></textarea></details></div>`).join("");
+
+const form = document.getElementById("f");
+function datos() {
+  const d = {};
+  new FormData(form).forEach((v, k) => { if (k in d) d[k] = [].concat(d[k], v); else d[k] = v; });
+  return d;
+}
+function guardar() { try { localStorage.setItem(CLAVE, JSON.stringify({ d: datos(), paso })); } catch (e) {} }
+function restaurar() {
+  let s; try { s = JSON.parse(localStorage.getItem(CLAVE) || "null"); } catch (e) {}
+  if (!s) return;
+  Object.entries(s.d).forEach(([k, v]) => {
+    [].concat(v).forEach(val => {
+      form.querySelectorAll(`[name="${k}"]`).forEach(el => {
+        if (el.type === "radio" || el.type === "checkbox") { if (el.value === val) el.checked = true; }
+        else { el.value = val; if (el.closest("details") && val) el.closest("details").open = true; }
+      });
+    });
+  });
+}
+form.addEventListener("input", guardar);
+form.addEventListener("change", e => {
+  const g = e.target.closest("[data-max]");
+  if (g) {
+    const max = +g.dataset.max, marcados = g.querySelectorAll("input:checked");
+    if (marcados.length > max) { e.target.checked = false; document.getElementById("aviso-prio").textContent = `Máximo ${max}.`; }
+    else document.getElementById("aviso-prio").textContent = "";
+  }
+  guardar();
+});
+
+function valido(n) {
+  const sec = form.querySelector(`[data-paso="${n}"]`);
+  for (const el of sec.querySelectorAll("input[required]")) if (!el.value.trim()) return `Completa: ${el.previousElementSibling.textContent.replace("*", "").trim()}.`;
+  for (const g of sec.querySelectorAll("[data-req]")) if (!g.querySelector("input:checked")) return "Falta marcar una opción obligatoria (*).";
+  return "";
+}
+function mostrar() {
+  document.querySelectorAll(".paso").forEach(p => p.classList.toggle("on", +p.dataset.paso === paso));
+  document.getElementById("atras").disabled = paso === 1;
+  document.getElementById("sig").textContent = paso === TOTAL ? "Generar mi informe ✓" : "Siguiente →";
+  document.getElementById("barra").style.transform = `scaleX(${(paso - 1) / TOTAL})`;
+  document.getElementById("hero").style.display = paso === 1 ? "" : "none";
+  window.scrollTo({ top: 0 });
+}
+function mover(d) {
+  const av = document.getElementById("aviso");
+  if (d > 0) { const e = valido(paso); if (e) { av.textContent = e; return; } }
+  av.textContent = "";
+  if (d > 0 && paso === TOTAL) return generar();
+  paso = Math.min(TOTAL, Math.max(1, paso + d)); guardar(); mostrar();
+  document.getElementById("retomar").classList.remove("on");
+}
+
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const etiqueta = (v, opciones) => { const o = opciones.find(x => x[0] === v); return o ? `<span class="tag ${v}">${o[1]}</span>` : '<span class="tag nd">Sin respuesta</span>'; };
+function contar(pref, lista) {
+  const d = datos(), c = { si: 0, aj: 0, no: 0, nd: 0, vacio: 0 };
+  lista.forEach(([k]) => { const v = d[pref + k]; if (v) c[v]++; else c.vacio++; });
+  return c;
+}
+
+function reporteHtml() {
+  const d = datos(), fecha = new Date().toLocaleString("es-CL");
+  const cf = contar("fam_", FAMILIAS), ca = contar("acu_", ACUERDOS);
+  const fila = (a, b) => `<tr><td>${a}</td><td>${b}</td></tr>`;
+  const txt = v => v ? esc(v).replace(/\n/g, "<br>") : '<span style="color:#888">—</span>';
+  return `
+  <div class="rep">
+    <h2>Brief de validación · CONTROL-AIX</h2>
+    <div style="color:#666;font-size:13px">${esc(fecha)}</div>
+    <h3>Quién responde</h3>
+    <table>${fila("Nombre", esc(d.nombre))}${fila("Cargo", esc(d.cargo))}${fila("Área", txt(d.area))}${fila("Correo", txt(d.email))}${fila("Rol", esc(d.rol))}</table>
+    <h3>Veredicto</h3>
+    <table>${fila("¿Vamos por buen camino?", `<b>${esc(d.veredicto)}</b>`)}
+      ${fila("Familias de basura", `${cf.si} sí · ${cf.aj} con ajustes · ${cf.no} no es basura · ${cf.nd} no entiende · ${cf.vacio} sin respuesta`)}
+      ${fila("Reglas para decidir", `${ca.si} de acuerdo · ${ca.aj} con ajustes · ${ca.no} en desacuerdo · ${ca.nd} no entiende · ${ca.vacio} sin respuesta`)}</table>
+    <h3>Familias de basura</h3>
+    <table>${FAMILIAS.map(([k, n]) => fila(`${k} · ${n}`, etiqueta(d["fam_" + k], OPC_FAM) + (d["famc_" + k] ? `<div style="margin-top:4px">${txt(d["famc_" + k])}</div>` : ""))).join("")}</table>
+    <h3>Cómo se decide</h3>
+    <table>${ACUERDOS.map(([k, n]) => fila(n, etiqueta(d["acu_" + k], OPC) + (d["acuc_" + k] ? `<div style="margin-top:4px">${txt(d["acuc_" + k])}</div>` : ""))).join("")}</table>
+    <h3>Lo más valioso</h3>
+    <table>${fila("Prioridades (hasta 3)", [].concat(d.prioridades || []).map(esc).join("<br>") || "—")}${fila("Algo más que necesite el equipo", txt(d.prio_otro))}</table>
+    <h3>Claridad de la plataforma</h3>
+    <table>${fila("Facilidad para entender", esc(d.claridad))}${fila("Lo que más costó", [].concat(d.costo || []).map(esc).join(", ") || "—")}${fila("Qué cambiaría", txt(d.nav))}</table>
+    <h3>Lo que no sirve, dudas y sugerencias</h3>
+    <table>${fila("No sirve / sobra", txt(d.no_sirve))}${fila("Dudas", txt(d.dudas))}${fila("Sugerencias", txt(d.sugerencias))}</table>
+  </div>`;
+}
+function generar() {
+  document.getElementById("reporte").innerHTML = reporteHtml();
+  document.querySelectorAll(".paso").forEach(p => p.classList.remove("on"));
+  document.getElementById("nav-botones").style.display = "none";
+  document.getElementById("hero").style.display = "none";
+  document.getElementById("resultado").style.display = "block";
+  document.getElementById("barra").style.transform = "scaleX(1)";
+  window.scrollTo({ top: 0 });
+}
+function editar() {
+  document.getElementById("resultado").style.display = "none";
+  document.getElementById("nav-botones").style.display = "";
+  paso = TOTAL; mostrar();
+}
+function nuevo() {
+  if (!confirm("¿Borrar estas respuestas y empezar de nuevo?")) return;
+  try { localStorage.removeItem(CLAVE); } catch (e) {}
+  location.reload();
+}
+function nombreArchivo(ext) {
+  const n = (datos().nombre || "respuesta").normalize("NFD").replace(/[^\w]+/g, "_").replace(/_+$/, "");
+  return `brief_controlaix_${n}_${new Date().toISOString().slice(0, 10)}.${ext}`;
+}
+function descargarHtml() {
+  const estilos = [...document.querySelectorAll("style")].map(s => s.textContent).join("\n");
+  const doc = `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brief CONTROL-AIX · ${esc(datos().nombre)}</title><style>${estilos}\nbody{padding:20px}</style></head><body><main class="wrap">${reporteHtml()}</main></body></html>`;
+  const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(new Blob([doc], { type: "text/html;charset=utf-8" })), download: nombreArchivo("html") });
+  document.body.appendChild(a); a.click(); a.remove();
+  document.getElementById("aviso-res").textContent = "Descargado. Envíalo por correo a tu contacto de AIWIS.";
+}
+function copiarTexto() {
+  const el = document.createElement("div"); el.innerHTML = reporteHtml();
+  el.querySelectorAll("tr").forEach(tr => tr.insertAdjacentText("beforeend", "\n"));
+  el.querySelectorAll("td:first-child").forEach(td => td.insertAdjacentText("beforeend", ": "));
+  el.querySelectorAll("h2,h3").forEach(h => { h.insertAdjacentText("afterbegin", "\n"); h.insertAdjacentText("beforeend", "\n"); });
+  const texto = el.textContent.replace(/\n{3,}/g, "\n\n").trim();
+  navigator.clipboard.writeText(texto).then(
+    () => document.getElementById("aviso-res").textContent = "Copiado. Pégalo en un correo.",
+    () => document.getElementById("aviso-res").textContent = "No se pudo copiar: usa Descargar HTML.");
+}
+
+let PASO_GUARDADO = 1;
+restaurar();
+try { const s = JSON.parse(localStorage.getItem(CLAVE) || "null"); if (s && s.paso > 1) PASO_GUARDADO = s.paso; } catch (e) {}
+if (PASO_GUARDADO > 1) { document.getElementById("retomar-n").textContent = PASO_GUARDADO; document.getElementById("retomar").classList.add("on"); }
+function retomar() { paso = PASO_GUARDADO; document.getElementById("retomar").classList.remove("on"); mostrar(); }
+if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+addEventListener("load", () => { if (!location.hash) window.scrollTo(0, 0); });
+mostrar();
+</script>
+</body>
+</html>
